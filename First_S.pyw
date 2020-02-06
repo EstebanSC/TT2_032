@@ -7,17 +7,18 @@ from PIL import Image, ImageTk
 import os
 
 root=tk.Tk()
-root.geometry("700x500")
+root.geometry("900x600")
 
 def getfile():
     filename=filedialog.askopenfilename(initialdir="/",title="Seleccione Archivo",
     filetypes=(("text","*.txt"),("all files","*.txt")))
 
-FrameP=tk.Canvas(root, height=500,width=700,bg="white")
+FrameP=tk.Canvas(root, height=600,width=1100,bg="white")
 FrameP.pack(expand=False)
 
-#FrameS=tk.Frame(root,bg="white")
-#FrameS.place(relx=0.1,rely=0.1)
+TituloP=tk.Label(root,text="Sistema para la Prediccion de Actividad Farmacologica",bg="White")
+TituloP.config(font=("Arial",26))
+TituloP.place(x=30, y=30, in_=root)
 current_path = os.path.dirname(__file__) # Where your .py file is located
 rel_path="Interfaces/"
 abs_file_path=os.path.join(current_path,rel_path)
