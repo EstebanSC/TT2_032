@@ -61,7 +61,7 @@ Search_F.place(x=240, y=260, in_=root)
 
 current_help="ayuda.png"
 help_=PhotoImage(file=abs_file_path+current_help)
-help_ima=help_.subsample(25,25)
-h_button=tk.Button(root,image=help_ima,text="AYUDA",font=("Arial Black",24), bg="white", relief=FLAT, compound="left" )
+help_ima=help_.subsample(30,30)
+h_button=tk.Button(root,image=help_ima,text="Ayuda",font=("Arial Black",20), bg="white", relief=FLAT, compound="left" )
 h_button.place(x=50,y=400, in_=root)
 root.mainloop()

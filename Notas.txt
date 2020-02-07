@@ -1,0 +1,11 @@
+Validacion de resultados:
+
+- Comparacion de los algoritmos
+-Pruebas de comparacion
+-Validar que si funciona
+-Validar que si se obtuvo una mejora, ¡Como demostrarlo?
+-Pruebas a demsotrar los resultados
+-Como medir, si es o no es mejor
+-Plan de pruebas verificar bien funcionalidad
+-Demostrar
+Cita 28 de Febrero- 12:pm
