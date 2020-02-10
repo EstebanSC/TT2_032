@@ -25,10 +25,21 @@ button = tk.Button(root, text="Iniciar", bg="green")
 button.place(x=700, y=400, in_=root)
 
 
+rel_path="Interfaces/"
+abs_file_path=os.path.join(current_path,rel_path)
 current_help="ayuda.png"
 help_=PhotoImage(file=abs_file_path+current_help)
 help_ima=help_.subsample(30,30)
 h_button=tk.Button(root,image=help_ima,text="Ayuda",font=("Arial Black",20), bg="white", relief=FLAT, compound="left" )
 h_button.place(x=50,y=400, in_=root)
 
+
+rel_path_plus="Interfaces/Pantallas/"
+abs_file_path_3=os.path.join(current_path,rel_path_plus)
+current_p="Tutorial2.png"
+prin_I=PhotoImage(file=abs_file_path_3+current_p)
+PI_P=prin_I.subsample(2,2)
+P
+foto_Lab=tk.Label(root,image=PI_P)
+foto_Lab.place(x=10, y=10, in_=root)
 root.mainloop()
