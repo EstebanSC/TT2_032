@@ -8,11 +8,16 @@ import os
 
 root=tk.Tk()
 root.geometry("900x500")
+v=tk.StringVar()
 
 def getfile():
     filename=filedialog.askopenfilename(initialdir="/",title="Seleccione Archivo",
     filetypes=(("text","*.txt"),("all files","*.txt")))
+    st=filename.text
 
+    v.set(filename)
+    
+    #Path_F.setvar(filename)
 current_path = os.path.dirname(__file__) # Where your .py file is located
 
 
@@ -45,7 +50,7 @@ abs_file_path=os.path.join(current_path,rel_path)
 current_file="add.png"
 #load= Image.open(abs_file_path+current_file)
 #photo=ImageTk.PhotoImage(load)
-Path_F=tk.Entry(root,state=tk.DISABLED, width=27, bd=6 )
+Path_F=tk.Entry(root,state=tk.DISABLED,width=27, bd=6, textvariable=v )
 Path_F.pack(ipady=50)
 Path_F.place(x=150, y=200, in_=root)
 
