@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter.ttk import*
 from tkinter import *
 from tkinter import  filedialog, Text
 from PIL import Image, ImageTk 
@@ -39,7 +38,7 @@ abs_file_path_3=os.path.join(current_path,rel_path_plus)
 current_p="Tutorial2.png"
 prin_I=PhotoImage(file=abs_file_path_3+current_p)
 PI_P=prin_I.subsample(2,2)
-P
+
 foto_Lab=tk.Label(root,image=PI_P)
 foto_Lab.place(x=10, y=10, in_=root)
 root.mainloop()
