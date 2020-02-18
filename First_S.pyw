@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter.ttk import*
 from tkinter import *
-from tkinter import  filedialog, Text
+from tkinter import  filedialog, Text , messagebox
 from PIL import Image, ImageTk 
 from LectCI import *
 from Screen import *
@@ -11,7 +11,9 @@ compounds=[] #Arreglos globales de compuestos
 proteins=[]#Arreglos proteinas
 root=tk.Tk()
 root.geometry("900x500")
+root.resizable(False, False)
 v=tk.StringVar()
+
 
 def getfile():
     filename=filedialog.askopenfilename(initialdir="/",title="Seleccione Archivo",
@@ -25,8 +27,13 @@ def getfile():
     #print(Arr[4])
     v.set(r)
     [compounds,proteins]=lectura(filename)
-    print(compounds)
-    print(proteins)
+    if(compounds==[] or proteins==[]):
+        messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
+    else:
+        Search_F.configure(state=NORMAL, bg="green")
+    #print(compounds)
+    #print(proteins)
+    
     #conjuntoinicial=open(filename,"tr")#Se abre el archivo, t se especifica que es un txt, r =read
 ###############
 
@@ -74,7 +81,7 @@ openFile=tk.Button(root, image=photo_bu, bg="white", command=getfile, relief=RAI
 #openFile.pack()
 openFile.place(x=390, y=197, in_=root)
 
-Search_F=tk.Button(root, text="Iniciar", relief=FLAT, command=search_r)
+Search_F=tk.Button(root, text="Iniciar", relief=FLAT, state=DISABLED,command=search_r(compounds))
 Search_F.place(x=240, y=260, in_=root)
 
 current_help="ayuda.png"

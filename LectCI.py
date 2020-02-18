@@ -14,30 +14,34 @@ def lectura(filenom):
     compounds=[]
     proteins=[]
     #print(lines)
-    for line in lines:
+    try:
+        for line in lines:
         #print(line)
-        strline=str(line)  
-        strline=strline.replace('\n','') 
-        if(strline=="Compounds"):##La linea que indique el inicio de compuestos
-            flagtype=1
-            continue
-        elif(strline=="Proteins") :#La linea que indique el inicio de proteinas
-            flagtype=2
-            continue
-        else:
-            if(flagtype==0):
-                messagebox.showerror(title="ERROR", message="Formato Equivocado")
-                return
-            elif(flagtype==1):
-                compounds.append(strline)
+            strline=str(line)  
+            strline=strline.replace('\n','') 
+            if(strline=="Compounds"):##La linea que indique el inicio de compuestos
+                flagtype=1
                 continue
-            elif(flagtype==2):
-                proteins.append(strline)
+            elif(strline=="Proteins") :#La linea que indique el inicio de proteinas
+                flagtype=2
                 continue
-    #print(compounds)
-    #print(proteins)
-    return [compounds, proteins]
+            else:
+                if(flagtype==0):
+                    messagebox.showerror(title="ERROR", message="Formato Equivocado")
+                    return[compounds,proteins]
+                elif(flagtype==1):
+                    compounds.append(strline)
+                    continue
+                elif(flagtype==2):
+                    proteins.append(strline)
+                    continue
+    
+        return [compounds, proteins]
+    except:
+        messagebox.showerror(title="ERROR", message="Formato Equivocado")
+        return[compounds,proteins]
 
-
+def connect_DrugBank(compounds):
+    print(compounds)
                 
 
