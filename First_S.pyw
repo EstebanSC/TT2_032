@@ -1,22 +1,53 @@
 import tkinter as tk
 from tkinter.ttk import*
 from tkinter import *
-from tkinter import  filedialog, Text
+from tkinter import  filedialog, Text , messagebox
 from PIL import Image, ImageTk 
-
+from Threads_CS import *
+from LectCI import *
+from Screen import *
 import os
+
+compounds=[] #Arreglos globales de compuestos
+proteins=[]#Arreglos proteinas
 
 root=tk.Tk()
 root.geometry("900x500")
+root.resizable(False, False)
 v=tk.StringVar()
 
+
 def getfile():
+    global compounds
+    global proteins
     filename=filedialog.askopenfilename(initialdir="/",title="Seleccione Archivo",
     filetypes=(("text","*.txt"),("all files","*.txt")))
-    st=filename.text
-
-    v.set(filename)
+    #txtf=Path_F.get()
+    txtf=str(filename)##Para convertir a String y se separa por /
+    print(txtf)#
+    Arr=txtf.split('/')
+    r=Arr.pop()#Se obtiene el ultimo elemento del arreglo, que es el nombre del archivo
+    print(r)
+    #print(Arr[4])
+    v.set(r)
+    [compounds,proteins]=lectura(filename)
+    if(compounds==[] or proteins==[]):
+        messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
+    else:
+        Search_F.configure(state=NORMAL, bg="green")
+        #connect_DrugBank(compounds)
+    #print(compounds)
+    #print(proteins)
     
+    #conjuntoinicial=open(filename,"tr")#Se abre el archivo, t se especifica que es un txt, r =read
+###############
+def begin_all():
+    global compounds
+    #print(compounds)
+    get_data(compounds)
+    #search_r(compounds)
+    #connect_DrugBank(compounds)
+############3
     #Path_F.setvar(filename)
 current_path = os.path.dirname(__file__) # Where your .py file is located
 
@@ -50,7 +81,7 @@ abs_file_path=os.path.join(current_path,rel_path)
 current_file="add.png"
 #load= Image.open(abs_file_path+current_file)
 #photo=ImageTk.PhotoImage(load)
-Path_F=tk.Entry(root,state=tk.DISABLED,width=27, bd=6, textvariable=v )
+Path_F=tk.Entry(root,state=tk.DISABLED,width=25, bd=2, textvariable=v ,font=("Arial",12))
 Path_F.pack(ipady=50)
 Path_F.place(x=150, y=200, in_=root)
 
@@ -59,9 +90,10 @@ photo=PhotoImage(file=abs_file_path+current_file)
 photo_bu=photo.subsample(18,18)
 openFile=tk.Button(root, image=photo_bu, bg="white", command=getfile, relief=RAISED)
 #openFile.pack()
+
 openFile.place(x=390, y=197, in_=root)
 
-Search_F=tk.Button(root, text="Buscar", relief=FLAT)
+Search_F=tk.Button(root, text="Iniciar", relief=FLAT, state=DISABLED,command=begin_all)
 Search_F.place(x=240, y=260, in_=root)
 
 current_help="ayuda.png"
