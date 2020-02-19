@@ -3,12 +3,14 @@ from tkinter.ttk import*
 from tkinter import *
 from tkinter import  filedialog, Text , messagebox
 from PIL import Image, ImageTk 
+from Threads_CS import *
 from LectCI import *
 from Screen import *
 import os
 
 compounds=[] #Arreglos globales de compuestos
 proteins=[]#Arreglos proteinas
+
 root=tk.Tk()
 root.geometry("900x500")
 root.resizable(False, False)
@@ -16,6 +18,8 @@ v=tk.StringVar()
 
 
 def getfile():
+    global compounds
+    global proteins
     filename=filedialog.askopenfilename(initialdir="/",title="Seleccione Archivo",
     filetypes=(("text","*.txt"),("all files","*.txt")))
     #txtf=Path_F.get()
@@ -31,12 +35,19 @@ def getfile():
         messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
     else:
         Search_F.configure(state=NORMAL, bg="green")
+        #connect_DrugBank(compounds)
     #print(compounds)
     #print(proteins)
     
     #conjuntoinicial=open(filename,"tr")#Se abre el archivo, t se especifica que es un txt, r =read
 ###############
-
+def begin_all():
+    global compounds
+    #print(compounds)
+    get_data(compounds)
+    #search_r(compounds)
+    #connect_DrugBank(compounds)
+############3
     #Path_F.setvar(filename)
 current_path = os.path.dirname(__file__) # Where your .py file is located
 
@@ -79,9 +90,10 @@ photo=PhotoImage(file=abs_file_path+current_file)
 photo_bu=photo.subsample(18,18)
 openFile=tk.Button(root, image=photo_bu, bg="white", command=getfile, relief=RAISED)
 #openFile.pack()
+
 openFile.place(x=390, y=197, in_=root)
 
-Search_F=tk.Button(root, text="Iniciar", relief=FLAT, state=DISABLED,command=search_r(compounds))
+Search_F=tk.Button(root, text="Iniciar", relief=FLAT, state=DISABLED,command=begin_all)
 Search_F.place(x=240, y=260, in_=root)
 
 current_help="ayuda.png"
