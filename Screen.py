@@ -7,6 +7,7 @@ from LectCI import *
 import threading
 import os 
 
+### Definicion de la pantalla descargas, implementar GIF'S
 def search_r():
 
     top = tk.Toplevel()
@@ -36,10 +37,9 @@ def search_r():
     #gif_wait=tk.Label(top,height=250, width=250, text="Check",bg="white")
     #gif_wait.place(x=300,y=200,in_=top)
     #gif_wait.pack()
-    top.update_idletasks()
-    #top.update()
-    #top.mainloop()
-    
+    #top.update_idletasks()
+    #top.update()f
+    top.wm_transient(master=None)  #Con True si  Wtse ve la imagenWTf
     #Funcion para obtener el id del compuesto de acuerdo a DrugBank
     
 

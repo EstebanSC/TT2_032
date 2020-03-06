@@ -7,16 +7,10 @@ from Threads_CS import *
 from LectCI import *
 from Screen import *
 import os
+import errno
 
-compounds=[] #Arreglos globales de compuestos
-proteins=[]#Arreglos proteinas
-
-root=tk.Tk()
-root.geometry("900x500")
-root.resizable(False, False)
-v=tk.StringVar()
-
-
+#######Las funciones se declaran al inicio antes de el cuerpo principal##################
+#####Funcion de Lectura de Archivo############
 def getfile():
     global compounds
     global proteins
@@ -35,22 +29,32 @@ def getfile():
         messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
     else:
         Search_F.configure(state=NORMAL, bg="green")
-        #connect_DrugBank(compounds)
-    #print(compounds)
-    #print(proteins)
-    
-    #conjuntoinicial=open(filename,"tr")#Se abre el archivo, t se especifica que es un txt, r =read
-###############
+       
+#####################################################################
+#################Esta funcion es la que inicia despues de validar el documento#################
+#########################Funcion llamada por el boton con texto aleatorio######################
 def begin_all():
     global compounds
     #print(compounds)
     get_data(compounds)
-    #search_r(compounds)
-    #connect_DrugBank(compounds)
-############3
-    #Path_F.setvar(filename)
-current_path = os.path.dirname(__file__) # Where your .py file is located
+################################################################    
+########################Funcion Principal########################
+compounds=[] #Arreglos globales de compuestos
+proteins=[]#Arreglos proteinas
 
+root=tk.Tk()
+root.geometry("900x500")
+root.resizable(False, False)
+v=tk.StringVar()
+
+current_path = os.path.dirname(__file__) # Where your .py file is located
+try:
+
+    os.makedirs(current_path+"/Proteins/")#Creacion de Directorio para proteinas
+    os.makedirs(current_path+"/Compounds/")#Creacion de Directorio Compounds
+except OSError as e:
+    if e.errno != errno.EEXIST:
+        raise
 
 FrameP=tk.Canvas(root, height=600,width=1100,bg="white")
 FrameP.pack(expand=False)
@@ -102,3 +106,5 @@ help_ima=help_.subsample(30,28)
 h_button=tk.Button(root,image=help_ima,text="Ayuda",font=("Arial Black",20), bg="white", relief=FLAT, compound="left" )
 h_button.place(x=50,y=400, in_=root)
 root.mainloop()
+#################################################################################3
+
