@@ -4,9 +4,11 @@ from tkinter import *
 from tkinter import messagebox
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from Bio.PDB import *
 from selenium.webdriver.common.keys import Keys
 import requests
 import os
+
 
 
 #Implementacion de lecturas del archivo que contiene nombre de compuestos y proteinas
@@ -72,5 +74,12 @@ def connect_DrugBank(compounds):
     print('Check')
     driveC.close()
 ########################################################################################
-                
+#############################Conexion a PDB###########################################
+def connect_PDB():
+    #pdbl = PDBList()
+    #pdbl.retrieve_pdb_file('1FAT')
+    parser = MMCIFParser()
+    structure = parser.get_structure('PHA-L', '1FAT.cif')
+    print(structure)
+    print("Finish")
 

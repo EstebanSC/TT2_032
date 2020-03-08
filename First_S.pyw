@@ -36,9 +36,10 @@ def getfile():
 def begin_all():
     global compounds
     #print(compounds)
-    get_data(compounds)
+    #get_data(compounds)
+    connect_PDB()
 ################################################################    
-########################Funcion Principal########################
+########################Funcion Principal########################Cometarios en
 compounds=[] #Arreglos globales de compuestos
 proteins=[]#Arreglos proteinas
 
