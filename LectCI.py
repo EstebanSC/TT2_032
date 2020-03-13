@@ -8,6 +8,7 @@ from Bio.PDB import *
 from selenium.webdriver.common.keys import Keys
 import requests
 import os
+import time
 
 
 
@@ -48,7 +49,7 @@ def lectura(filenom):
         return[compounds,proteins]
 ######################################################################3
 ########################Funcion de conexion a DrugBank estructura compuesto###################
-def connect_DrugBank(compounds):
+def connect_DrugBank(compounds, project_path):
     #Driver using mozzila to acces a drugbank
     opt=webdriver.ChromeOptions()
     opt.add_argument('headless')
@@ -56,7 +57,10 @@ def connect_DrugBank(compounds):
     #driveC=webdriver.PhantomJS()
     current_path = os.path.dirname(__file__)
     for x in range(len(compounds)):
-        ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
+        #llamar funcion
+        #generararchivo(pathdeaquiabajo, 2)
+        #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
+        ruta=project_path+"/Compounds/c0"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
         driveC.get('https://www.drugbank.ca/')
         inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
                                                         #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
@@ -66,20 +70,43 @@ def connect_DrugBank(compounds):
         r=requests.get(str(struct_Down))
         filet=open(ruta,"tw")
         filet.write(r.text)
+        
         ##el elemnto html tipo <a> y adquirimos la direccion url
     ##uct_Down.click()
         #direct= driveC.current_url
         #print(struct_Down)
-        
+    driveC.close() 
     print('Check')
-    driveC.close()
+  
 ########################################################################################
 #############################Conexion a PDB###########################################
-def connect_PDB():
+def connect_PDB(proteins,project_path):
+    current_path = os.path.dirname(__file__)
+    opt=webdriver.ChromeOptions()
+    opt.add_argument('headless')
+    #driveC= webdriver.Chrome(chrome_options=opt)
+    for x in range(len(proteins)):
+        driveC= webdriver.Chrome(chrome_options=opt)
+        #ruta=current_path+"/Proteins/"+proteins[x]+".txt"
+        ruta=project_path+"/Proteins/p0"+proteins[x]+".txt"##Creacion del archivo, String de la ruta
+        driveC.get('https://www.rcsb.org/')
+        inputPro=driveC.find_element_by_id('autosearch_SearchBar')#Explication to manager websites 
+        inputPro.send_keys(proteins[x])
+        clickS=driveC.find_element_by_id('searchbutton')#
+        clickS.click()
+        ids=driveC.find_element_by_tag_name("h3")
+        #ids.reverse()
+        path_dp="https://files.rcsb.org/view/"+ids.text+".pdb"
+        r=requests.get(path_dp)
+        filet=open(ruta,"tw")
+        filet.write(r.text)
+        
+    #dirc=ids[0].find_elements_by_tag_name("a")
+    #print(dirc[0].get_attribute("href"))
+    #print(ids[0].text)
     #pdbl = PDBList()
-    #pdbl.retrieve_pdb_file('1FAT')
-    parser = MMCIFParser()
-    structure = parser.get_structure('PHA-L', '1FAT.cif')
-    print(structure)
+    #pdbl.retrieve_pdb_file('1FAT',pdir=ruta)
+    #print(getid)
+    driveC.close()
     print("Finish")
 

@@ -10,6 +10,10 @@ import os
 import errno
 
 #######Las funciones se declaran al inicio antes de el cuerpo principal##################
+#####Funcion de Ruta proyecto##########
+def create_path():
+    global project_path
+    project_path=filedialog.askdirectory(initialdir="/", title="Seleccione el directorio del Proyecto")
 #####Funcion de Lectura de Archivo############
 def getfile():
     global compounds
@@ -35,24 +39,34 @@ def getfile():
 #########################Funcion llamada por el boton con texto aleatorio######################
 def begin_all():
     global compounds
-    #print(compounds)
-    #get_data(compounds)
-    connect_PDB()
+    global proteins
+    get_data(compounds,proteins,project_path)
+    #search_r()
+    #connect_DrugBank(compounds)
+    #connect_PDB(proteins)
 ################################################################    
 ########################Funcion Principal########################Cometarios en
 compounds=[] #Arreglos globales de compuestos
 proteins=[]#Arreglos proteinas
-
+project_path=""#Directorio del proyecto
 root=tk.Tk()
 root.geometry("900x500")
 root.resizable(False, False)
 v=tk.StringVar()
 
-current_path = os.path.dirname(__file__) # Where your .py file is located
-try:
+#Preguntar al usuario donde se debe crear el nuevo proyecto
 
-    os.makedirs(current_path+"/Proteins/")#Creacion de Directorio para proteinas
-    os.makedirs(current_path+"/Compounds/")#Creacion de Directorio Compounds
+#obtienes la ruta, se crea una nueva carpeta con el nombre del proyecto
+
+#HENRY: funcion para manejo de archivos
+#geberararchivo(path, 1)
+current_path = os.path.dirname(__file__) # Where your .py file is located
+create_path()
+try:
+    #os.makedirs(current_path+"/Proteins/")#Creacion de Directorio para proteinas
+    #os.makedirs(current_path+"/Compounds/")#Creacion de Directorio Compounds
+    os.makedirs(project_path+"/Proteins/")#Creacion de Directorio para proteinas
+    os.makedirs(project_path+"/Compounds/")#Creacion de Directorio Compounds
 except OSError as e:
     if e.errno != errno.EEXIST:
         raise
