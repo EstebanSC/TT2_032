@@ -8,40 +8,40 @@ import threading
 import os 
 
 ### Definicion de la pantalla descargas, implementar GIF'S
-def search_r():
-
-    top = tk.Toplevel()
-    top.title("Buscando Datos..")
-    top.wm_attributes('-alpha',0.1)
-    top.resizable(False,False)
-    top.geometry("800x450")
+class WaitSearchData():
+    compounds=[] #Arreglos globales de compuestos
+    proteins=[]#Arreglos proteinas
+    project_path=""#Directorio del proyecto
+    def __init__(self):
+        self.pantalla=tk.Tk()
+        self.pantalla.protocol("WM_DELETE_WINDOW", self.ask_quit)
+        self.telacontrol=Canvas(self.pantalla,height=450,width=850,bg="white" )
+        self.telacontrol.pack(expand=FALSE)
+        self.header=Label(self.pantalla, bg="white",text="Buscando Datos de Compuestos...")
+        self.header.configure(font=("Arial Black",26))
+        #self.hilo=threading.Thread(target=connect_DrugBank(compounds, project_path))
+        #self.hilo.start()
+        #self.ver()
     
-    canvas=tk.Frame(top,height=450,width=800,bg="white" )
-    canvas.pack(expand=False)
-    #############################
-    current_path = os.path.dirname(__file__) # Where your .py file is located
-    rel_path2="Interfaces/"
-    abs_file_path2=os.path.join(current_path,rel_path2)
-    #current_log="correcto.png"
-    current_log="Waiting.gif"
-    photo_log= PhotoImage(file=abs_file_path2+current_log)
-    pp=photo_log.subsample(1,1)
-    textf=tk.Label(top, bg="white",text="Buscando Datos de Compuestos...")
-    textf.configure(font=("Arial Black",26))
-    gif_wait=tk.Label(top,text="Check",bg="white", image=pp)
-    gif_wait.configure(font=("Arial Black",26), height=250, width=250)
-    gif_wait.place(x=300,y=200,in_=top)
-    textf.place(x=100,y=50, in_=top)
-    ##############################
-    
-    #gif_wait=tk.Label(top,height=250, width=250, text="Check",bg="white")
-    #gif_wait.place(x=300,y=200,in_=top)
-    #gif_wait.pack()
-    #top.update_idletasks()
-    #top.update()f
-    top.wm_transient(master=None)  #Con True si  Wtse ve la imagenWTf
-    #Funcion para obtener el id del compuesto de acuerdo a DrugBank
-    
-
-
-
+    def ver(self, compounds,proteins, project_path):
+        #global compounds
+        #global proteins
+        self.pantalla.title("Buscando Datos...")
+        self.pantalla.geometry("850x450")
+        self.header.place(x=100,y=50)
+        print(compounds)
+        print(proteins)
+        print(project_path)
+        #self.pantalla.after(0, )
+        data_esc=threading.Thread(target=connect_DrugBank, args=(compounds,project_path))
+        #ver_p=threading.Thread(target=self.pantalla.mainloop())
+        data_esc.start()
+        ######Esta parte sigue en proceso
+         #data_presc=threading.Thread(target=connect_DrugBank, args=(proteins,project_path))
+        #data_presc.start()
+        ########        
+        #ver_p.start()
+        #self.pantalla.mainloop()
+    def ask_quit(self):
+        if messagebox.askokcancel("Cerrar", "Desea cerrar la busqueda de datos ?"):
+            self.pantalla.destroy()

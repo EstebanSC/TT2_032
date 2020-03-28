@@ -55,7 +55,10 @@ def connect_DrugBank(compounds, project_path):
     opt.add_argument('headless')
     driveC= webdriver.Chrome(chrome_options=opt)
     #driveC=webdriver.PhantomJS()
+    print(compounds)
+    print(project_path)
     current_path = os.path.dirname(__file__)
+    
     for x in range(len(compounds)):
         #llamar funcion
         #generararchivo(pathdeaquiabajo, 2)
@@ -77,7 +80,23 @@ def connect_DrugBank(compounds, project_path):
         #print(struct_Down)
     driveC.close() 
     print('Check')
-  
+########################################################################################
+#############################Conexion a DrugBank BA###########################################
+def connect_DrugBankBA(compounds, project_path):
+    #Driver using mozzila to acces a drugbank
+    x=0
+    opt=webdriver.ChromeOptions()
+    
+    opt.add_argument('headless')
+    driveC= webdriver.Chrome(chrome_options=opt)
+    ruta=project_path+"/Compounds/c0"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
+    driveC.get('https://www.drugbank.ca/')
+    inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
+                                                #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
+    inputNCom.send_keys(compounds[x])
+    tableBA=driveC.find_element_by_tag_name("table")
+    files=tableBA.find_elements_by_tag_name("tr")
+    print(files)
 ########################################################################################
 #############################Conexion a PDB###########################################
 def connect_PDB(proteins,project_path):
@@ -100,6 +119,7 @@ def connect_PDB(proteins,project_path):
         r=requests.get(path_dp)
         filet=open(ruta,"tw")
         filet.write(r.text)
+        driveC.delete_all_cookies()
         
     #dirc=ids[0].find_elements_by_tag_name("a")
     #print(dirc[0].get_attribute("href"))
