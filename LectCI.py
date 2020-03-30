@@ -2,13 +2,16 @@ import tkinter as tk
 from tkinter.ttk import*
 from tkinter import *
 from tkinter import messagebox
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 from selenium import webdriver
 from Bio.PDB import *
 from selenium.webdriver.common.keys import Keys
 import requests
 import os
 import time
+import pubchempy as pcp
+import json
+import threading
 
 
 
@@ -72,13 +75,18 @@ def connect_DrugBank(compounds, project_path):
         struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
         r=requests.get(str(struct_Down))
         filet=open(ruta,"tw")
+        filet.write("STRUCTURE:\n")
         filet.write(r.text)
+        filet.write("##########\n")
         
         ##el elemnto html tipo <a> y adquirimos la direccion url
     ##uct_Down.click()
         #direct= driveC.current_url
         #print(struct_Down)
-    driveC.close() 
+    driveC.close()
+    #call pubChem
+    dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
+    dataPubChem.start()
     print('Check')
 ########################################################################################
 #############################Conexion a DrugBank BA###########################################
@@ -129,4 +137,45 @@ def connect_PDB(proteins,project_path):
     #print(getid)
     driveC.close()
     print("Finish")
+
+#Funcion para obtener datos de Pubchem
+def connectPubChem(compounds, project_path):
+    #Looking for each compound
+    recovery_pointer = 0        #Usar esto para cuando se pierda el progreso de obtencion de informacion
+    compoundsFounded = []
+    compoundsMissed = []
+    new_dict = {}
+    #f = open("prueba.txt", "a+")
+    #Computed properties available in PubChem
+    computedProperties = ['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
+                        'RotatableBondCount', 'ExactMass', 'MonoisotopicMass', 
+                        'TPSA', 'HeavyAtomCount', 'Charge', 'Complexity', 'IsotopeAtomCount', 
+                        'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
+                        'UndefinedBondStereoCount', 'CovalentUnitCount']
+
+    for item in compounds:
+        c = pcp.get_compounds(item, 'name')
+        if c == []:
+            compoundsMissed.append(item)
+        else:
+            compoundsFounded.append(item)
+        #print(c)
+
+
+    #for each compound founded, try to retrieve its properties
+    #Computed properties
+    for item in compoundsFounded:
+        ruta = project_path + "/Compounds/c0" + item +".txt"
+        p = pcp.get_properties(computedProperties, item, 'name')
+        for i in p:
+            del i['CID']
+            with open(ruta, 'a+') as file:
+                file.write("DESCRIPTORS:\n")
+                json.dump(i, file, sort_keys=True, indent = 2)
+                file.write("\n##########\n")
+        #print(p)
+        #Write to its "zero set" file (APPEND)
+
+    file.close()
+    print("Finish: retrieved all descriptors")
 
