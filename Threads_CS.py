@@ -8,10 +8,15 @@ from LectCI import *
 def get_data(compounds, proteins,project_path):
     #search_r()
     w=WaitSearchData()
-    w.ver(compounds,proteins,project_path)
+    w.procesos(compounds,proteins,project_path)
+    #w.ver(compounds,proteins,project_path)
     #CDB= threading.Thread(target=connect_DrugBank(compounds,project_path))
     #CDB.start()
     #W=threading.Thread(target=WaitSearchData()) 
+    #connect_DrugBank(compounds,project_path)
+    #connectPubChem(compounds,project_path)
     #connect_DrugBankBA(compounds,project_path)
+    #connect_PDB(proteins,project_path)
+    #print("Epic Finally")
     #connect_PDB(proteins,project_path)
 ##################################################

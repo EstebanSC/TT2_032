@@ -50,7 +50,13 @@ def lectura(filenom):
     except:
         messagebox.showerror(title="ERROR", message="Formato Equivocado")
         return[compounds,proteins]
-######################################################################3
+######################################################################
+################Funcion Conseguir Datos de Compuestos############
+def alldata_compunds(compounds,project_path):
+    connect_DrugBank(compounds,project_path)
+    connectPubChem(compounds,project_path)
+    connect_DrugBankBA(compounds,project_path)
+################################################################
 ########################Funcion de conexion a DrugBank estructura compuesto###################
 def connect_DrugBank(compounds, project_path):
     #Driver using mozzila to acces a drugbank
@@ -85,26 +91,59 @@ def connect_DrugBank(compounds, project_path):
         #print(struct_Down)
     driveC.close()
     #call pubChem
-    dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
-    dataPubChem.start()
+    #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
+    #dataPubChem.start()
     print('Check')
 ########################################################################################
 #############################Conexion a DrugBank BA###########################################
 def connect_DrugBankBA(compounds, project_path):
     #Driver using mozzila to acces a drugbank
-    x=0
+    #x=0
     opt=webdriver.ChromeOptions()
-    
     opt.add_argument('headless')
     driveC= webdriver.Chrome(chrome_options=opt)
-    ruta=project_path+"/Compounds/c0"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
-    driveC.get('https://www.drugbank.ca/')
-    inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
-                                                #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
-    inputNCom.send_keys(compounds[x])
-    tableBA=driveC.find_element_by_tag_name("table")
-    files=tableBA.find_elements_by_tag_name("tr")
-    print(files)
+    for x in range(len(compounds)):
+        ruta=project_path+"/Compounds/c0"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
+        driveC.get('https://www.drugbank.ca/')
+        inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
+                                                    #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
+        inputNCom.send_keys(compounds[x])
+        inputNCom.send_keys(Keys.ENTER)
+        try:
+            driveC.implicitly_wait(5)
+            #tableBA=driveC.find_element_by_tag_name("table")
+            #files=tableBA.find_elements_by_tag_name("tr")
+            #tbdy=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]')
+            #table=driveC.find_element_by_id("drug-moa-target-table")
+            tds=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]/tbody')
+            arr=tds.find_elements_by_tag_name("td")
+            array_p=""
+            filet=open(ruta,"ta")
+            filet.write("BIOACTIVITY:\n")
+            for z in range(len(arr)):
+                #print(arr[z].text)
+                array_p=array_p+arr[z].text+'_'
+
+                if(((z+1)%3)==0):
+                    #print(array_p)
+                    filet.write(array_p+"\n")
+                    array_p=""
+                    
+
+
+            #q=(len(arr))/3
+            #print(q)
+            #print(pinter)
+            print("Table founded:"+str(x))
+            filet.write("##########\n")
+            #print(table)
+        except:
+            filet=open(ruta,"ta")
+            filet.write("BIOACTIVITY:\n")
+            filet.write("EMPTY:NOT FOUND\n")
+            filet.write("##########\n")
+            print("Table not founded:"+str(x))
+    print("fni")  
 ########################################################################################
 #############################Conexion a PDB###########################################
 def connect_PDB(proteins,project_path):
@@ -121,6 +160,7 @@ def connect_PDB(proteins,project_path):
         inputPro.send_keys(proteins[x])
         clickS=driveC.find_element_by_id('searchbutton')#
         clickS.click()
+        driveC.implicitly_wait(5)
         ids=driveC.find_element_by_tag_name("h3")
         #ids.reverse()
         path_dp="https://files.rcsb.org/view/"+ids.text+".pdb"
@@ -141,6 +181,7 @@ def connect_PDB(proteins,project_path):
 #Funcion para obtener datos de Pubchem
 def connectPubChem(compounds, project_path):
     #Looking for each compound
+    time.sleep(10)
     recovery_pointer = 0        #Usar esto para cuando se pierda el progreso de obtencion de informacion
     compoundsFounded = []
     compoundsMissed = []
