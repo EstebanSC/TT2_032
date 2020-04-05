@@ -8,7 +8,10 @@ from LectCI import *
 def get_data(compounds, proteins,project_path):
     #search_r()
     w=WaitSearchData()
-    w.procesos(compounds,proteins,project_path)
+    what_happen=threading.Thread(target=w.procesos,args=(compounds,proteins,project_path))   #w.procesos(compounds,proteins,project_path)
+    what_happen.start()
+    #what_happen.join()
+    print("Finalizada Procesos")
     #w.ver(compounds,proteins,project_path)
     #CDB= threading.Thread(target=connect_DrugBank(compounds,project_path))
     #CDB.start()

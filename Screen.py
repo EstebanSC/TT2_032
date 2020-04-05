@@ -22,8 +22,9 @@ class WaitSearchData():
         self.title=tk.StringVar()
         self.r="Iniciando Busqueda de Datos"
         self.title.set(self.r)
-        self.header=Label(self.pantalla, textvariable=self.title,bg="white")
+        self.header=Label(self.pantalla,textvariable=self.title,bg="white")
         self.header.configure(font=("Arial Black",26))
+        self.header.config(justify=CENTER)
         self.header.pack()
         rel_path="Interfaces/"
         abs_file_path=os.path.join(current_path,rel_path)
@@ -40,7 +41,7 @@ class WaitSearchData():
         #global proteins
         self.pantalla.title("Buscando Datos...")
         self.pantalla.geometry("850x450")
-        self.header.place(x=100,y=50)
+        self.header.place(x=25,y=50)
         self.charge.place(x=250,y=100)
         ######Esta parte sigue en proceso
         #data_presc=threading.Thread(target=connect_DrugBank, args=(proteins,project_path))
@@ -65,6 +66,7 @@ class WaitSearchData():
         self.r="Comenzando Busqueda de Datos de Proteinas "
         ct1.start()
         get_proteins.start()
+    
     def change_title(self):
         #self.r=te
         time.sleep(5)
