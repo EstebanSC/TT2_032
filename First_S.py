@@ -64,6 +64,7 @@ class First_S():
     def ver(self):
         self.pantalla.title("SISPAF")
         self.pantalla.geometry("900x500")
+        self.center_screen()
         self.TituloP.place(x=30, y=30)
         self.LogoP.place(x=480, y=90)
         self.Buscar_A.place(x=180,y=150)
@@ -72,9 +73,20 @@ class First_S():
         self.Search_F.place(x=240,y=260)
         self.hbutton.place(x=50,y=400)
         self.pantalla.mainloop()
+
     def ask_quit(self):
         if messagebox.askokcancel("Cerrar", "Desea cerrar SISPAF ?"):
             self.pantalla.destroy()
+
+    def center_screen(self):#Esta funcion se implementa en cada clase que implique una pantalla para centrarse
+       self.pantalla.update_idletasks()#Y es llamada en la funcion ver()
+       w = self.pantalla.winfo_screenwidth()
+       h = self.pantalla.winfo_screenheight()
+       size = tuple(int(_) for _ in self.pantalla.geometry().split('+')[0].split('x'))
+       x = w/2 - size[0]/2
+       y = h/2 - size[1]/2
+       self.pantalla.geometry("%dx%d+%d+%d" % (size + (x, y)))
+
     def create_path(self):
         global project_path
         home = str(Path.home())
