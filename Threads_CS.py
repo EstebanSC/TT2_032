@@ -1,21 +1,30 @@
+#NOTA: ESTE ARCHIVO YA NO SE ESTA USANDO 28-ABRIL-2020
 import threading
 import time 
-from Screen import *
+import SearchInfoScreen
 from LectCI import *
-
+import queue as queue
 
 ####################En esta funcion se mandan a llamar las funciones donde se obtiene info de cada DB
 def get_data(compounds, proteins,project_path):
+    #value1 = len(compounds)
+    #value2 = len(proteins)
+    queue = queue.Queue()
+
+    #setCompoundsValue(value1)
+    #setProteinsValue(value2)
     #Instanciando clase WaitSearchData
     w=WaitSearchData()
     #Crear hilo para pantalla
-    showScreen=threading.Thread(target=w.showScreen)
-    showScreen.start()
+    w.showScreen()
+    #showScreen=threading.Thread(target=w.showScreen)
+    #showScreen.start()
     #Crear hilo procesos
     compound_threads = list()
     protein_threads = list()
         
     #crear hilos para compuestos
+    running = True
     for item in compounds:  #Un hilo por cada elemento del arreglo compounds
         #print(item)
         get_compound = threading.Thread(target=alldata_compunds,args=(item, project_path)) #creacion del hilo, argumentos: un solo compuesto y path
@@ -37,6 +46,6 @@ def get_data(compounds, proteins,project_path):
         item.join()
         print('hilo PROTEINA numero:',index, 'FINALIZADO')"""
     
-    print(numero)
+
     
 ##################################################

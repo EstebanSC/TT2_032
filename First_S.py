@@ -5,7 +5,7 @@ from tkinter import  filedialog, Text , messagebox
 from PIL import Image, ImageTk 
 from Threads_CS import *
 from LectCI import *
-from Screen import *
+import SearchInfoScreen
 from pathlib import Path
 import os
 import errno
@@ -119,6 +119,7 @@ class First_S():
     def begin_all(self):
         global compounds
         global proteins
-        get_data(compounds,proteins,project_path)
+        #Instanciando la clase de los hilos (ThreadClient)
+        tc = SearchInfoScreen.ThreadedClient(compounds,proteins,project_path)
         #search_r()
 

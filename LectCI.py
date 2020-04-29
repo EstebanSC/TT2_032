@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter.ttk import*
+from tkinter.ttk import *
 from tkinter import *
 from tkinter import messagebox
 #from bs4 import BeautifulSoup
@@ -11,10 +11,15 @@ import os
 import time
 import pubchempy as pcp
 import json
-import threading
+from threading import Lock
 
 compoundsMissed = []
-numero=100
+length_compounds = 0
+length_proteins = 0
+valuecompounds = 0
+valueproteins = 0
+lockCompounds = Lock()
+lockProteins = Lock()
 
 #Implementacion de lecturas del archivo que contiene nombre de compuestos y proteinas
 def lectura(filenom):
@@ -60,168 +65,13 @@ def alldata_compunds(compounds,project_path):
 
 ################################################################
 ########################Funcion de conexion a DrugBank estructura compuesto###################
-def connect_DrugBank(compounds, project_path):
-    #Driver using mozzila to acces a drugbank
-    opt=webdriver.ChromeOptions()
-    opt.add_argument('headless')
-    driveC= webdriver.Chrome(chrome_options=opt)
-    #driveC=webdriver.PhantomJS()
-    #print(compounds)
-    #print(project_path)
-    current_path = os.path.dirname(__file__)
-    
-        #llamar funcion
-        #generararchivo(pathdeaquiabajo, 2)
-        #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
-    print(compounds)
-    ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
-        #print(ruta)
-    driveC.get('https://www.drugbank.ca/')
-    inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
-                                                        #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
-    inputNCom.send_keys(compounds)
-    inputNCom.send_keys(Keys.ENTER)
-    struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
-    r=requests.get(str(struct_Down))
-    filet=open(ruta,"tw")
-    filet.write("STRUCTURE:\n")
-    filet.write(r.text)
-    filet.write("##########\n")
-    #filet.close()
-        ##el elemnto html tipo <a> y adquirimos la direccion url
-    ##uct_Down.click()
-        #direct= driveC.current_url
-        #print(struct_Down)
-    driveC.close()
-    #call pubChem
-    #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
-    #dataPubChem.start()
-    #print('Check')
-########################################################################################
-#############################Conexion a DrugBank BA###########################################
-def connect_DrugBankBA(compounds, project_path):
-    #Driver using mozzila to acces a drugbank
-    #x=0
-    opt=webdriver.ChromeOptions()
-    opt.add_argument('headless')
-    driveC= webdriver.Chrome(chrome_options=opt)
-    
-    ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
-    driveC.get('https://www.drugbank.ca/')
-    inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
-                                                    #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
-    inputNCom.send_keys(compounds)
-    inputNCom.send_keys(Keys.ENTER)
-    try:
-        driveC.implicitly_wait(5)
-        #tableBA=driveC.find_element_by_tag_name("table")
-        #files=tableBA.find_elements_by_tag_name("tr")
-        #tbdy=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]')
-        #table=driveC.find_element_by_id("drug-moa-target-table")
-        tds=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]/tbody')
-        arr=tds.find_elements_by_tag_name("td")
-        array_p=""
-        filet=open(ruta,"a+")
-        filet.write("BIOACTIVITY:\n")
-        for z in range(len(arr)):
-            #print(arr[z].text)
-            array_p=array_p+arr[z].text+'_'
 
-            if(((z+1)%3)==0):
-                #print(array_p)
-                filet.write(array_p+"\n")
-                array_p=""
-                
+def setCompoundsValue(value):
+    global length_compounds
+    length_compounds = value
+    print("Valor compuestos: " + str(length_compounds))
 
-        #q=(len(arr))/3
-        #print(q)
-        #print(pinter)
-        #print("finish " + compounds)
-        #print("Table founded:"+str(compounds))
-        filet.write("##########\n")
-        #filet.close()
-        #print(table)
-    except:
-        filet=open(ruta,"a+")
-        filet.write("BIOACTIVITY:\n")
-        filet.write("EMPTY:NOT FOUND\n")
-        filet.write("##########\n")
-        filet.close()
-        print("NOT FOUND MEDICAMENTO")
-        #print("Table not founded:"+str(compounds)) 
-########################################################################################
-#############################Conexion a PDB###########################################
-def connect_PDB(proteins,project_path):
-    current_path = os.path.dirname(__file__)
-    opt=webdriver.ChromeOptions()
-    opt.add_argument('headless')
-    #driveC= webdriver.Chrome(chrome_options=opt)
-    #print("PROTEINA RECIBIDA: " + proteins)
-    driveC= webdriver.Chrome(chrome_options=opt)
-    #ruta=current_path+"/Proteins/"+proteins[x]+".txt"
-    ruta=project_path+"/Proteins/p0"+proteins+".txt"##Creacion del archivo, String de la ruta
-    driveC.get('https://www.rcsb.org/')
-    inputPro=driveC.find_element_by_id('autosearch_SearchBar')#Explication to manager websites 
-    inputPro.send_keys(proteins)
-    clickS=driveC.find_element_by_id('searchbutton')#
-    clickS.click()
-    driveC.implicitly_wait(5)
-    ids=driveC.find_element_by_tag_name("h3")
-    #ids.reverse()
-    path_dp="https://files.rcsb.org/view/"+ids.text+".pdb"
-    r=requests.get(path_dp)
-    print("hice request")
-    filet=open(ruta,"tw")
-    filet.write(r.text)
-    print("ya escribi")
-    driveC.delete_all_cookies()
-        
-    #dirc=ids[0].find_elements_by_tag_name("a")
-    #print(dirc[0].get_attribute("href"))
-    #print(ids[0].text)
-    #pdbl = PDBList()
-    #pdbl.retrieve_pdb_file('1FAT',pdir=ruta)
-    #print(getid)
-    driveC.close()
-    filet.close()
-    print("Finish ENFERMEDAD")
-
-#Funcion para obtener datos de Pubchem
-def connectPubChem(compounds, project_path):
-    #Looking for each compound
-    time.sleep(10)
-    recovery_pointer = 0        #Usar esto para cuando se pierda el progreso de obtencion de informacion
-    compoundFounded = ''
-    #f = open("prueba.txt", "a+")
-    #Computed properties available in PubChem
-    computedProperties = ['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
-                        'RotatableBondCount', 'ExactMass', 'MonoisotopicMass', 
-                        'TPSA', 'HeavyAtomCount', 'Charge', 'Complexity', 'IsotopeAtomCount', 
-                        'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
-                        'UndefinedBondStereoCount', 'CovalentUnitCount']
-
-    c = pcp.get_compounds(compounds, 'name')
-    if c == []:
-        compoundsMissed.append(compounds)
-    else:
-        compoundFounded = compounds
-    #print(c)
-
-    #for each compound founded, try to retrieve its properties
-    #Computed properties
-    if compoundFounded:
-        ruta = project_path + "/Compounds/c0" + compoundFounded +".txt"
-        p = pcp.get_properties(computedProperties, compoundFounded, 'name') #ERROR: A VECES SUCEDE SERVER.BUSY
-        for i in p:
-            del i['CID']
-            with open(ruta, 'a+') as file:
-                file.write("DESCRIPTORS:\n")
-                json.dump(i, file, sort_keys=True, indent = 2)
-                file.write("\n##########\n")
-            #file.close()
-        #print(p)
-        #Write to its "zero set" file (APPEND)
-        print("finish " + compoundFounded)
-
-    #print("Finish: retrieved all descriptors")
-
+def setProteinsValue(value):
+    global length_proteins
+    length_proteins = value
+    print("Valor proteinas: " + str(length_proteins))

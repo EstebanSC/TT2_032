@@ -1,10 +1,9 @@
 import tkinter as tk
 from tkinter.ttk import*
 from tkinter import  filedialog, Text , messagebox
-from PIL import Image, ImageTk 
-from Threads_CS import * 
+from PIL import Image, ImageTk  
 from LectCI import *
-from Screen import *
+import SearchInfoScreen
 from First_S import *
 import os
 import errno
