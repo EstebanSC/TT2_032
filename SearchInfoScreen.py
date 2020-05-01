@@ -8,6 +8,9 @@ from tkinter import *
 from tkinter import  filedialog, Text
 from PIL import Image, ImageTk 
 from LectCI import *
+from pruebapdb import *
+from getids import *
+from Bio.PDB import PDBList
 #Imports para los hilos
 import threading
 import queue as queue
@@ -250,40 +253,14 @@ class ThreadedClient:
             #print("Table not founded:"+str(compounds)) 
     ########################################################################################
     #############################Conexion a PDB###########################################
-    def connect_PDB(self, proteins, project_path):
-        """current_path = os.path.dirname(__file__)
-        opt=webdriver.ChromeOptions()
-        opt.add_argument('headless')
-        #driveC= webdriver.Chrome(chrome_options=opt)
-        #print("PROTEINA RECIBIDA: " + proteins)
-        driveC= webdriver.Chrome(chrome_options=opt)
-        #ruta=current_path+"/Proteins/"+proteins[x]+".txt"
-        ruta=project_path+"/Proteins/p0"+proteins+".txt"##Creacion del archivo, String de la ruta
-        driveC.get('https://www.rcsb.org/')
-        inputPro=driveC.find_element_by_id('autosearch_SearchBar')#Explication to manager websites 
-        inputPro.send_keys(proteins)
-        clickS=driveC.find_element_by_id('searchbutton')#
-        clickS.click()
-        driveC.implicitly_wait(5)
-        ids=driveC.find_element_by_tag_name("h3")
-        #ids.reverse()
-        path_dp="https://files.rcsb.org/view/"+ids.text+".pdb"
-        r=requests.get(path_dp)
-        print("hice request")
-        filet=open(ruta,"tw")
-        filet.write(r.text)
-        print("ya escribi")
-        driveC.delete_all_cookies()
-            
-        #dirc=ids[0].find_elements_by_tag_name("a")
-        #print(dirc[0].get_attribute("href"))
-        #print(ids[0].text)
-        #pdbl = PDBList()
-        #pdbl.retrieve_pdb_file('1FAT',pdir=ruta)
-        #print(getid)
-        driveC.close()
-        filet.close()"""
-        print("FUNCION CONNECT PDB")
+    def connect_PDB(self, item, project_path):
+        IDP=getIDPDB(item)
+        pdbl = PDBList()
+        pdbl.retrieve_pdb_file(IDP, pdir=project_path+"/Proteins", file_format='pdb')
+        sl=IDP.lower()
+        nombre_nuevo=project_path+"/Proteins/c0"+item+".pdb"
+        archivo=project_path+"/Proteins/pdb"+sl+".ent"
+        os.rename(archivo, nombre_nuevo) 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
         self.g += 1              #Se aumenta el valor
         self.lock.release()      #Se libera el recurso
