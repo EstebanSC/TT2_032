@@ -12,6 +12,10 @@ import errno
 
 compounds=[] #Arreglos globales de compuestos
 proteins=[]#Arreglos proteinas
+compoundsMDB1=[]#Compuestos Perdidos DB1
+compoundsMDB2=[]#Compuesto Perdidos DB2
+P_notfounds=[] #Proteinas Perdidas
+compoundsMissed=[] #Compuestos Pub
 project_path=""#Directorio del proyecto
 
 
@@ -119,7 +123,11 @@ class First_S():
     def begin_all(self):
         global compounds
         global proteins
+        global compoundsMDB1#Compuestos Perdidos DB1
+        global compoundsMDB2#Compuesto Perdidos DB2
+        global P_notfounds
+        global compoundsMissed
         #Instanciando la clase de los hilos (ThreadClient)
-        tc = SearchInfoScreen.ThreadedClient(compounds,proteins,project_path)
+        tc = SearchInfoScreen.ThreadedClient(compounds,proteins,project_path, compoundsMDB1,compoundsMDB2,compoundsMissed,P_notfounds)
         #search_r()
 

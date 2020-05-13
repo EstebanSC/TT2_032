@@ -9,12 +9,12 @@ import queue as queue
 def get_data(compounds, proteins,project_path):
     #value1 = len(compounds)
     #value2 = len(proteins)
-    queue = queue.Queue()
+    #queue = queue.Queue()
 
     #setCompoundsValue(value1)
     #setProteinsValue(value2)
     #Instanciando clase WaitSearchData
-    w=WaitSearchData()
+    #w=WaitSearchData()
     #Crear hilo para pantalla
     w.showScreen()
     #showScreen=threading.Thread(target=w.showScreen)

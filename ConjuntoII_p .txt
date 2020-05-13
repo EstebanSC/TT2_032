@@ -6,10 +6,10 @@ Lidocaine
 Paracetamol
 Omeprazole
 Loratadine
-Ramipril
+Oxido
 Piroxicam
 Diazepam
-Ibuprofen
+Parquimetro
 Morphine
 Chlorphenamine
 Aspirin
@@ -18,7 +18,7 @@ Epinephrine
 Amoxicillin
 Albendazole
 Proteins
-Actin
-Collagen
-Glutaminyl
-Arginine
+actin
+collagen
+coronin
+clastin
