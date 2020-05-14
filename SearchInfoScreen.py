@@ -198,33 +198,35 @@ class ThreadedClient:
         #print(compounds)
         ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
             #print(ruta)
-        driveC.get('https://www.drugbank.ca/')
-        inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
-                                                            #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
-        inputNCom.send_keys(compounds)
-        inputNCom.send_keys(Keys.ENTER)
-        if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-            compoundsMissed.append(compounds)
-            driveC.close()
-        else:
+        try:
 
-            struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
-           
-            r=requests.get(str(struct_Down))
-            if r.status_code == 200:
-                filet=open(ruta,"tw")
-                filet.write("STRUCTURE:\n")
-                filet.write(r.text)
-                filet.write("##########\n")
-            else:
+            driveC.get('https://www.drugbank.ca/')
+            inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
+                                                                #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
+            inputNCom.send_keys(compounds)
+            inputNCom.send_keys(Keys.ENTER)
+            if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
                 compoundsMissed.append(compounds)
-                print("Compuesto perdido por Error de conexion")
-            #filet.close()
-                ##el elemnto html tipo <a> y adquirimos la direccion url
-            ##uct_Down.click()
-                #direct= driveC.current_url
-                #print(struct_Down)
+                driveC.close()
+            else:
+
+                struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
+            
+                r=requests.get(str(struct_Down))
+                if r.status_code == 200:
+                    filet=open(ruta,"tw")
+                    filet.write(compounds)
+                    filet.write("\nSTRUCTURE:\n")
+                    filet.write(r.text)
+                    filet.write("##########\n")
+                else:
+                    #compoundsMissed.append(compounds)
+                    #Error de CONEXION EN LA ESTRUCTURA 
+                    print("Compuesto perdido por Error de conexion")
+                driveC.close()
+        except:##ERROR DE CONEXION PARA ESTRUCTURA
             driveC.close()
+            print("Error de conexion")
         #call pubChem
         #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
         #dataPubChem.start()
@@ -286,9 +288,11 @@ class ThreadedClient:
                     filet.write("##########\n")
             #filet.close()
             #print(table)
-        except:
-            compoundsMissed.append(compounds)
+        except:#BIOACTIVIDAD NO ENCONTRADA POR ERROR DE CONEXION 
+            #compoundsMissed.append(compounds)
             driveC.close()
+            print("Error de conexion")
+            
             #filet.close()
             #print("NOT FOUND MEDICAMENTO")
             #print("Table not founded:"+str(compounds)) 
@@ -309,7 +313,12 @@ class ThreadedClient:
                 sl=IDP.lower()
                 nombre_nuevo=project_path+"/Proteins/c0"+item+".pdb"
                 archivo=project_path+"/Proteins/pdb"+sl+".ent"
-                os.rename(archivo, nombre_nuevo) 
+                os.rename(archivo, nombre_nuevo)
+                time.sleep(1) 
+                filet=open(nombre_nuevo,"r+")
+                contenido = filet.read()
+                filet.seek(0, 0)
+                filet.write(item+ '\n' + contenido)
             #elif(RName.find(403)==0):
             #    print("Compuesto no encontrado por error de conexion")#Aqui va el error de conexion para el primer request
             #    P_notfounds.append(item) 
@@ -321,8 +330,8 @@ class ThreadedClient:
                 #if(pdbl=="Desired structure doesn't exists"):
                 #    print("PDB no encontrado")
                 #else:
-                print("Compuesto no encontrado por error de conexion")#Este capta el errode request para el ID y para el pdbfile
-                P_notfounds.append(item)
+                print("Compuesto no encontrado por error de conexion")#Este capta el error de request para el ID y para el pdbfile
+                #P_notfounds.append(item)
 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
         self.g += 1              #Se aumenta el valor

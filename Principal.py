@@ -8,7 +8,7 @@ from First_S import *
 import os
 import errno
 
-
+ 
 ##Se Inicia la pantalla es el archivo que carga la pantalla
 First=First_S()
 #First.ver()
