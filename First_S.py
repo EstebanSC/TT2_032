@@ -6,33 +6,34 @@ from PIL import Image, ImageTk
 from Threads_CS import *
 from LectCI import *
 import SearchInfoScreen
+import CheckConnection
 from pathlib import Path
 import os
 import errno
+import urllib
+import shutil
+import CenterScreen
 
 compounds=[] #Arreglos globales de compuestos
 proteins=[]#Arreglos proteinas
-compoundsMDB1=[]#Compuestos Perdidos DB1
-compoundsMDB2=[]#Compuesto Perdidos DB2
-P_notfounds=[] #Proteinas Perdidas
-compoundsMissed=[] #Compuestos Pub
 project_path=""#Directorio del proyecto
 
 
 class First_S():
-    def __init__(self):
-        
+    def __init__(self,path):
+
         self.pantalla=tk.Tk()
         self.pantalla.resizable(False, False)
         self.pantalla.protocol("WM_DELETE_WINDOW", self.ask_quit)
         current_path = os.path.dirname(__file__) # Where your .py file is located
+        self.project_path = path
+        #print(self.project_path)
         self.v=tk.StringVar()
-        self.create_path()
         try:
             #os.makedirs(current_path+"/Proteins/")#Creacion de Directorio para proteinas
             #os.makedirs(current_path+"/Compounds/")#Creacion de Directorio Compounds
-            os.makedirs(project_path+"/Proteins/")#Creacion de Directorio para proteinas
-            os.makedirs(project_path+"/Compounds/")#Creacion de Directorio Compounds
+            os.makedirs(self.project_path+"/Proteins/")#Creacion de Directorio para proteinas
+            os.makedirs(self.project_path+"/Compounds/")#Creacion de Directorio Compounds
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
@@ -56,7 +57,7 @@ class First_S():
         self.photo=PhotoImage(file=abs_file_path+current_file)
         self.photo_bu=self.photo.subsample(18,18)
         self.openFile=Button(self.pantalla,image=self.photo_bu, bg="white", command=self.getfile, relief=RAISED)
-        self.Search_F=Button(self.pantalla,text="Iniciar", relief=FLAT, state=DISABLED,command=self.begin_all)
+        self.Search_F=Button(self.pantalla,text="Iniciar", relief=FLAT,command=self.begin_all)
         current_help="ayuda.png"
         self.help_=PhotoImage(file=abs_file_path+current_help)
         self.help_ima=self.help_.subsample(30,28)
@@ -68,7 +69,7 @@ class First_S():
     def ver(self):
         self.pantalla.title("SISPAF")
         self.pantalla.geometry("900x500")
-        self.center_screen()
+        CenterScreen.center_screen(self.pantalla)
         self.TituloP.place(x=30, y=30)
         self.LogoP.place(x=480, y=90)
         self.Buscar_A.place(x=180,y=150)
@@ -82,20 +83,6 @@ class First_S():
         if messagebox.askokcancel("Cerrar", "Desea cerrar SISPAF ?"):
             self.pantalla.destroy()
 
-    def center_screen(self):#Esta funcion se implementa en cada clase que implique una pantalla para centrarse
-       self.pantalla.update_idletasks()#Y es llamada en la funcion ver()
-       w = self.pantalla.winfo_screenwidth()
-       h = self.pantalla.winfo_screenheight()
-       size = tuple(int(_) for _ in self.pantalla.geometry().split('+')[0].split('x'))
-       x = w/2 - size[0]/2
-       y = h/2 - size[1]/2
-       self.pantalla.geometry("%dx%d+%d+%d" % (size + (x, y)))
-
-    def create_path(self):
-        global project_path
-        home = str(Path.home())
-        project_path=filedialog.askdirectory(initialdir=home, title="Seleccione el directorio del Proyecto")
-        print(project_path)
 #####Funcion de Lectura de Archivo############
     def getfile(self):
         global compounds
@@ -106,6 +93,8 @@ class First_S():
         #txtf=Path_F.get()
         txtf=str(filename)##Para convertir a String y se separa por /
         print(txtf)#
+        #Hacer la copia en el directorio
+        shutil.copyfile(txtf,(self.project_path + '/CI_copy.txt'))
         Arr=txtf.split('/')
         r=Arr.pop()#Se obtiene el ultimo elemento del arreglo, que es el nombre del archivo
         print(r)
@@ -123,11 +112,20 @@ class First_S():
     def begin_all(self):
         global compounds
         global proteins
-        global compoundsMDB1#Compuestos Perdidos DB1
-        global compoundsMDB2#Compuesto Perdidos DB2
-        global P_notfounds
-        global compoundsMissed
-        #Instanciando la clase de los hilos (ThreadClient)
-        tc = SearchInfoScreen.ThreadedClient(compounds,proteins,project_path, compoundsMDB1,compoundsMDB2,compoundsMissed,P_notfounds)
+        #Deshabilitamos botones
+        self.Search_F["state"] = ["disabled"]
+        self.openFile["state"] = ["disabled"]
+        #Revisar que el usuario este conectado a internet
+        isConnected = CheckConnection.check_internet_conn()
+        if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
+            #Instanciando la clase de los hilos (ThreadClient)
+            tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)
+        else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet
+            self.ask_check()
         #search_r()
+        #tc = SearchInfoScreen.ThreadedClient(compounds,proteins,project_path)
+
+    def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
+        if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
+            isConnected = CheckConnection.check_internet_conn()
 

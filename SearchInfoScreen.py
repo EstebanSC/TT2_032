@@ -1,16 +1,19 @@
 #Imports generales
 import os 
 import time
+import urllib
+import CheckConnection
 #Imports para la interfaz
 import tkinter as tk
 from tkinter.ttk import *
 from tkinter import *
-from tkinter import  filedialog, Text
+from tkinter import  filedialog, Text, messagebox
 from PIL import Image, ImageTk 
 from LectCI import *
 from pruebapdb import *
 from getids import *
 from Bio.PDB import PDBList
+import CenterScreen
 #Imports para los hilos
 import threading
 import queue as queue
@@ -28,19 +31,26 @@ from pypdb import find_results_gen
 import time
 
 #Definicion de la pantalla descargas
+isConnected = True                  #Esta es una condicion que se estara checando cuando se hagan
+                                    #las llamadas a las API o se use internet. Es True puesto que
+                                    #First_S.py ya se checo el internet y si esta aqui es por que si hay
+event = threading.Event()
+#COmpuestos o proteinas no encontrados
+compoundsMDB1=[]#Compuestos Perdidos DB1
+compoundsMDB2=[]#Compuesto Perdidos DB2
+P_notfounds=[] #Proteinas Perdidas
+compoundsMissed=[] #Compuestos Pub
 class GUISection:
 
-    def __init__(self, master, queue, lenCompounds, lenProteins,compoundsMDB1,compoundsMDB2,compoundsMissed,P_notfounds):      #Constructor de la clase
+    def __init__(self, master, queue, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
         current_path = os.path.dirname(__file__) # Where your .py file is located
         self.queue = queue
         self.pantalla = master
         self.length_compounds = lenCompounds
         self.length_proteins = lenProteins
         #self.project_path = project_path
-        self.compoundsMDB1=compoundsMDB1
-        self.compoundsMDB2=compoundsMDB2
-        self.P_notfounds=P_notfounds
-        self.compoundsMissed=compoundsMissed
+        self.refButton1 = refButton1
+        self.refButton2 = refButton2
         self.pantalla.resizable(False, False)
         self.pantalla.protocol("WM_DELETE_WINDOW", self.ask_quit)
         self.telacontrol=Canvas(self.pantalla,height=450,width=850,bg="white" )
@@ -58,7 +68,7 @@ class GUISection:
     def showScreen(self):       #Funcion para mostrar la pantalla
         self.pantalla.title("Busqueda")
         self.pantalla.geometry("850x450")
-        self.center_screen()
+        CenterScreen.center_screen(self.pantalla)
         self.header.place(x=25,y=50)
         self.charge.place(x=250,y=250, width=350)
         self.charge.start()
@@ -66,16 +76,9 @@ class GUISection:
        
     def ask_quit(self):         #Funcion para el cuadro de dialogo que permita cerrar la ventana
         if messagebox.askokcancel("Cerrar", "Desea cerrar la busqueda de datos ?",parent=self.pantalla):
+            self.refButton1["state"] = ["normal"]
+            self.refButton2["state"] = ["normal"]
             self.pantalla.destroy()
-    
-    def center_screen(self):    #Funcion para centrar la pantalla
-       self.pantalla.update_idletasks()
-       width = self.pantalla.winfo_width()
-       height = self.pantalla.winfo_height()
-       x = (self.pantalla.winfo_screenwidth() // 2) - (width // 2)
-       y = (self.pantalla.winfo_screenheight() // 2) - (height // 2)
-       self.pantalla.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-       #self.pantalla.geometry("%dx%d+%d+%d" % (850, 450, x_coord, y_coord))
 
     #NOTA: ESTO ES UNA FUNCION PARA PRUEBAS VISUALES
     def search_end(self):
@@ -95,6 +98,16 @@ class GUISection:
     def destroy_screen(self):           #Funcion para destruir la ventana
         self.pantalla.destroy()
     
+    def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
+        global isConnected
+        global event
+        if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
+            isConnected = CheckConnection.check_internet_conn()
+            if not isConnected:
+                self.ask_check()
+            else:
+                event.set()
+    
     def incomingProcess(self):      #Funcion que permite a la ventana "atender" lo que hacen los hilos
                                     #Asi evitamos que la interfaz se "congele" mientras los hilos trabajan
         while self.queue.qsize():
@@ -104,10 +117,10 @@ class GUISection:
                 if msg == (self.length_compounds + self.length_proteins):    #Si el mensaje es igual al tamaño 
                                                                              #de la suma de los arreglos significa
                                                                              #que los hilos ya terminaron           
-                    print(self.compoundsMDB1)
-                    print(self.compoundsMDB2)
-                    print(self.compoundsMissed)
-                    print(self.P_notfounds)
+                    #print(self.compoundsMDB1)
+                    #print(self.compoundsMDB2)
+                    #print(self.compoundsMissed)
+                    #print(self.P_notfounds)
                     self.search_end()
                     #self.show_results()
             except queue.Empty:
@@ -116,17 +129,16 @@ class GUISection:
 #CLASE PARA CREAR HILOS Y REALIZAR LAS FUNCIONES DE DESCARGA DE INFORMACION
 class ThreadedClient:
 
-    def __init__(self,compounds,proteins,project_path ,compoundsMDB1,compoundsMDB2,compoundsMissed,P_notfounds):     #Constructor de la clase
+    def __init__(self,compounds,proteins,project_path,refButton1,refButton2):     #Constructor de la clase
         self.queue = queue.Queue()      #Se define la cola de mensajes
         self.compounds = compounds
         self.proteins = proteins
         self.project_path = project_path
-        self.compoundsMDB1=compoundsMDB1
-        self.compoundsMDB2=compoundsMDB2
-        self.P_notfounds=P_notfounds
         self.compoundsMissed=compoundsMissed
         self.length_compounds = len(compounds)
         self.length_proteins = len(proteins)
+        self.refButton1 = refButton1
+        self.refButton2 = refButton2
         self.master = tk.Toplevel()     #Como se creaba la pantalla en la clase GUISection
         #Parte de los hilos
         self.running = True
@@ -134,31 +146,61 @@ class ThreadedClient:
         self.protein_threads = list()
         self.g = 0      #Valor que se espera enviar a la cola de mensajes para los compuestos
         self.lock = threading.Lock()
+        self.lock2 = threading.Lock()
+        #Lista de elementos que no se encontraron
+        self.compoundsMissed = []
+        #Computed properties available in PubChem
+        self.computedProperties = ['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
+                            'RotatableBondCount', 'ExactMass', 'MonoisotopicMass', 
+                            'TPSA', 'HeavyAtomCount', 'Charge', 'Complexity', 'IsotopeAtomCount', 
+                            'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
+                            'UndefinedBondStereoCount', 'CovalentUnitCount']
+        self.internalQueue = queue.Queue()  #Cola de mensajes para el manejo de el error de conexion
+        self.flag = 0
 
         #Iniciar GUI
-        self.gui = GUISection(self.master, self.queue, self.length_compounds, self.length_proteins,self.compoundsMDB1,self.compoundsMDB2,self.compoundsMissed,self.P_notfounds)
+        self.gui = GUISection(self.master, self.queue, self.length_compounds, self.length_proteins,self.refButton1,self.refButton2)
         self.gui.showScreen()
 
         #Llamando a la funcion de los hilos
-        self.threads(self.compounds, self.proteins, self.project_path,self.compoundsMDB1,self.compoundsMDB2,self.compoundsMissed,self.P_notfounds)  
+        self.threads(self.compounds, self.proteins, self.project_path)  
+    
+    def incomingInternalProcess(self):      #Aqui se maneja cuando un hilo detecta que no hay conexion
+                                            #se detiene la ejecucion del main thread
+        try:
+            internalmsg = self.internalQueue.get_nowait()       
+            #print(msg)
+            if(internalmsg == 'networkerror1'):
+                print('Solo veras esto 1 vez')
+                self.gui.ask_check()
+        except queue.Empty:
+            pass
 
-    def threads(self, compounds, proteins, project_path ,compoundsMDB1,compoundsMDB2,compoundsMissed,P_notfounds):   #Funcion de los hilos
-        
+    def threads(self, compounds, proteins, project_path):   #Funcion de los hilos        
         
         for item in compounds:  #Un hilo por cada elemento del arreglo compounds
             #print(item)
-            get_compound = threading.Thread(target=self.getCompoundsData,args=(item,self.project_path, self.compoundsMDB1,self.compoundsMDB2, self.compoundsMissed)) #creacion del hilo, argumentos: un solo compuesto y path
+            get_compound = threading.Thread(target=self.getCompoundsData,args=(item,self.project_path)) #creacion del hilo, argumentos: un solo compuesto y path
             self.compound_threads.append(get_compound)   #agregar hilo a la lista de hilos de compuestos 
             get_compound.start()    #comenzar hilos
         
         #crear hilos para proteinas (proceso equivalente al de compuestos, pero ahora se usan los items del arreglo proteins)
         for item in proteins:
             #print("PROTEINA ENVIADA: " + sitem)
-            get_protein = threading.Thread(target=self.connect_PDB,args=(item, self.project_path,self.P_notfounds))
-            self.protein_threads.append(get_protein)  
+            get_protein = threading.Thread(target=self.connect_PDB,args=(item, self.project_path))
             get_protein.start()
         
         self.periodic_call()        #Llamando a la funcion periodic_call
+        self.periodicInternal_call()     
+    
+    def periodicInternal_call(self):        #Funcion para checar la cola de mensajes
+        self.master.after(200, self.periodicInternal_call)  #Cada 200 ms se llama a si misma y llama a incomingProcess
+        self.incomingInternalProcess()
+        if not self.running:
+            # This is the brutal stop of the system.  You may want to do
+            # some cleanup before actually shutting it down.
+            import sys
+            sys.exit(1)
     
     def periodic_call(self):        #Funcion para checar la cola de mensajes
         self.master.after(200, self.periodic_call)  #Cada 200 ms se llama a si misma y llama a incomingProcess
@@ -169,11 +211,12 @@ class ThreadedClient:
             import sys
             sys.exit(1)
     
-    def getCompoundsData(self, compound,compoundsMDB1,compoundsMDB2,compoundsMissed,P_notfounds):        #Funcion para obtener la informacion de los compuestos
+    def getCompoundsData(self, compound,compoundsMissed):        #Funcion para obtener la informacion de los compuestos
         #print(compound)
-        self.connect_DrugBank(compound,self.project_path, self.compoundsMDB1)
-        self.connect_DrugBankBA(compound,self.project_path,self.compoundsMDB2)
-        self.connectPubChem(compound,self.project_path,self.compoundsMissed)
+        #time.sleep(10)         Esta linea ayuda a probar el error de conexion pues a veces las busquedas son muy rapidas
+        self.connect_DrugBank(compound,self.project_path)
+        self.connect_DrugBankBA(compound,self.project_path)
+        self.connectPubChem(compound,self.project_path)
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
         self.g += 1         #Se aumenta el valor
         self.lock.release()      #Se libera el recurso
@@ -181,9 +224,11 @@ class ThreadedClient:
         self.queue.put(msg) #Se envia el mensaje a la cola de mensajes
 
     
-    def connect_DrugBank(self, compounds, project_path,compoundsMDB1):
+    def connect_DrugBank(self, compounds, project_path):
         #Driver using mozzila to acces a drugbank
         #compoundsMDB1=[]
+        global compoundsMDB1
+        global event
         opt=webdriver.ChromeOptions()
         opt.add_argument('headless')
         driveC= webdriver.Chrome(chrome_options=opt)
@@ -206,7 +251,7 @@ class ThreadedClient:
             inputNCom.send_keys(compounds)
             inputNCom.send_keys(Keys.ENTER)
             if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-                compoundsMissed.append(compounds)
+                compoundsMDB1.append(compounds)
                 driveC.close()
             else:
 
@@ -227,16 +272,24 @@ class ThreadedClient:
         except:##ERROR DE CONEXION PARA ESTRUCTURA
             driveC.close()
             print("Error de conexion")
+            self.lock2.acquire()
+            self.flag += 1
+            self.lock2.release()
+            internalmsg = 'networkerror' + str(self.flag)
+            self.internalQueue.put(internalmsg)
+            event.wait()
         #call pubChem
         #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
         #dataPubChem.start()
         #print('Check')
     ########################################################################################
     #############################Conexion a DrugBank BA###########################################
-    def connect_DrugBankBA(self, compounds, project_path,compoundsMDB2):
+    def connect_DrugBankBA(self, compounds, project_path):
         #Driver using mozzila to acces a drugbank
         #x=0
         #compoundsMDB2=[]
+        global compoundsMDB2
+        global event
         opt=webdriver.ChromeOptions()
         opt.add_argument('headless')
         driveC= webdriver.Chrome(chrome_options=opt)
@@ -250,7 +303,7 @@ class ThreadedClient:
             inputNCom.send_keys(Keys.ENTER)
         
             if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-                compoundsMissed.append(compounds)
+                compoundsMDB2.append(compounds)
                 driveC.close()
             else:
                 driveC.implicitly_wait(5)
@@ -281,7 +334,7 @@ class ThreadedClient:
                 #print("Table founded:"+str(compounds))
                     filet.write("##########\n")
                 except:
-                    compoundsMissed.append(compounds)
+                    compoundsMDB2.append(compounds)
                     filet=open(ruta,"a+")
                     filet.write("BIOACTIVITY:\n")
                     filet.write("EMPTY:NOT FOUND\n")
@@ -292,14 +345,21 @@ class ThreadedClient:
             #compoundsMissed.append(compounds)
             driveC.close()
             print("Error de conexion")
-            
+            self.lock2.acquire()
+            self.flag += 1
+            self.lock2.release()
+            internalmsg = 'networkerror' + str(self.flag)
+            self.internalQueue.put(internalmsg)
+            event.wait()
             #filet.close()
             #print("NOT FOUND MEDICAMENTO")
             #print("Table not founded:"+str(compounds)) 
     ########################################################################################
     #############################Conexion a PDB###########################################
-    def connect_PDB(self, item, project_path,P_notfounds):
+    def connect_PDB(self, item, project_path):
         #P_notfound=[]
+        global P_notfounds
+        global event
         try:
             RName=""
             RName=getbest(item)
@@ -311,7 +371,7 @@ class ThreadedClient:
                 pdbl = PDBList()
                 pdbl.retrieve_pdb_file(IDP, pdir=project_path+"/Proteins", file_format='pdb')
                 sl=IDP.lower()
-                nombre_nuevo=project_path+"/Proteins/c0"+item+".pdb"
+                nombre_nuevo=project_path+"/Proteins/cP"+item+".pdb"
                 archivo=project_path+"/Proteins/pdb"+sl+".ent"
                 os.rename(archivo, nombre_nuevo)
                 time.sleep(1) 
@@ -331,6 +391,12 @@ class ThreadedClient:
                 #    print("PDB no encontrado")
                 #else:
                 print("Compuesto no encontrado por error de conexion")#Este capta el error de request para el ID y para el pdbfile
+                self.lock2.acquire()
+                self.flag += 1
+                self.lock2.release()
+                internalmsg = 'networkerror' + str(self.flag)
+                self.internalQueue.put(internalmsg)
+                event.wait()
                 #P_notfounds.append(item)
 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
@@ -342,21 +408,13 @@ class ThreadedClient:
         print("Finish ENFERMEDAD")
 
     #Funcion para obtener datos de Pubchem
-    def connectPubChem(self, compounds, project_path, compoundsMissed):
+    def connectPubChem(self, compounds, project_path):
         #Looking for each compound
-        #time.sleep(10)
-        #compoundsMissed = []
+        global compoundsMissed
         recovery_pointer = 0        #Usar esto para cuando se pierda el progreso de obtencion de informacion
         compoundFounded = ''
-        #f = open("prueba.txt", "a+")
-        #Computed properties available in PubChem
-        computedProperties = ['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
-                            'RotatableBondCount', 'ExactMass', 'MonoisotopicMass', 
-                            'TPSA', 'HeavyAtomCount', 'Charge', 'Complexity', 'IsotopeAtomCount', 
-                            'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
-                            'UndefinedBondStereoCount', 'CovalentUnitCount']
-
-        c = pcp.get_compounds(compounds, 'name')
+        c = self.getValues_PubChem('names', compounds)
+        
         if c == []:
             compoundsMissed.append(compounds)
         else:
@@ -367,14 +425,61 @@ class ThreadedClient:
         #Computed properties
         if compoundFounded:
             ruta = project_path + "/Compounds/c0" + compoundFounded +".txt"
-            p = pcp.get_properties(computedProperties, compoundFounded, 'name') #ERROR: A VECES SUCEDE SERVER.BUSY
+            #time.sleep(0.3)     #Entre cada request se duerme el hilo 0.2 segundos lo cual limita a 5 req/seg
+            p = self.getValues_PubChem('props', compoundFounded)
+
             for i in p:
                 del i['CID']
                 with open(ruta, 'a+') as file:
-                    file.write("DESCRIPTORS:\n")
+                    file.write("\nDESCRIPTORS:\n")
                     json.dump(i, file, sort_keys=True, indent = 2)
                     file.write("\n##########\n")
+                    file.write("FINAL")
             print("finish " + compoundFounded)
 
-        #print("Finish: retrieved all descriptors")
+        """self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
+        self.g += 1         #Se aumenta el valor
+        self.lock.release()      #Se libera el recurso
+        msg = self.g        #El valor de g se asigna al mensaje que se pondrá en la cola de mensajes
+        self.queue.put(msg)""" #Se envia el mensaje a la cola de mensajes
     
+    #@sleep_and_retry
+    #@limits(calls = 5, period = 1.2)
+    def getValues_PubChem(self, case, compoundToSearch):
+        c = []
+        p = []
+        global event
+        
+        for i in range(3):
+            try:
+                if case == 'names':
+                    #time.sleep(10)      #Entre cada request se duerme el hilo 0.2 segundos lo cual limita a 5 req/seg
+                    c = pcp.get_compounds(compoundToSearch, 'name')
+                        #print(c)
+                elif case == 'props':
+                    #time.sleep(10)      #Entre cada request se duerme el hilo 0.2 segundos lo cual limita a 5 req/seg
+                    p = pcp.get_properties(self.computedProperties, compoundToSearch, 'name')
+
+            except pcp.PubChemHTTPError:        #ERROR: SERVER BUSY
+                print('El servidor se encuentra ocupado, intentando de nuevo...')
+                time.sleep(1)
+                continue
+
+            except urllib.error.URLError: #Error: Name or service not known
+                print('Error NO HAY INTERNET')
+                #self.isConnected = False
+                self.lock2.acquire()
+                self.flag += 1
+                self.lock2.release()
+                internalmsg = 'networkerror' + str(self.flag)
+                self.internalQueue.put(internalmsg)
+                event.wait()
+                continue
+            
+            else:
+                break
+        
+        if case == 'names':
+            return c
+        elif case == 'props':
+            return p
