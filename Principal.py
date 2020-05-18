@@ -76,11 +76,20 @@ class Principal():
         fPath = self.newPath + '/CI_copy.txt'
 
         if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
-            print('Si estan los directorios')
+            #print('Si estan los directorios')
             msgbox = messagebox.askyesno('Alerta','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
-            if msgbox:
+            if msgbox:      #Sobreescribimos proyecto
+                self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
+                self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
+                os.remove(fPath)                #Eliminamos copia de conjunto inicial
                 self.pantalla.destroy()
                 First=First_S(self.newPath)
+    
+    def overwriteProject(self,overwritepath):
+        fileList = [ f for f in os.listdir(overwritepath)]
+        for f in fileList:
+            os.remove(os.path.join(overwritepath,f))
+        
 
     def exProject(self):
         self.exPath = self.create_path()
