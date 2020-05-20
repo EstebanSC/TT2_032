@@ -82,8 +82,10 @@ class Principal():
                 self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
                 self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
                 os.remove(fPath)                #Eliminamos copia de conjunto inicial
-                self.pantalla.destroy()
+                #self.pantalla.destroy()
                 First=First_S(self.newPath)
+        else:
+            First=First_S(self.newPath)
     
     def overwriteProject(self,overwritepath):
         fileList = [ f for f in os.listdir(overwritepath)]
