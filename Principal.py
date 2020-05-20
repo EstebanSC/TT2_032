@@ -75,16 +75,20 @@ class Principal():
         pPath = self.newPath + '/Proteins'
         fPath = self.newPath + '/CI_copy.txt'
 
-        if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
+        if(os.path.isdir(cPath) or os.path.isdir(pPath) or os.path.isfile(fPath)):
             #print('Si estan los directorios')
             msgbox = messagebox.askyesno('Alerta','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
             if msgbox:      #Sobreescribimos proyecto
-                self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
-                self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
-                os.remove(fPath)                #Eliminamos copia de conjunto inicial
-                #self.pantalla.destroy()
+                try:
+                    self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
+                    self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
+                    os.remove(fPath)                #Eliminamos copia de conjunto inicial
+                except:
+                    pass
+                self.pantalla.destroy()
                 First=First_S(self.newPath)
         else:
+            self.pantalla.destroy()     #ESTO DEBE CAMBIARSE POR UN BOTON DE BACK
             First=First_S(self.newPath)
     
     def overwriteProject(self,overwritepath):
