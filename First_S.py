@@ -20,9 +20,13 @@ project_path=""#Directorio del proyecto
 
 
 class First_S():
-    def __init__(self,path):
+    def __init__(self,path,refButton1,refButton2):
 
-        self.pantalla=tk.Tk()
+        self.pantalla=tk.Toplevel()
+        self.refButton1 = refButton1
+        self.refButton2 = refButton2
+        self.refButton1["state"] = ["disabled"]
+        self.refButton2["state"] = ["disabled"]
         self.pantalla.resizable(False, False)
         self.pantalla.protocol("WM_DELETE_WINDOW", self.ask_quit)
         current_path = os.path.dirname(__file__) # Where your .py file is located
@@ -80,7 +84,9 @@ class First_S():
         self.pantalla.mainloop()
 
     def ask_quit(self):
-        if messagebox.askokcancel("Cerrar", "Desea cerrar SISPAF ?"):
+        if messagebox.askokcancel("Cerrar", "Desea cerrar SISPAF ?", parent=self.pantalla):
+            self.refButton1["state"] = ["normal"]
+            self.refButton2["state"] = ["normal"]
             self.pantalla.destroy()
 
 #####Funcion de Lectura de Archivo############

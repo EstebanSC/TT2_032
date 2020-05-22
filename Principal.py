@@ -75,7 +75,7 @@ class Principal():
         pPath = self.newPath + '/Proteins'
         fPath = self.newPath + '/CI_copy.txt'
 
-        if(os.path.isdir(cPath) or os.path.isdir(pPath) or os.path.isfile(fPath)):
+        if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
             #print('Si estan los directorios')
             msgbox = messagebox.askyesno('Alerta','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
             if msgbox:      #Sobreescribimos proyecto
@@ -85,11 +85,15 @@ class Principal():
                     os.remove(fPath)                #Eliminamos copia de conjunto inicial
                 except:
                     pass
-                self.pantalla.destroy()
-                First=First_S(self.newPath)
+                #self.pantalla.destroy()
+                self.createProject["state"] = "disabled"
+                self.existingProject["state"] = "disabled"
+                First=First_S(self.newPath,self.createProject,self.existingProject)
         else:
-            self.pantalla.destroy()     #ESTO DEBE CAMBIARSE POR UN BOTON DE BACK
-            First=First_S(self.newPath)
+            #self.pantalla.destroy()     #ESTO DEBE CAMBIARSE POR UN BOTON DE BACK
+            self.createProject["state"] = "disabled"
+            self.existingProject["state"] = "disabled"
+            First=First_S(self.newPath, self.createProject, self.existingProject)
     
     def overwriteProject(self,overwritepath):
         fileList = [ f for f in os.listdir(overwritepath)]
@@ -216,6 +220,7 @@ class Principal():
         self.lock.release()      #Se libera el recurso
         msg = self.threadCounter        #El valor de g se asigna al mensaje que se pondrá en la cola de mensajes
         self.queue.put(msg) #Se envia el mensaje a la cola de mensajes
+        return
 
 
     def periodic_call(self):        #Funcion para checar la cola de mensajes

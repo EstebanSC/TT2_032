@@ -190,10 +190,10 @@ class ThreadedClient:
             get_compound.start()    #comenzar hilos
         
         #crear hilos para proteinas (proceso equivalente al de compuestos, pero ahora se usan los items del arreglo proteins)
-        """for item in proteins:
+        for item in proteins:
             #print("PROTEINA ENVIADA: " + sitem)
             get_protein = threading.Thread(target=self.connect_PDB,args=(item, self.project_path))
-            get_protein.start()"""
+            get_protein.start()
         
         self.periodic_call()        #Llamando a la funcion periodic_call
         self.periodicInternal_call()     
@@ -219,8 +219,8 @@ class ThreadedClient:
     def getCompoundsData(self, compound,project_path):        #Funcion para obtener la informacion de los compuestos
         #print(compound)
         #time.sleep(0.2)         #Esta linea ayuda a probar el error de conexion pues a veces las busquedas son muy rapidas
-        #self.connect_DrugBank(compound,self.project_path)
-        #self.connect_DrugBankBA(compound,self.project_path)
+        self.connect_DrugBank(compound,self.project_path)
+        self.connect_DrugBankBA(compound,self.project_path)
         self.connectPubChem(compound,project_path)
         #print('Ya termine la funcion, voy a bloquear')
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
@@ -229,6 +229,7 @@ class ThreadedClient:
         #print('Ya libere, voy a escribir')
         msg = self.g        #El valor de g se asigna al mensaje que se pondrá en la cola de mensajes
         self.queue.put(msg) #Se envia el mensaje a la cola de mensajes
+        return
 
     
     def connect_DrugBank(self, compounds, project_path):
@@ -435,6 +436,7 @@ class ThreadedClient:
         self.queue.put(msg)      #Se envia el mensaje a la cola de mensajes
 
         print("Finish ENFERMEDAD")
+        return
 
     #Funcion para obtener datos de Pubchem
     def connectPubChem(self, compounds, project_path):
