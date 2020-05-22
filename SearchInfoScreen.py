@@ -29,6 +29,7 @@ import requests
 import os
 from pypdb import find_results_gen
 import time
+from ratelimit import limits, sleep_and_retry
 
 #Definicion de la pantalla descargas
 isConnected = True                  #Esta es una condicion que se estara checando cuando se hagan
@@ -114,6 +115,9 @@ class GUISection:
             try:
                 msg = self.queue.get_nowait()       #Existe una cola de mensajes donde los hilos escriben
                 print(msg)
+                #if msg == 0:        #Error de conexion
+                    #self.ask_check()
+
                 if msg == (self.length_compounds + self.length_proteins):    #Si el mensaje es igual al tamaño 
                                                                              #de la suma de los arreglos significa
                                                                              #que los hilos ya terminaron           
@@ -134,7 +138,6 @@ class ThreadedClient:
         self.compounds = compounds
         self.proteins = proteins
         self.project_path = project_path
-        self.compoundsMissed=compoundsMissed
         self.length_compounds = len(compounds)
         self.length_proteins = len(proteins)
         self.refButton1 = refButton1
@@ -172,6 +175,7 @@ class ThreadedClient:
             #print(msg)
             if(internalmsg == 'networkerror1'):
                 print('Solo veras esto 1 vez')
+                #isConnected = False
                 self.gui.ask_check()
         except queue.Empty:
             pass
@@ -180,15 +184,16 @@ class ThreadedClient:
         
         for item in compounds:  #Un hilo por cada elemento del arreglo compounds
             #print(item)
+            #time.sleep(0.2)
             get_compound = threading.Thread(target=self.getCompoundsData,args=(item,self.project_path)) #creacion del hilo, argumentos: un solo compuesto y path
             self.compound_threads.append(get_compound)   #agregar hilo a la lista de hilos de compuestos 
             get_compound.start()    #comenzar hilos
         
         #crear hilos para proteinas (proceso equivalente al de compuestos, pero ahora se usan los items del arreglo proteins)
-        for item in proteins:
+        """for item in proteins:
             #print("PROTEINA ENVIADA: " + sitem)
             get_protein = threading.Thread(target=self.connect_PDB,args=(item, self.project_path))
-            get_protein.start()
+            get_protein.start()"""
         
         self.periodic_call()        #Llamando a la funcion periodic_call
         self.periodicInternal_call()     
@@ -211,15 +216,17 @@ class ThreadedClient:
             import sys
             sys.exit(1)
     
-    def getCompoundsData(self, compound,compoundsMissed):        #Funcion para obtener la informacion de los compuestos
+    def getCompoundsData(self, compound,project_path):        #Funcion para obtener la informacion de los compuestos
         #print(compound)
-        #time.sleep(10)         Esta linea ayuda a probar el error de conexion pues a veces las busquedas son muy rapidas
-        self.connect_DrugBank(compound,self.project_path)
-        self.connect_DrugBankBA(compound,self.project_path)
-        self.connectPubChem(compound,self.project_path)
+        #time.sleep(0.2)         #Esta linea ayuda a probar el error de conexion pues a veces las busquedas son muy rapidas
+        #self.connect_DrugBank(compound,self.project_path)
+        #self.connect_DrugBankBA(compound,self.project_path)
+        self.connectPubChem(compound,project_path)
+        #print('Ya termine la funcion, voy a bloquear')
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
         self.g += 1         #Se aumenta el valor
         self.lock.release()      #Se libera el recurso
+        #print('Ya libere, voy a escribir')
         msg = self.g        #El valor de g se asigna al mensaje que se pondrá en la cola de mensajes
         self.queue.put(msg) #Se envia el mensaje a la cola de mensajes
 
@@ -229,6 +236,7 @@ class ThreadedClient:
         #compoundsMDB1=[]
         global compoundsMDB1
         global event
+
         opt=webdriver.ChromeOptions()
         opt.add_argument('headless')
         driveC= webdriver.Chrome(chrome_options=opt)
@@ -268,16 +276,29 @@ class ThreadedClient:
                     #compoundsMissed.append(compounds)
                     #Error de CONEXION EN LA ESTRUCTURA 
                     print("Compuesto perdido por Error de conexion")
+                    if self.flag < 1:     #Aqui cae directamente al wait porque ya se sabe por medio de otro hilo que no hay conexion
+                        self.lock2.acquire()
+                        self.flag += 1
+                        self.lock2.release()
+                        internalmsg = 'networkerror' + str(self.flag)
+                        self.internalQueue.put(internalmsg)
+                        event.wait()
+                    else:
+                        event.wait()
                 driveC.close()
+
         except:##ERROR DE CONEXION PARA ESTRUCTURA
             driveC.close()
-            print("Error de conexion")
-            self.lock2.acquire()
-            self.flag += 1
-            self.lock2.release()
-            internalmsg = 'networkerror' + str(self.flag)
-            self.internalQueue.put(internalmsg)
-            event.wait()
+            #print("Error de conexion")
+            if self.flag < 1:     #Aqui cae directamente al wait porque ya se sabe por medio de otro hilo que no hay conexion
+                self.lock2.acquire()
+                self.flag += 1
+                self.lock2.release()
+                internalmsg = 'networkerror' + str(self.flag)
+                self.internalQueue.put(internalmsg)
+                event.wait()
+            else:
+                event.wait()
         #call pubChem
         #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
         #dataPubChem.start()
@@ -290,6 +311,7 @@ class ThreadedClient:
         #compoundsMDB2=[]
         global compoundsMDB2
         global event
+
         opt=webdriver.ChromeOptions()
         opt.add_argument('headless')
         driveC= webdriver.Chrome(chrome_options=opt)
@@ -344,13 +366,16 @@ class ThreadedClient:
         except:#BIOACTIVIDAD NO ENCONTRADA POR ERROR DE CONEXION 
             #compoundsMissed.append(compounds)
             driveC.close()
-            print("Error de conexion")
-            self.lock2.acquire()
-            self.flag += 1
-            self.lock2.release()
-            internalmsg = 'networkerror' + str(self.flag)
-            self.internalQueue.put(internalmsg)
-            event.wait()
+            #print("Error de conexion")
+            if self.flag < 1:
+                self.lock2.acquire()
+                self.flag += 1
+                self.lock2.release()
+                internalmsg = 'networkerror' + str(self.flag)
+                self.internalQueue.put(internalmsg)
+                event.wait()
+            else:
+                event.wait()
             #filet.close()
             #print("NOT FOUND MEDICAMENTO")
             #print("Table not founded:"+str(compounds)) 
@@ -360,6 +385,7 @@ class ThreadedClient:
         #P_notfound=[]
         global P_notfounds
         global event
+
         try:
             RName=""
             RName=getbest(item)
@@ -391,12 +417,15 @@ class ThreadedClient:
                 #    print("PDB no encontrado")
                 #else:
                 print("Compuesto no encontrado por error de conexion")#Este capta el error de request para el ID y para el pdbfile
-                self.lock2.acquire()
-                self.flag += 1
-                self.lock2.release()
-                internalmsg = 'networkerror' + str(self.flag)
-                self.internalQueue.put(internalmsg)
-                event.wait()
+                if self.flag < 1:
+                    self.lock2.acquire()
+                    self.flag += 1
+                    self.lock2.release()
+                    internalmsg = 'networkerror' + str(self.flag)
+                    self.internalQueue.put(internalmsg)
+                    event.wait()
+                else:
+                    event.wait()
                 #P_notfounds.append(item)
 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
@@ -410,76 +439,83 @@ class ThreadedClient:
     #Funcion para obtener datos de Pubchem
     def connectPubChem(self, compounds, project_path):
         #Looking for each compound
-        global compoundsMissed
-        recovery_pointer = 0        #Usar esto para cuando se pierda el progreso de obtencion de informacion
-        compoundFounded = ''
+        global compoundsMissed      #Este es el arreglo global de los compuestos no encontrados en PubChem
+        compoundFounded = ''        #Esta es la variable que indica si existe el compuesto o no
+        #c = pcp.get_compounds(compounds, 'name')
+        
+        #Esta parte es para verificar si el nombre proporcionado existe en la base de datos
         c = self.getValues_PubChem('names', compounds)
         
-        if c == []:
-            compoundsMissed.append(compounds)
-        else:
-            compoundFounded = compounds
-        #print(c)
+        if c == []:     #Si el valor es vacio, significa que el compuesto no existe en PubChem
+            compoundsMissed.append(compounds)   #Agregamos a compuestos no encontrados
+        else:           #Si el valor retorna un ID (identificador del compuesto en la base de datos)
+            compoundFounded = compounds #El compuesto si existe, configuramos la variable compoundFounded
+                                        #con el nombre del compuesto
 
         #for each compound founded, try to retrieve its properties
         #Computed properties
-        if compoundFounded:
-            ruta = project_path + "/Compounds/c0" + compoundFounded +".txt"
-            #time.sleep(0.3)     #Entre cada request se duerme el hilo 0.2 segundos lo cual limita a 5 req/seg
+        if compoundFounded:             #Si compoundFounded no es una cadena vacia, buscamos las propiedades(descriptores)
+            ruta = project_path + "/Compounds/c0" + compoundFounded +".txt"     #Definimos la ruta del archivo donde vamos a escribir
+            #Llamamos a la funcion que conseguira las propiedades del compuesto, y le pasamos el compuesto en cuestión
             p = self.getValues_PubChem('props', compoundFounded)
+            #p = pcp.get_properties(self.computedProperties, compoundFounded, 'name')
+            
+            #Nos retorna un arreglo de objetos con un solo objeto (el compuesto en formato JSON)
+            for i in p:     #iteramos en el arreglo (solo es una vez porque solo hay un elemento)
+                del i['CID']    #La primera parte del JSON lleva el ID del compuesto, lo eliminamos porque
+                                #eso no lo ocupamos cuando escribimos el conjunto cero
+                with open(ruta, 'a+') as file:  #Abrimos el archivo y especificamos que vamos a agregar lineas
+                    file.write("\nDESCRIPTORS:\n")  #escribimos
+                    json.dump(i, file, sort_keys=True, indent = 2)  #COn esto escribimos el JSON al conjunto 0 del compuesto
+                    file.write("\n##########\n")    #escribimos
+                    file.write("FINAL")             #escribimos
 
-            for i in p:
-                del i['CID']
-                with open(ruta, 'a+') as file:
-                    file.write("\nDESCRIPTORS:\n")
-                    json.dump(i, file, sort_keys=True, indent = 2)
-                    file.write("\n##########\n")
-                    file.write("FINAL")
-            print("finish " + compoundFounded)
+            #print("Ya busque las propiedades " + compoundFounded)
 
         """self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
         self.g += 1         #Se aumenta el valor
         self.lock.release()      #Se libera el recurso
         msg = self.g        #El valor de g se asigna al mensaje que se pondrá en la cola de mensajes
-        self.queue.put(msg)""" #Se envia el mensaje a la cola de mensajes
+        self.queue.put(msg) #Se envia el mensaje a la cola de mensajes"""
     
     #@sleep_and_retry
     #@limits(calls = 5, period = 1.2)
     def getValues_PubChem(self, case, compoundToSearch):
-        c = []
-        p = []
-        global event
+        value = []      #definimos un arreglo que sera lo que retorne al final esta funcion
+        global event    #el evento es global y sirve para controlar la pausa de los hilos (cuando no hay conexion)
         
-        for i in range(3):
-            try:
-                if case == 'names':
-                    #time.sleep(10)      #Entre cada request se duerme el hilo 0.2 segundos lo cual limita a 5 req/seg
-                    c = pcp.get_compounds(compoundToSearch, 'name')
-                        #print(c)
-                elif case == 'props':
-                    #time.sleep(10)      #Entre cada request se duerme el hilo 0.2 segundos lo cual limita a 5 req/seg
-                    p = pcp.get_properties(self.computedProperties, compoundToSearch, 'name')
+        for attemp in range(3):     #se intentara 3 veces llamar a la API (mecanismo retry)
+            try:            
+                if case == 'names':     #si se llamo para verificar que el compuesto existe
+                    #print('caso names')
+                    value = pcp.get_compounds(compoundToSearch, 'name') #llamamos a la API con pubchempy
 
-            except pcp.PubChemHTTPError:        #ERROR: SERVER BUSY
-                print('El servidor se encuentra ocupado, intentando de nuevo...')
-                time.sleep(1)
-                continue
+                elif case == 'props':   #SI se llamo para obtener las propiedades de un compuesto
+                    #print('caso props')
+                    value = pcp.get_properties(self.computedProperties, compoundToSearch, 'name')   #llamamos a la API
+                break   #Si llega hasta aca es porque si termino la funcion correctamente, rompe el ciclo FOR
+
+            except pcp.PubChemHTTPError:        #Este es el error que arroja si haces mas de 5 peticiones por segundo
+                print('SERVER BUSY')
+                time.sleep(1)                   #dormimos ese hilo un segundo
+                continue                        #volvemos a intentar (este continue le dice al for que vaya a la siguiente iteracion y vuelve
+                                                #a hacer el try)
 
             except urllib.error.URLError: #Error: Name or service not known
-                print('Error NO HAY INTERNET')
-                #self.isConnected = False
-                self.lock2.acquire()
-                self.flag += 1
-                self.lock2.release()
-                internalmsg = 'networkerror' + str(self.flag)
-                self.internalQueue.put(internalmsg)
+                """internalmsg = 0
+                self.queue.put(internalmsg)
                 event.wait()
-                continue
-            
-            else:
-                break
-        
-        if case == 'names':
-            return c
-        elif case == 'props':
-            return p
+                continue"""
+                if self.flag < 1:
+                    self.lock2.acquire()
+                    self.flag += 1
+                    self.lock2.release()
+                    internalmsg = 'networkerror' + str(self.flag)
+                    self.internalQueue.put(internalmsg)
+                    event.wait()
+                    continue
+                else:
+                    event.wait() 
+                    continue
+
+        return value

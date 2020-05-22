@@ -57,7 +57,7 @@ class First_S():
         self.photo=PhotoImage(file=abs_file_path+current_file)
         self.photo_bu=self.photo.subsample(18,18)
         self.openFile=Button(self.pantalla,image=self.photo_bu, bg="white", command=self.getfile, relief=RAISED)
-        self.Search_F=Button(self.pantalla,text="Iniciar", relief=FLAT,command=self.begin_all)
+        self.Search_F=Button(self.pantalla,text="Iniciar", relief=FLAT,state=DISABLED,command=self.begin_all)
         current_help="ayuda.png"
         self.help_=PhotoImage(file=abs_file_path+current_help)
         self.help_ima=self.help_.subsample(30,28)
@@ -112,12 +112,12 @@ class First_S():
     def begin_all(self):
         global compounds
         global proteins
-        #Deshabilitamos botones
-        self.Search_F["state"] = ["disabled"]
-        self.openFile["state"] = ["disabled"]
         #Revisar que el usuario este conectado a internet
         isConnected = CheckConnection.check_internet_conn()
         if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
+            #Deshabilitamos botones
+            self.Search_F["state"] = ["disabled"]
+            self.openFile["state"] = ["disabled"]
             #Instanciando la clase de los hilos (ThreadClient)
             tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)
         else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet

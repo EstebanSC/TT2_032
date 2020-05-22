@@ -99,13 +99,17 @@ class Principal():
 
     def exProject(self):
         self.exPath = self.create_path()
-        [self.initCompounds,self.initProteins] = lectura(self.exPath + '/CI_copy.txt')
-        if(self.initCompounds==[] or self.initProteins==[]):
-            messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
-        else:
-            self.lenCompounds = len(self.initCompounds)
-            self.lenProteins = len(self.initProteins)
-            self.lookingForProject()
+        self.initCompounds = []
+        self.initProteins = []
+
+        if(os.path.isfile(self.exPath + '/CI_copy.txt')):
+            [self.initCompounds,self.initProteins] = lectura(self.exPath + '/CI_copy.txt')
+            if(self.initCompounds==[] or self.initProteins==[]):
+                messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
+            else:
+                self.lenCompounds = len(self.initCompounds)
+                self.lenProteins = len(self.initProteins)
+        self.lookingForProject()
 
     def create_path(self):
         self.project_path = ''
@@ -122,11 +126,12 @@ class Principal():
         copyInitFilePath = self.exPath + '/CI_copy.txt'
         compoundThreads = list()
         proteinThreads = list()
-        self.master = tk.Toplevel()
         #Inicializamos los arreglos que vamos a modificar, realizando una copia del resultado de leer el
         #archivo inicial
-        exCompounds = self.initCompounds.copy()
-        exProteins = self.initProteins.copy()
+        if not (self.initCompounds==[] and self.initProteins==[]):
+            self.master = tk.Toplevel()
+            exCompounds = self.initCompounds.copy()
+            exProteins = self.initProteins.copy()
         #Revisar que exista un folder de compuestos y proteinas, si no es así, regresar a la pantalla
         #principal y notificar al usuario
         if(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
