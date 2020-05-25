@@ -43,7 +43,7 @@ def lectura(filenom):
                 continue
             else:
                 if(flagtype==0):
-                    messagebox.showerror(title="ERROR", message="Formato Equivocado")
+                    #messagebox.showerror(title="ERROR", message="Formato Equivocado")
                     return[compounds,proteins]
                 elif(flagtype==1):
                     compounds.append(strline)

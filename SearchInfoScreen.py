@@ -172,8 +172,8 @@ class ThreadedClient:
                                             #se detiene la ejecucion del main thread
         try:
             internalmsg = self.internalQueue.get_nowait()       
-            #print(msg)
-            if(internalmsg == 'networkerror1'):
+            print(internalmsg)
+            if(internalmsg == 'networkerror'):
                 print('Solo veras esto 1 vez')
                 #isConnected = False
                 self.gui.ask_check()
@@ -237,6 +237,7 @@ class ThreadedClient:
         #compoundsMDB1=[]
         global compoundsMDB1
         global event
+        global isConnected
 
         opt=webdriver.ChromeOptions()
         opt.add_argument('headless')
@@ -277,29 +278,25 @@ class ThreadedClient:
                     #compoundsMissed.append(compounds)
                     #Error de CONEXION EN LA ESTRUCTURA 
                     print("Compuesto perdido por Error de conexion")
-                    if self.flag < 1:     #Aqui cae directamente al wait porque ya se sabe por medio de otro hilo que no hay conexion
-                        self.lock2.acquire()
-                        self.flag += 1
-                        self.lock2.release()
-                        internalmsg = 'networkerror' + str(self.flag)
+                    self.lock2.acquire()
+                    if isConnected:
+                        isConnected = False
+                        internalmsg = 'networkerror'
                         self.internalQueue.put(internalmsg)
-                        event.wait()
-                    else:
-                        event.wait()
+                    self.lock2.release()
+                    event.wait()
                 driveC.close()
 
         except:##ERROR DE CONEXION PARA ESTRUCTURA
             driveC.close()
             #print("Error de conexion")
-            if self.flag < 1:     #Aqui cae directamente al wait porque ya se sabe por medio de otro hilo que no hay conexion
-                self.lock2.acquire()
-                self.flag += 1
-                self.lock2.release()
-                internalmsg = 'networkerror' + str(self.flag)
+            self.lock2.acquire()
+            if isConnected:
+                isConnected = False
+                internalmsg = 'networkerror'
                 self.internalQueue.put(internalmsg)
-                event.wait()
-            else:
-                event.wait()
+            self.lock2.release()
+            event.wait()
         #call pubChem
         #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
         #dataPubChem.start()
@@ -312,6 +309,7 @@ class ThreadedClient:
         #compoundsMDB2=[]
         global compoundsMDB2
         global event
+        global isConnected
 
         opt=webdriver.ChromeOptions()
         opt.add_argument('headless')
@@ -368,15 +366,13 @@ class ThreadedClient:
             #compoundsMissed.append(compounds)
             driveC.close()
             #print("Error de conexion")
-            if self.flag < 1:
-                self.lock2.acquire()
-                self.flag += 1
-                self.lock2.release()
-                internalmsg = 'networkerror' + str(self.flag)
+            self.lock2.acquire()
+            if isConnected:
+                isConnected = False
+                internalmsg = 'networkerror'
                 self.internalQueue.put(internalmsg)
-                event.wait()
-            else:
-                event.wait()
+            self.lock2.release()
+            event.wait()
             #filet.close()
             #print("NOT FOUND MEDICAMENTO")
             #print("Table not founded:"+str(compounds)) 
@@ -386,6 +382,7 @@ class ThreadedClient:
         #P_notfound=[]
         global P_notfounds
         global event
+        global isConnected
 
         try:
             RName=""
@@ -418,15 +415,13 @@ class ThreadedClient:
                 #    print("PDB no encontrado")
                 #else:
                 print("Compuesto no encontrado por error de conexion")#Este capta el error de request para el ID y para el pdbfile
-                if self.flag < 1:
-                    self.lock2.acquire()
-                    self.flag += 1
-                    self.lock2.release()
-                    internalmsg = 'networkerror' + str(self.flag)
+                self.lock2.acquire()
+                if isConnected:
+                    isConnected = False
+                    internalmsg = 'networkerror'
                     self.internalQueue.put(internalmsg)
-                    event.wait()
-                else:
-                    event.wait()
+                self.lock2.release()
+                event.wait()
                 #P_notfounds.append(item)
 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
@@ -485,7 +480,8 @@ class ThreadedClient:
     def getValues_PubChem(self, case, compoundToSearch):
         value = []      #definimos un arreglo que sera lo que retorne al final esta funcion
         global event    #el evento es global y sirve para controlar la pausa de los hilos (cuando no hay conexion)
-        
+        global isConnected
+
         for attemp in range(3):     #se intentara 3 veces llamar a la API (mecanismo retry)
             try:            
                 if case == 'names':     #si se llamo para verificar que el compuesto existe
@@ -508,7 +504,15 @@ class ThreadedClient:
                 self.queue.put(internalmsg)
                 event.wait()
                 continue"""
-                if self.flag < 1:
+                self.lock2.acquire()
+                if isConnected:
+                    isConnected = False
+                    internalmsg = 'networkerror'
+                    self.internalQueue.put(internalmsg)
+                self.lock2.release()
+                event.wait()
+                continue
+                """if self.flag < 1:
                     self.lock2.acquire()
                     self.flag += 1
                     self.lock2.release()
@@ -518,6 +522,6 @@ class ThreadedClient:
                     continue
                 else:
                     event.wait() 
-                    continue
+                    continue"""
 
         return value
