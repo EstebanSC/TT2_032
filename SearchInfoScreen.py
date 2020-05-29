@@ -277,7 +277,7 @@ class ThreadedClient:
                 else:
                     #compoundsMissed.append(compounds)
                     #Error de CONEXION EN LA ESTRUCTURA 
-                    print("Compuesto perdido por Error de conexion")
+                    print("Error de conexion drugbank")
                     self.lock2.acquire()
                     if isConnected:
                         isConnected = False
@@ -289,7 +289,7 @@ class ThreadedClient:
 
         except:##ERROR DE CONEXION PARA ESTRUCTURA
             driveC.close()
-            #print("Error de conexion")
+            print("Error de conexion Drugbank")
             self.lock2.acquire()
             if isConnected:
                 isConnected = False
@@ -365,7 +365,7 @@ class ThreadedClient:
         except:#BIOACTIVIDAD NO ENCONTRADA POR ERROR DE CONEXION 
             #compoundsMissed.append(compounds)
             driveC.close()
-            #print("Error de conexion")
+            print("Error de conexion Drugbank BA")
             self.lock2.acquire()
             if isConnected:
                 isConnected = False
@@ -414,7 +414,7 @@ class ThreadedClient:
                 #if(pdbl=="Desired structure doesn't exists"):
                 #    print("PDB no encontrado")
                 #else:
-                print("Compuesto no encontrado por error de conexion")#Este capta el error de request para el ID y para el pdbfile
+                print("Error de conexion PDB")#Este capta el error de request para el ID y para el pdbfile
                 self.lock2.acquire()
                 if isConnected:
                     isConnected = False
@@ -505,6 +505,7 @@ class ThreadedClient:
                 event.wait()
                 continue"""
                 self.lock2.acquire()
+                print('Error de conexion: Pubchem')
                 if isConnected:
                     isConnected = False
                     internalmsg = 'networkerror'

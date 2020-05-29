@@ -25,6 +25,7 @@ class First_S():
         self.pantalla=tk.Toplevel()
         self.refButton1 = refButton1
         self.refButton2 = refButton2
+        self.buttonSet = False
         self.refButton1["state"] = ["disabled"]
         self.refButton2["state"] = ["disabled"]
         self.pantalla.resizable(False, False)
@@ -125,11 +126,28 @@ class First_S():
             self.Search_F["state"] = ["disabled"]
             self.openFile["state"] = ["disabled"]
             #Instanciando la clase de los hilos (ThreadClient)
-            tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)
+            if not self.buttonSet:
+                tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)
+                self.buttonSet = True
+            else:
+                msgbox = messagebox.askyesno('Alerta','En este directorio ya existe un proyecto. Comenzar uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
+                if msgbox:      #Sobreescribimos proyecto
+                    try:
+                        self.overwriteProject(self.project_path + 'Compounds')    #Eliminamos todo lo que hay en el directorio de compuestos
+                        self.overwriteProject(self.project_path + '/Proteins')    #Eliminamos todo lo que hay en el directorio de proteinas
+                        os.remove(self.project_path + '/CI_copy.txt')                #Eliminamos copia de conjunto inicial
+                    except:
+                        pass
+                    tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)    
         else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet
             self.ask_check()
         #search_r()
         #tc = SearchInfoScreen.ThreadedClient(compounds,proteins,project_path)
+        
+    def overwriteProject(self,path):
+        fileList = [ f for f in os.listdir(path)]
+        for f in fileList:
+            os.remove(os.path.join(path,f))
 
     def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
         if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
