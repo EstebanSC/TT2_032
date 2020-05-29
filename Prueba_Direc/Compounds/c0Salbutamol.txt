@@ -1,0 +1,75 @@
+Salbutamol
+STRUCTURE:
+HEADER    PROTEIN                                 23-FEB-12   NONE
+TITLE     NULL                                                        
+COMPND    MOLECULE: 1001                                              
+SOURCE    NULL                                                        
+KEYWDS    NULL                                                        
+EXPDTA    NULL                                                        
+AUTHOR    Marvin                                                      
+REVDAT   1   23-FEB-12         0                                  
+HETATM    1  O   UNK     0       6.574   1.882   0.000  0.00  0.00           O+0
+HETATM    2  O   UNK     0       7.908  -5.048   0.000  0.00  0.00           O+0
+HETATM    3  O   UNK     0       3.907  -2.738   0.000  0.00  0.00           O+0
+HETATM    4  N   UNK     0       9.242   3.422   0.000  0.00  0.00           N+0
+HETATM    5  C   UNK     0      10.576   4.192   0.000  0.00  0.00           C+0
+HETATM    6  C   UNK     0       9.242   1.882   0.000  0.00  0.00           C+0
+HETATM    7  C   UNK     0       7.908   1.112   0.000  0.00  0.00           C+0
+HETATM    8  C   UNK     0      11.909   4.962   0.000  0.00  0.00           C+0
+HETATM    9  C   UNK     0       9.806   5.526   0.000  0.00  0.00           C+0
+HETATM   10  C   UNK     0      11.346   2.858   0.000  0.00  0.00           C+0
+HETATM   11  C   UNK     0       7.908  -0.428   0.000  0.00  0.00           C+0
+HETATM   12  C   UNK     0       6.574  -1.198   0.000  0.00  0.00           C+0
+HETATM   13  C   UNK     0       9.242  -1.198   0.000  0.00  0.00           C+0
+HETATM   14  C   UNK     0       6.574  -2.738   0.000  0.00  0.00           C+0
+HETATM   15  C   UNK     0       7.908  -3.508   0.000  0.00  0.00           C+0
+HETATM   16  C   UNK     0       9.242  -2.738   0.000  0.00  0.00           C+0
+HETATM   17  C   UNK     0       5.241  -3.508   0.000  0.00  0.00           C+0
+CONECT    1    7                                                            
+CONECT    2   15                                                            
+CONECT    3   17                                                            
+CONECT    4    5    6                                                       
+CONECT    5    4    8    9   10                                             
+CONECT    6    4    7                                                       
+CONECT    7    1    6   11                                                  
+CONECT    8    5                                                            
+CONECT    9    5                                                            
+CONECT   10    5                                                            
+CONECT   11    7   12   13                                                  
+CONECT   12   11   14                                                       
+CONECT   13   11   16                                                       
+CONECT   14   12   15   17                                                  
+CONECT   15    2   14   16                                                  
+CONECT   16   13   15                                                       
+CONECT   17    3   14                                                       
+MASTER        0    0    0    0    0    0    0    0   17    0   34    0
+END
+##########
+BIOACTIVITY:
+ABeta-2 adrenergic receptor_agonist_Humans_
+UBeta-1 adrenergic receptor_agonist_Humans_
+UBeta-3 adrenergic receptor_Not Available_Humans_
+##########
+
+DESCRIPTORS:
+{
+  "Charge": 0,
+  "Complexity": 227,
+  "CovalentUnitCount": 1,
+  "DefinedAtomStereoCount": 0,
+  "DefinedBondStereoCount": 0,
+  "ExactMass": 239.152144,
+  "HBondAcceptorCount": 4,
+  "HBondDonorCount": 4,
+  "HeavyAtomCount": 17,
+  "IsotopeAtomCount": 0,
+  "MolecularWeight": 239.31,
+  "MonoisotopicMass": 239.152144,
+  "RotatableBondCount": 5,
+  "TPSA": 72.7,
+  "UndefinedAtomStereoCount": 1,
+  "UndefinedBondStereoCount": 0,
+  "XLogP": 0.3
+}
+##########
+FINAL

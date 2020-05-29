@@ -1,0 +1,80 @@
+Chlorphenamine
+STRUCTURE:
+HEADER    PROTEIN                                 23-FEB-12   NONE
+TITLE     NULL                                                        
+COMPND    MOLECULE: 1114                                              
+SOURCE    NULL                                                        
+KEYWDS    NULL                                                        
+EXPDTA    NULL                                                        
+AUTHOR    Marvin                                                      
+REVDAT   1   23-FEB-12         0                                  
+HETATM    1 Cl   UNK     0       7.081  -5.390   0.000  0.00  0.00          Cl+0
+HETATM    2  N   UNK     0       4.414   3.850   0.000  0.00  0.00           N+0
+HETATM    3  N   UNK     0       8.415   3.080   0.000  0.00  0.00           N+0
+HETATM    4  C   UNK     0       7.081   0.770   0.000  0.00  0.00           C+0
+HETATM    5  C   UNK     0       5.748   1.540   0.000  0.00  0.00           C+0
+HETATM    6  C   UNK     0       5.748   3.080   0.000  0.00  0.00           C+0
+HETATM    7  C   UNK     0       7.081  -0.770   0.000  0.00  0.00           C+0
+HETATM    8  C   UNK     0       8.415   1.540   0.000  0.00  0.00           C+0
+HETATM    9  C   UNK     0       8.415  -1.540   0.000  0.00  0.00           C+0
+HETATM   10  C   UNK     0       5.748  -1.540   0.000  0.00  0.00           C+0
+HETATM   11  C   UNK     0       9.748   0.770   0.000  0.00  0.00           C+0
+HETATM   12  C   UNK     0       3.080   3.080   0.000  0.00  0.00           C+0
+HETATM   13  C   UNK     0       4.414   5.390   0.000  0.00  0.00           C+0
+HETATM   14  C   UNK     0       8.415  -3.080   0.000  0.00  0.00           C+0
+HETATM   15  C   UNK     0       5.748  -3.080   0.000  0.00  0.00           C+0
+HETATM   16  C   UNK     0      11.082   1.540   0.000  0.00  0.00           C+0
+HETATM   17  C   UNK     0       7.081  -3.850   0.000  0.00  0.00           C+0
+HETATM   18  C   UNK     0       9.748   3.850   0.000  0.00  0.00           C+0
+HETATM   19  C   UNK     0      11.082   3.080   0.000  0.00  0.00           C+0
+CONECT    1   17                                                            
+CONECT    2    6   12   13                                                  
+CONECT    3    8   18                                                       
+CONECT    4    5    7    8                                                  
+CONECT    5    4    6                                                       
+CONECT    6    2    5                                                       
+CONECT    7    4    9   10                                                  
+CONECT    8    3    4   11                                                  
+CONECT    9    7   14                                                       
+CONECT   10    7   15                                                       
+CONECT   11    8   16                                                       
+CONECT   12    2                                                            
+CONECT   13    2                                                            
+CONECT   14    9   17                                                       
+CONECT   15   10   17                                                       
+CONECT   16   11   19                                                       
+CONECT   17    1   14   15                                                  
+CONECT   18    3   19                                                       
+CONECT   19   16   18                                                       
+MASTER        0    0    0    0    0    0    0    0   19    0   40    0
+END
+##########
+BIOACTIVITY:
+AHistamine H1 receptor_antagonist_Humans_
+USodium-dependent serotonin transporter_inhibitor_Humans_
+USodium-dependent noradrenaline transporter_inhibitor_Humans_
+USodium-dependent dopamine transporter_inhibitor_Humans_
+##########
+
+DESCRIPTORS:
+{
+  "Charge": 0,
+  "Complexity": 249,
+  "CovalentUnitCount": 1,
+  "DefinedAtomStereoCount": 0,
+  "DefinedBondStereoCount": 0,
+  "ExactMass": 274.123676,
+  "HBondAcceptorCount": 2,
+  "HBondDonorCount": 0,
+  "HeavyAtomCount": 19,
+  "IsotopeAtomCount": 0,
+  "MolecularWeight": 274.79,
+  "MonoisotopicMass": 274.123676,
+  "RotatableBondCount": 5,
+  "TPSA": 16.1,
+  "UndefinedAtomStereoCount": 1,
+  "UndefinedBondStereoCount": 0,
+  "XLogP": 3.4
+}
+##########
+FINAL
