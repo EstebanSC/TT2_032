@@ -462,7 +462,7 @@ class ThreadedClient:
                 del i['CID']    #La primera parte del JSON lleva el ID del compuesto, lo eliminamos porque
                                 #eso no lo ocupamos cuando escribimos el conjunto cero
                 with open(ruta, 'a+') as file:  #Abrimos el archivo y especificamos que vamos a agregar lineas
-                    file.write("\nDESCRIPTORS:\n")  #escribimos
+                    file.write("DESCRIPTORS:\n")  #escribimos
                     json.dump(i, file, sort_keys=True, indent = 2)  #COn esto escribimos el JSON al conjunto 0 del compuesto
                     file.write("\n##########\n")    #escribimos
                     file.write("FINAL")             #escribimos

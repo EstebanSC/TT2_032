@@ -189,7 +189,7 @@ class Principal():
                             #print('Debo eliminar: ' + data)
                             exCompounds.remove(data)   #Eliminamos el elemento del array porque ya existe
                         elif case == 'proteins':                   #Estamos en proteinas
-                            #print('SI llego aqui')
+                            #print('Debo eliminar: ' + data)
                             exProteins.remove(data)
                     
         #Leer cada archivo y revisar si esta completa la info
@@ -201,10 +201,13 @@ class Principal():
                     f.seek(-2, os.SEEK_CUR)
                 last_line = f.readline().decode()
 
-                if last_line.strip() != 'FINAL':
-                    if case == 'compounds':
+                if case == 'compounds':
+                    if last_line.strip() != 'FINAL':
+                        #print('Debo agregar: ' + data)
                         exCompounds.append(data)
-                    elif case == 'proteins':
+                elif case == 'proteins':
+                    if last_line.strip() != 'END':
+                        #print('Debo agregar: ' + data)
                         exProteins.append(data)
         except:
             pass
@@ -275,8 +278,8 @@ class LoadingProjectScreen():
                                                                              #de la suma de los arreglos significa
                                                                              #que los hilos ya terminaron           
                     #print('Ya acabe de analizar el proyecto')
-                    #print(exCompounds)
-                    #print(exProteins)
+                    print(exCompounds)
+                    print(exProteins)
                     self.beginSearch()
                     #self.show_results()
             except queue.Empty:
