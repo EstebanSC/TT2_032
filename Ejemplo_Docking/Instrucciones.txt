@@ -1,0 +1,101 @@
+Instrucciones para realizar un docking con el programa AutoDock4, AutoGrid4,
+y los script en python prepare_gpf4.py, prepare_ligand4.py, prepare_receptor4.py
+que se encuentran dentro de la libreria AutodockTools
+
+Paso 1 -----------------------------------------------------
+Convertir la estructura de tu compuesto a un a la estructura
+de un ligando manteniendo sus propiedades para poder realizar el docking.
+Para realizar este paso, ejecutaremos el siguiente comando
+
+./pythonsh prepare_ligand4.py -l NombreCompuesto.pdb -o NombreCompuesto.pdbqt
+
+Donde ejecutamos el script "pythonsh" que hace uso de la libreria prepare_ligand4.py
+para hacer la conversión de la estructura del compuesto.
+El comando -l indica el nombre del archivo que se tomara como entrada y que sera 
+preparada para convertirse en ligando.
+El comando -o indica el nombre del archivo donde se guardara la conversión.
+Este ultimo comando puede ser omitido ya que de no ponerse, se toma el nombre del
+archivo de entrada y se guarda la conversion en un nuevo archivo con ese nombre y su extensión.
+Nota:Algunas veces agrega otros simbolos para diferenciar el archivo del otro.
+
+Paso 2 ------------------------------------------------------
+Convertir la estructura de la protenia a una estructura de un
+receptor manteniendo sus propiedades y realizar el docking satisfactoriamente.
+Para realizar este paso, ejecutamos el siguiente comando:
+
+./pythonsh prepare_receptor4.py -r NombreProteina.pdb -o NombreProteina.pdbqt
+
+Donde ejecutamos el script "pythonsh" que hace uso de la libreria prepare_receptor4.py
+para hacer la conversión de la estructura del compuesto.
+El comando -r indica el nombre del archivo que se tomara como entrada y que sera 
+preparada para convertirse en receptor.
+El comando -o indica el nombre del archivo donde se guardara la conversión.
+Este ultimo comando puede ser omitido ya que de no ponerse, se toma el nombre del
+archivo de entrada y se guarda la conversion en un nuevo archivo con ese nombre y su extensión.
+Nota:Algunas veces agrega otros simbolos para diferenciar el archivo del otro.
+
+Paso 3 --------------------------------------------------------
+En este paso realizaremos la generación del archivo .gpf para poder obtener las coordenadas de la caja de grid.
+Para realizar este paso ejecutamos el siguiente comando:
+
+./pythonsh prepare_gpf4.py –l NombreCompuesto.pdbqt –r NombreProteina.pdbqt -o NombreCompuesto-Proteina.gpf
+
+Con el comando -l indicamos el nombre del archivo del ligando.
+Con el comando -r indicamos el nombre del archivo del receptor.
+Con el comando -o indicamos el nombre del archivo donde se guardara la salida. 
+
+Paso 4 --------------------------------------------------------
+Una vez obtenido el archivo .gpf, ejecutaremos el programa autogrid4 el cual nos dara las coordenadas
+de la caja de grid, para eso ejecutaremos el siguiente comando:
+
+autogrid4 -p NombreCompuesto-Proteina.gpf 
+
+El comando -p indica la entrada del archivo gpf
+
+Paso 5 -------------------------------------------------------
+Cuando el proceso termine, abriremos el archivo "NombreProteina.A.map" donde encontraremos las coordenadas
+del centro de la caja de grid que estan dadas por la etiqueta CENTER coordenada_x coordenada_y coordenada_z
+
+Una vez obtenida las coordenadas, procedemos a crear el archivo de configuración para iniciarl el docking.
+
+Paso 6 -------------------------------------------------------
+Creamos un archivo con el nombre NombreCompuesto_Proteina.txt el cual tendra como contenido lo siguiente:
+
+receptor=NombreProteina.pdbqt
+ligand=NombreCompuesto.pdbqt
+
+center_x=coordenada_x
+center_y=coordenada_y
+center_z=coordenada_z
+
+size_x=40
+size_y=40
+size_z=40
+
+exhaustiveness=8
+num_modes=9
+energy_range=3
+
+out=NombreProteina_NombreCompuesto.pdbqt
+log=NombreProteina_NombreCompuesto.log
+
+
+Donde la etiqueta receptor indica el nombre del archivo del receptor (El receptor de la proteina)
+La etiqueta ligand indica el nombre del archivo del ligando (El ligando del compuesto)
+La etiqueta center_x indica la entrada de la coordenada_x
+La etiqueta center_y indica la entrada de la coordenada_y
+La etiqueta center_z indica la entrada de la coordenada_z
+
+En la etiqueta out podemos poner el nombre con el que queremos que nuestra salida sea guardada
+Con la etiqueta log podemos poner el nombre con el que queremos que nuestra salida de la terminal sea guardada
+
+Paso 7 --------------------------------------------------------
+Una vez terminado el archivo de configuración, ejecutamos el siguiente comando para realizar el docking
+del compuesto y la proteina.
+
+vina --config NombreCompuesto_Proteina.txt
+
+Paso 8 --------------------------------------------------------
+Revisamos el archivo NombreProteina_NombreCompuesto.pdbqt donde veremos el resultado del docking y
+NombreProteina_NombreCompuesto.log para ver la salida de la terminal durante el proceso.
+
