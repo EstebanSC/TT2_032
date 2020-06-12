@@ -64,10 +64,10 @@ class GUISection:
         #self.header.config(anchor=CENTER)
         self.header.pack()
         self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
-        #self.charge.pack()    
+        self.charge.pack()    
 
     def showScreen(self):       #Funcion para mostrar la pantalla
-        self.pantalla.title("Busqueda")
+        self.pantalla.title("Búsqueda")
         self.pantalla.geometry("850x450")
         CenterScreen.center_screen(self.pantalla)
         self.header.place(x=25,y=50)
@@ -76,7 +76,7 @@ class GUISection:
         #time.sleep(3)
        
     def ask_quit(self):         #Funcion para el cuadro de dialogo que permita cerrar la ventana
-        if messagebox.askokcancel("Cerrar", "Desea cerrar la busqueda de datos ?",parent=self.pantalla):
+        if messagebox.askokcancel("Cerrar", "¿Desea cerrar la búsqueda de datos?",parent=self.pantalla):
             self.refButton1["state"] = ["normal"]
             self.refButton2["state"] = ["normal"]
             self.pantalla.destroy()
@@ -86,9 +86,21 @@ class GUISection:
         #self.change_title("Finalizando busqueda...",2)
         #self.change_title("Recopilando resultados...",3)
        
-        self.change_title("RESULTADOS DE LA BUSQUEDA")
-        self.charge.destroy()
-        
+        self.change_title("RESULTADOS DE LA BÚSQUEDA")
+        #self.charge.pack_forget()   #Esconde la barra de progreso pero no la elimina (ESTO NO FUNCIONA)
+
+        #Crear boton de continuar, si se hace clic en el nos lleva a una nueva clase (ANALISIS)
+        #NOTA PARA STEVE: EL BOTON SI FUNCIONA, PERO LA BARRA DE PROGRESO NO PUEDO OCULTARLA
+        self.continueProject=Button(self.pantalla,text="Continuar",relief=FLAT,width=14,height=2,command=self.analizeProject)
+        self.continueProject.place(relx=0.5,rely=0.8,anchor=CENTER)
+
+    def analizeProject(self):
+        self.change_title("ANALIZANDO DATOS...")    #Se cambia el label
+        self.charge.pack()  #ESTO DEBERIA MOSTRAR LA BARRA DE NUEVO, PERO NO FUNCIONA
+        self.continueProject.destroy()  #Se destruye el botón de continuar
+        #Instanciamos otra clase, la del analisis
+        print("AQUI SE COMIENZA EL ANALISIS")
+        self.ap = AnalyzeProject()
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
@@ -102,7 +114,7 @@ class GUISection:
     def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
         global isConnected
         global event
-        if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
+        if messagebox.showerror("Error", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
             isConnected = CheckConnection.check_internet_conn()
             if not isConnected:
                 self.ask_check()
@@ -526,3 +538,10 @@ class ThreadedClient:
                     continue"""
 
         return value
+
+class AnalyzeProject:
+    def __init__(self):
+        #AQUI YA ESTA PUESTA LA PANTALLA DE ANALISIS DE DATOS, COMENZAR DOCKING
+        #Para programarlo se debe determinar si el docking es un proceso exhaustivo de CPU o de entrada/salida
+        #asi, se utiliza multihilo o multiproceso
+        print('Hola docking')
