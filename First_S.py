@@ -111,9 +111,21 @@ class First_S():
         if(compounds==[] or proteins==[]):
             messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
         else:
+            C_noclean=compounds
+            P_noclean=proteins
+            compounds=[]
+            proteins=[]
+            compounds=self.NoRepeat(C_noclean,compounds)
+            proteins=self.NoRepeat(P_noclean,proteins)
             self.Search_F.configure(state=NORMAL, bg="green")
         
-    #####################################################################
+    #####################################################################}
+    def NoRepeat(self,Noclean,Clean):
+        for x in Noclean:
+            if x not in Clean:
+                Clean.append(x)
+        return Clean
+    ################################
     #################Esta funcion es la que inicia despues de validar el documento#################
     #########################Funcion llamada por el boton con texto aleatorio######################
     def begin_all(self):

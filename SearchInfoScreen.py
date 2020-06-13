@@ -37,6 +37,8 @@ isConnected = True                  #Esta es una condicion que se estara checand
                                     #First_S.py ya se checo el internet y si esta aqui es por que si hay
 event = threading.Event()
 #COmpuestos o proteinas no encontrados
+Compounds=[]
+Proteins=[]
 compoundsMDB1=[]#Compuestos Perdidos DB1
 compoundsMDB2=[]#Compuesto Perdidos DB2
 P_notfounds=[] #Proteinas Perdidas
@@ -54,12 +56,12 @@ class GUISection:
         self.refButton2 = refButton2
         self.pantalla.resizable(False, False)
         self.pantalla.protocol("WM_DELETE_WINDOW", self.ask_quit)
-        self.telacontrol=Canvas(self.pantalla,height=450,width=850,bg="white" )
+        self.telacontrol=Canvas(self.pantalla,height=450,width=950,bg="white" )
         self.telacontrol.pack(expand=FALSE)
         self.title=tk.StringVar()
         self.r="Buscando datos..."
         self.title.set(self.r)
-        self.header=Label(self.pantalla,textvariable=self.title,bg="white",anchor=N)
+        self.header=Label(self.pantalla,textvariable=self.title,bg="white", anchor="n")
         self.header.configure(font=("Arial Black",26))
         #self.header.config(anchor=CENTER)
         self.header.pack()
@@ -68,15 +70,16 @@ class GUISection:
 
     def showScreen(self):       #Funcion para mostrar la pantalla
         self.pantalla.title("Busqueda")
-        self.pantalla.geometry("850x450")
+        self.pantalla.geometry("950x450")
         CenterScreen.center_screen(self.pantalla)
-        self.header.place(x=25,y=50)
-        self.charge.place(x=250,y=250, width=350)
+        self.header.place(x=325,y=25)
+        self.charge.place(x=275,y=225, width=450)
         self.charge.start()
         #time.sleep(3)
        
+
     def ask_quit(self):         #Funcion para el cuadro de dialogo que permita cerrar la ventana
-        if messagebox.askokcancel("Cerrar", "Desea cerrar la busqueda de datos ?",parent=self.pantalla):
+        if messagebox.askokcancel("Cerrar", "¿ Desea cerrar la tarea en proceso ?",parent=self.pantalla):
             self.refButton1["state"] = ["normal"]
             self.refButton2["state"] = ["normal"]
             self.pantalla.destroy()
@@ -85,16 +88,165 @@ class GUISection:
     def search_end(self):
         #self.change_title("Finalizando busqueda...",2)
         #self.change_title("Recopilando resultados...",3)
-       
+        self.header.place(x=200,y=25)
         self.change_title("RESULTADOS DE LA BUSQUEDA")
         self.charge.destroy()
-        
+        #self.telacontrol.destroy()
+        self.charge_results()
+    
+    def ini_analisis(self):
+        self.container.destroy()
+        self.containerP.destroy()
+        self.B_Analisis.destroy()
+        self.B_Salir.destroy()
+        self.header.place(x=300,y=25)
+        self.change_title("Analizando los datos...")
+        self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
+        self.charge.place(x=275,y=225, width=450)
+        self.charge.start()
+
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
         #time.sleep(duration)    #Define el tiempo (por si se quiere cambiar otra vez)
         self.title.set(self.r)
         self.header.config(text=self.title)
+    
+    def charge_results(self):
+        ##compounds=['Salbutamol','Beclomethasone dipropionate','Alprenolol','Lidocaine,Paracetamol','Omeprazole','Loratadine','Ramipril','Piroxicam','Diazepam','Ibuprofen','Morphine','Chlorphenamine','Aspirin','Prednisone','Epinephrine','Amoxicillin','Albendazole']
+        ##compoundsMDB1=['Salbutamol','Ramipril','Piroxicam','Diazepam']
+        ##compoundsMDB2=['Loratadine','Ramipril''Diazepam']
+        ##compoundsMissed=['Amoxicillin','Albendazole']
+        ##proteins=['Actin','Collagen','Glutaminyl','Arginine']
+        ##P_notfounds=['Actin','Collagen']
+        global Compounds
+        global Proteins
+        global compoundsMDB1
+        global compoundsMDB2
+        global compoundsMissed
+        global P_notfounds
+        compounds=Compounds
+        proteins=Proteins
+        self.current_res = os.path.dirname(__file__)
+        self.rel_pathres="Interfaces/"
+        self.abs_file_pathres=os.path.join(self.current_res,self.rel_pathres)
+        self.Dir_Success="correcto.png"
+        self.Dir_Error="error.png"
+        self.Dir_Warn="Advertencia.png"
+        self.imgE=PhotoImage(file=self.abs_file_pathres+self.Dir_Error)
+        self.imgS=PhotoImage(file=self.abs_file_pathres+self.Dir_Success)
+        self.imgW=PhotoImage(file=self.abs_file_pathres+self.Dir_Warn)
+
+        self.imE=self.imgE.subsample(70,70)
+        self.imS=self.imgS.subsample(100,100)
+        self.imW=self.imgW.subsample(100,100)
+
+        ##############Container Compuestos#########
+        self.container = Frame(self.pantalla,bg="white")
+        self.canvas = Canvas(self.container,bg="white")
+        self.scrollbar = Scrollbar(self.container, orient="vertical", command=self.canvas.yview,bg="white")
+        self.scrollable_frame = Frame(self.canvas,bg="white")
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="n")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set, width=570,bg="white")
+        Headers=['Compuestos','Estructura','Descriptores','Bio-Actividad']
+        width = 4
+
+        for i in range(len(compounds)+1): #Rows
+            for j in range(width): #Columns
+
+                if(i<1):
+                    b=Label(self.scrollable_frame,text=Headers[j],fg="black",font=("Helvetica", 16),bg="white", anchor="n")
+                    b.grid(row=i, column=j)
+                
+                else:
+                    if(j==0):
+                        lss=compounds[i-1]
+                        #print(lss)
+                        b = Label(self.scrollable_frame, text=lss,bg="white")
+                        #print(compounds[i-1])
+                        b.grid(row=i, column=j)
+                    elif(j==1):
+                        if(compounds[i-1] in compoundsMDB1):
+                            b =Label(self.scrollable_frame, image=self.imE,bg="white")
+                        else:
+                            b = tk.Label(self.scrollable_frame, image=self.imS,bg="white")
+                        b.grid(row=i, column=j)
+                    
+                    elif(j==2):
+                        if(compounds[i-1] in compoundsMissed):
+                            b = Label(self.scrollable_frame, image=self.imE,bg="white")
+                        else:
+                            b = Label(self.scrollable_frame, image=self.imS,bg="white")
+                        b.grid(row=i, column=j)
+                        
+                    elif(j==3):
+                        if(compounds[i-1] in compoundsMDB2):
+                            b = Label(self.scrollable_frame, image=self.imE,bg="white")
+                        else:
+                            b = Label(self.scrollable_frame, image=self.imS,bg="white")
+                        b.grid(row=i, column=j)
+        self.container.pack()
+        self.canvas.pack(side="left", fill="both", expand=True )
+        self.scrollbar.pack(side="right", fill="y")
+        self.container.place(x=20,y=100)
+        #################Container Proteinas###########
+        self.containerP = Frame(self.pantalla,bg="white")
+        self.canvasP = Canvas(self.containerP,bg="white")
+        self.scrollbarP = Scrollbar(self.containerP, orient="vertical", command=self.canvasP.yview, bg="white")
+        self.scrollable_frameP = Frame(self.canvasP,bg="white")
+        self.scrollable_frameP.bind(
+            "<Configure>",
+            lambda e: self.canvasP.configure(
+                scrollregion=self.canvasP.bbox("all")
+            )
+        )
+
+        self.canvasP.create_window((0, 0), window=self.scrollable_frameP, anchor="n")
+        self.canvasP.configure(yscrollcommand=self.scrollbarP.set, width=250,bg="white")
+
+        wp=2
+        HeadP=['Proteina','Estructura']
+        for i in range(len(proteins)+1): #Rows
+            for j in range(wp): #Columns
+
+                if(i<1):
+                    b=Label(self.scrollable_frameP,text=HeadP[j],fg="black",font=("Helvetica", 16),bg="white", anchor="n")
+                    b.grid(row=i, column=j)
+                
+                else:
+                    if(j==0):
+                        lss=proteins[i-1]
+                        #print(lss)
+                        b = Label(self.scrollable_frameP, text=lss,bg="white")
+                        #print(compounds[i-1])
+                        b.grid(row=i, column=j)
+                    elif(j==1):
+                        if(proteins[i-1] in P_notfounds):
+                            b = Label(self.scrollable_frameP, image=self.imE,bg="white")
+                        else:
+                            b = Label(self.scrollable_frameP, image=self.imS,bg="white")
+                        b.grid(row=i, column=j)
+                    
+
+            
+        self.containerP.pack()
+        self.canvasP.pack(side="left", fill="both", expand=True)
+        self.scrollbarP.pack(side="right", fill="y")
+        self.containerP.place(x=650,y=100)
+
+        ##Buttons
+        self.B_Salir = tk.Button(self.pantalla, text="Salir", width=25, anchor="center")
+        self.B_Salir.place(x=550, y=400)
+        self.B_Analisis = tk.Button(self.pantalla, text="Continuar",command=self.ini_analisis, width=25,anchor="center")
+        self.B_Analisis.place(x=250, y=400)
+
+
     
     def destroy_screen(self):           #Funcion para destruir la ventana
         self.pantalla.destroy()
@@ -150,6 +302,8 @@ class ThreadedClient:
         self.g = 0      #Valor que se espera enviar a la cola de mensajes para los compuestos
         self.lock = threading.Lock()
         self.lock2 = threading.Lock()
+        compounds=compounds
+        proteins=proteins
         #Lista de elementos que no se encontraron
         self.compoundsMissed = []
         #Computed properties available in PubChem
@@ -181,7 +335,10 @@ class ThreadedClient:
             pass
 
     def threads(self, compounds, proteins, project_path):   #Funcion de los hilos        
-        
+        global Compounds
+        global Proteins
+        Compounds=compounds
+        Proteins=proteins
         for item in compounds:  #Un hilo por cada elemento del arreglo compounds
             #print(item)
             #time.sleep(0.2)
@@ -239,64 +396,70 @@ class ThreadedClient:
         global event
         global isConnected
 
-        opt=webdriver.ChromeOptions()
-        opt.add_argument('headless')
-        driveC= webdriver.Chrome(chrome_options=opt)
-        #driveC=webdriver.PhantomJS()
-        #print(compounds)
-        #print(project_path)
-        current_path = os.path.dirname(__file__)
-        
-            #llamar funcion
-            #generararchivo(pathdeaquiabajo, 2)
-            #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
-        #print(compounds)
-        ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
-            #print(ruta)
-        try:
-
-            driveC.get('https://www.drugbank.ca/')
-            inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
-                                                                #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
-            inputNCom.send_keys(compounds)
-            inputNCom.send_keys(Keys.ENTER)
-            if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-                compoundsMDB1.append(compounds)
-                driveC.close()
-            else:
-
-                struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
+        for attempt in range(3):
+            opt=webdriver.ChromeOptions()
+            opt.add_argument('headless')
+            driveC= webdriver.Chrome(chrome_options=opt)
+            #driveC=webdriver.PhantomJS()
+            #print(compounds)
+            #print(project_path)
+            current_path = os.path.dirname(__file__)
             
-                r=requests.get(str(struct_Down))
-                if r.status_code == 200:
-                    filet=open(ruta,"tw")
-                    filet.write(compounds)
-                    filet.write("\nSTRUCTURE:\n")
-                    filet.write(r.text)
-                    filet.write("##########\n")
-                else:
-                    #compoundsMissed.append(compounds)
-                    #Error de CONEXION EN LA ESTRUCTURA 
-                    print("Error de conexion drugbank")
-                    self.lock2.acquire()
-                    if isConnected:
-                        isConnected = False
-                        internalmsg = 'networkerror'
-                        self.internalQueue.put(internalmsg)
-                    self.lock2.release()
-                    event.wait()
-                driveC.close()
+                #llamar funcion
+                #generararchivo(pathdeaquiabajo, 2)
+                #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
+            #print(compounds)
+            ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+                #print(ruta)
+            try:
 
-        except:##ERROR DE CONEXION PARA ESTRUCTURA
-            driveC.close()
-            print("Error de conexion Drugbank")
-            self.lock2.acquire()
-            if isConnected:
-                isConnected = False
-                internalmsg = 'networkerror'
-                self.internalQueue.put(internalmsg)
-            self.lock2.release()
-            event.wait()
+                driveC.get('https://www.drugbank.ca/')
+                inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
+                                                                    #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
+                inputNCom.send_keys(compounds)
+                inputNCom.send_keys(Keys.ENTER)
+                if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
+                    compoundsMDB1.append(compounds)
+                    driveC.close()
+                    continue
+                else:
+
+                    struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
+                
+                    r=requests.get(str(struct_Down))
+                    if r.status_code == 200:
+                        filet=open(ruta,"tw")
+                        filet.write(compounds)
+                        filet.write("\nSTRUCTURE:\n")
+                        filet.write(r.text)
+                        filet.write("##########\n")
+                        driveC.close()
+                        break
+                    else:
+                        #compoundsMissed.append(compounds)
+                        #Error de CONEXION EN LA ESTRUCTURA 
+                        print("Error de conexion drugbank")
+                        self.lock2.acquire()
+                        if isConnected:
+                            isConnected = False
+                            internalmsg = 'networkerror'
+                            self.internalQueue.put(internalmsg)
+                        self.lock2.release()
+                        event.wait()
+                        driveC.close()
+                        continue
+
+            except:##ERROR DE CONEXION PARA ESTRUCTURA
+                driveC.close()
+                print("Error de conexion Drugbank")
+                self.lock2.acquire()
+                if isConnected:
+                    isConnected = False
+                    internalmsg = 'networkerror'
+                    self.internalQueue.put(internalmsg)
+                self.lock2.release()
+                event.wait()
+                continue
         #call pubChem
         #dataPubChem = threading.Thread(target=connectPubChem, args=(compounds,project_path))
         #dataPubChem.start()
@@ -310,69 +473,76 @@ class ThreadedClient:
         global compoundsMDB2
         global event
         global isConnected
-
-        opt=webdriver.ChromeOptions()
-        opt.add_argument('headless')
-        driveC= webdriver.Chrome(chrome_options=opt)
-        
-        ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
-        try:    
-            driveC.get('https://www.drugbank.ca/')
-            inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
-                                                            #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
-            inputNCom.send_keys(compounds)
-            inputNCom.send_keys(Keys.ENTER)
-        
-            if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-                compoundsMDB2.append(compounds)
-                driveC.close()
-            else:
-                driveC.implicitly_wait(5)
-                #tableBA=driveC.find_element_by_tag_name("table")
-                #files=tableBA.find_elements_by_tag_name("tr")
-                #tbdy=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]')
-                #table=driveC.find_element_by_id("drug-moa-target-table")
-                try:
-                    tds=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]/tbody')
-                    arr=tds.find_elements_by_tag_name("td")
-                    array_p=""
-                    filet=open(ruta,"a+")
-                    filet.write("BIOACTIVITY:\n")
-                    for z in range(len(arr)):
-                        #print(arr[z].text)
-                        array_p=array_p+arr[z].text+'_'
-
-                        if(((z+1)%3)==0):
-                            #print(array_p)
-                            filet.write(array_p+"\n")
-                            array_p=""
-                            
-
-                #q=(len(arr))/3
-                #print(q)
-                #print(pinter)
-                #print("finish " + compounds)
-                #print("Table founded:"+str(compounds))
-                    filet.write("##########\n")
-                except:
+        for attempt in range(3):
+            opt=webdriver.ChromeOptions()
+            opt.add_argument('headless')
+            driveC= webdriver.Chrome(chrome_options=opt)
+            
+            ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+            try:    
+                driveC.get('https://www.drugbank.ca/')
+                inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
+                                                                #actions in https://towardsdatascience.com/controlling-the-web-with-python-6fceb22c5f08
+                inputNCom.send_keys(compounds)
+                inputNCom.send_keys(Keys.ENTER)
+            
+                if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
                     compoundsMDB2.append(compounds)
-                    filet=open(ruta,"a+")
-                    filet.write("BIOACTIVITY:\n")
-                    filet.write("EMPTY:NOT FOUND\n")
-                    filet.write("##########\n")
-            #filet.close()
-            #print(table)
-        except:#BIOACTIVIDAD NO ENCONTRADA POR ERROR DE CONEXION 
-            #compoundsMissed.append(compounds)
-            driveC.close()
-            print("Error de conexion Drugbank BA")
-            self.lock2.acquire()
-            if isConnected:
-                isConnected = False
-                internalmsg = 'networkerror'
-                self.internalQueue.put(internalmsg)
-            self.lock2.release()
-            event.wait()
+                    driveC.close()
+                    continue
+                else:
+                    driveC.implicitly_wait(5)
+                    #tableBA=driveC.find_element_by_tag_name("table")
+                    #files=tableBA.find_elements_by_tag_name("tr")
+                    #tbdy=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]')
+                    #table=driveC.find_element_by_id("drug-moa-target-table")
+                    try:
+                        tds=driveC.find_element_by_xpath('//*[@id="drug-moa-target-table"]/tbody')
+                        arr=tds.find_elements_by_tag_name("td")
+                        array_p=""
+                        filet=open(ruta,"a+")
+                        filet.write("BIOACTIVITY:\n")
+                        for z in range(len(arr)):
+                            #print(arr[z].text)
+                            array_p=array_p+arr[z].text+'_'
+
+                            if(((z+1)%3)==0):
+                                #print(array_p)
+                                filet.write(array_p+"\n")
+                                array_p=""
+                                
+
+                    #q=(len(arr))/3
+                    #print(q)
+                    #print(pinter)
+                    #print("finish " + compounds)
+                    #print("Table founded:"+str(compounds))
+                        filet.write("##########\n")
+                        break
+                    except:
+                        if isConnected:
+                            compoundsMDB2.append(compounds)
+                            filet=open(ruta,"a+")
+                            filet.write("BIOACTIVITY:\n")
+                            filet.write("EMPTY:NOT FOUND\n")
+                            filet.write("##########\n")
+                            break
+                        else:
+                            continue
+                #filet.close()
+                #print(table)
+            except:#BIOACTIVIDAD NO ENCONTRADA POR ERROR DE CONEXION 
+                #compoundsMissed.append(compounds)
+                driveC.close()
+                print("Error de conexion Drugbank BA")
+                self.lock2.acquire()
+                if isConnected:
+                    isConnected = False
+                    internalmsg = 'networkerror'
+                    self.internalQueue.put(internalmsg)
+                self.lock2.release()
+                event.wait()
+                continue
             #filet.close()
             #print("NOT FOUND MEDICAMENTO")
             #print("Table not founded:"+str(compounds)) 
@@ -383,45 +553,51 @@ class ThreadedClient:
         global P_notfounds
         global event
         global isConnected
+        for attempt  in range(3):
+            try:
+                RName=""
+                RName=getbest(item)
+                if(RName.find("402")==-1 & RName.find("403")==-1):
+                    print(RName)
+                    IDP=getIDPDB(RName)
+                    #IDP=item
+                    coin=True
+                    pdbl = PDBList()
+                    pdbl.retrieve_pdb_file(IDP, pdir=project_path+"/Proteins", file_format='pdb')
+                    sl=IDP.lower()
+                    nombre_nuevo=project_path+"/Proteins/cP"+item+".pdb"
+                    archivo=project_path+"/Proteins/pdb"+sl+".ent"
+                    os.rename(archivo, nombre_nuevo)
+                    time.sleep(1) 
+                    filet=open(nombre_nuevo,"r+")
+                    contenido = filet.read()
+                    filet.seek(0, 0)
+                    filet.write(item+ '\n' + contenido)
+                    break
+                #elif(RName.find(403)==0):
+                #    print("Compuesto no encontrado por error de conexion")#Aqui va el error de conexion para el primer request
+                #    P_notfounds.append(item) 
+                else:
+                    if isConnected:
+                        print("Compuesto no encontrado por inexistencia")
+                        P_notfounds.append(item) 
+                        break
+                    else: 
+                        continue
 
-        try:
-            RName=""
-            RName=getbest(item)
-            if(RName.find("402")==-1 & RName.find("403")==-1):
-                print(RName)
-                IDP=getIDPDB(RName)
-                #IDP=item
-                coin=True
-                pdbl = PDBList()
-                pdbl.retrieve_pdb_file(IDP, pdir=project_path+"/Proteins", file_format='pdb')
-                sl=IDP.lower()
-                nombre_nuevo=project_path+"/Proteins/cP"+item+".pdb"
-                archivo=project_path+"/Proteins/pdb"+sl+".ent"
-                os.rename(archivo, nombre_nuevo)
-                time.sleep(1) 
-                filet=open(nombre_nuevo,"r+")
-                contenido = filet.read()
-                filet.seek(0, 0)
-                filet.write(item+ '\n' + contenido)
-            #elif(RName.find(403)==0):
-            #    print("Compuesto no encontrado por error de conexion")#Aqui va el error de conexion para el primer request
-            #    P_notfounds.append(item) 
-            else:
-                print("Compuesto no encontrado por inexistencia")
-                P_notfounds.append(item) 
-
-        except:
-                #if(pdbl=="Desired structure doesn't exists"):
-                #    print("PDB no encontrado")
-                #else:
-                print("Error de conexion PDB")#Este capta el error de request para el ID y para el pdbfile
-                self.lock2.acquire()
-                if isConnected:
-                    isConnected = False
-                    internalmsg = 'networkerror'
-                    self.internalQueue.put(internalmsg)
-                self.lock2.release()
-                event.wait()
+            except:
+                    #if(pdbl=="Desired structure doesn't exists"):
+                    #    print("PDB no encontrado")
+                    #else:
+                    print("Error de conexion PDB")#Este capta el error de request para el ID y para el pdbfile
+                    self.lock2.acquire()
+                    if isConnected:
+                        isConnected = False
+                        internalmsg = 'networkerror'
+                        self.internalQueue.put(internalmsg)
+                    self.lock2.release()
+                    event.wait()
+                    continue
                 #P_notfounds.append(item)
 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico

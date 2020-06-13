@@ -3,77 +3,134 @@ import tkinter as tk
 from tkinter import PhotoImage
 import os
 
-current_path = os.path.dirname(__file__)
 win = tk.Tk()
-win.minsize(width=600, height=400)
+win.minsize(width=950, height=400)
 win.resizable(width=0, height=0)
 
-rel_path2="Interfaces/"
-abs_file_path=os.path.join(current_path,rel_path2)
 
-current_logS="Success.png"
-current_logE="Error.png"
-current_logW="Warning.png"
-imgSS = PhotoImage(file=abs_file_path+current_logS)
-imgEE= PhotoImage(file=abs_file_path+current_logE)
-imgWW=PhotoImage(file=abs_file_path+current_logW)
-imgS=imgSS.subsample(5,5)
+compounds=['Salbutamol','Beclomethasone dipropionate','Alprenolol','Lidocaine,Paracetamol','Omeprazole','Loratadine','Ramipril','Piroxicam','Diazepam','Ibuprofen','Morphine','Chlorphenamine','Aspirin','Prednisone','Epinephrine','Amoxicillin','Albendazole']
+compoundsMDB1=['Salbutamol','Ramipril','Piroxicam','Diazepam']
+compoundsMDB2=['Loratadine','Ramipril''Diazepam']
+compoundsMissed=['Amoxicillin','Albendazole']
+proteins=['Actin','Collagen','Glutaminyl','Arginine']
+P_notfounds=['Actin','Collagen']
+#height = 5
+width = 4
 
-tree = ttk.Treeview(win, selectmode='browse')
-tree.place(x=30, y=95)
+current_path = os.path.dirname(__file__)
+rel_path="Interfaces/"
+abs_file_path=os.path.join(current_path,rel_path)
+Dir_Success="correcto.png"
+Dir_Error="error.png"
+Dir_Warn="Advertencia.png"
+imgE=PhotoImage(file=abs_file_path+Dir_Error)
+imgS=PhotoImage(file=abs_file_path+Dir_Success)
+imgW=PhotoImage(file=abs_file_path+Dir_Warn)
 
-treeP=ttk.Treeview(win, selectmode='browse')
-treeP.place(x=330,y=95)
+imE=imgE.subsample(70,70)
+imS=imgS.subsample(100,100)
+imW=imgW.subsample(100,100)
 
-vsbP=ttk.Scrollbar(win, orient="vertical", command=treeP.yview)
-vsbP.place(x=330+200+2, y=95, height=200+20)
+Headers=['Compuestos','Estructura','Descriptores','Bio-Actividad']
+##############Container Compuestos#########
+container = ttk.Frame(win)
+canvas = tk.Canvas(container)
+scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+scrollable_frame = ttk.Frame(canvas)
+scrollable_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")
+    )
+)
 
-treeP.configure(yscrollcommand=vsbP.set)
-
-vsb = ttk.Scrollbar(win, orient="vertical", command=tree.yview)
-vsb.place(x=30+200+2, y=95, height=200+20)
-
-tree.configure(yscrollcommand=vsb.set)
-
-tree["columns"] = ("1", "2")
-tree['show'] = 'headings'
-tree.column("1", width=100, anchor='c')
-#tree.column("2", width=100, anchor='c')
-tree.heading("#1", text="Compuestos")
-tree.heading("#2", text="Resultados")
-
-tree.insert('', 'end', text="#1's text",image= imgW,values=("Big1"))
-tree.insert('', 'end', text="#1's text",image= imgW,values=("Big2"))
-tree.insert('', 'end', text="#1's text",image= imgS,values=("Big3"))
-tree.insert('', 'end', text="#1's text",image= imgE,values=("Big4"))
-tree.insert('', 'end', text="#1's text",image= imgW,values=("Big5"))
-tree.insert('', 'end', text="#1's text",image= imgS,values=("Big6"))
-tree.insert('', 'end', text="#1's text",image= imgS,values=("Big7"))
-tree.insert('', 'end', text="#1's text",image= imgS,values=("Big8"))
-tree.insert('', 'end', text="#1's text",image= imgE,values=("Big9"))
-tree.insert('', 'end', text="#1's text",image= imgW,values=("Big10"))
-tree.insert('', 'end', text="#1's text",image= imgS,values=("Big11"))
-tree.insert('', 'end', text="#1's text",image= imgW,values=("Big12"))
-
-treeP["columns"] = ("1", "2")
-treeP['show'] = 'headings'
-treeP.column("1", width=100, anchor='c')
-treeP.column("2", width=100, anchor='c')
-treeP.heading("1", text="Account")
-treeP.heading("2", text="Type")
-treeP.insert("",'end',text="L1",values=("Big1","Best"))
-treeP.insert("",'end',text="L2",values=("Big2","Best"))
-treeP.insert("",'end',text="L3",values=("Big3","Best"))
-treeP.insert("",'end',text="L4",values=("Big4","Best"))
-treeP.insert("",'end',text="L5",values=("Big5","Best"))
-treeP.insert("",'end',text="L6",values=("Big6","Best"))
-treeP.insert("",'end',text="L7",values=("Big7","Best"))
-treeP.insert("",'end',text="L8",values=("Big8","Best"))
-treeP.insert("",'end',text="L9",values=("Big9","Best"))
-treeP.insert("",'end',text="L10",values=("Big10","Best"))
-treeP.insert("",'end',text="L11",values=("Big11","Best"))
-treeP.insert("",'end',text="L12",values=("Big12","Best"))
+canvas.create_window((0, 0), window=scrollable_frame, anchor="n")
+canvas.configure(yscrollcommand=scrollbar.set, width=570)
 
 
+for i in range(len(compounds)+1): #Rows
+    for j in range(width): #Columns
+
+        if(i<1):
+            b=tk.Label(scrollable_frame,text=Headers[j],fg="black",font=("Helvetica", 16))
+            b.grid(row=i, column=j)
+        
+        else:
+            if(j==0):
+                lss=compounds[i-1]
+                print(lss)
+                b = tk.Label(scrollable_frame, text=lss)
+                #print(compounds[i-1])
+                b.grid(row=i, column=j)
+            elif(j==1):
+                if(compounds[i-1] in compoundsMDB1):
+                    b = tk.Label(scrollable_frame, image=imE)
+                else:
+                    b = tk.Label(scrollable_frame, image=imS)
+                b.grid(row=i, column=j)
+            
+            elif(j==2):
+                if(compounds[i-1] in compoundsMissed):
+                    b = tk.Label(scrollable_frame, image=imE)
+                else:
+                    b = tk.Label(scrollable_frame, image=imS)
+                b.grid(row=i, column=j)
+                
+            elif(j==3):
+                if(compounds[i-1] in compoundsMDB2):
+                    b = tk.Label(scrollable_frame, image=imE)
+                else:
+                    b = tk.Label(scrollable_frame, image=imS)
+                b.grid(row=i, column=j)
+
+    
+container.pack()
+canvas.pack(side="left", fill="both", expand=True)
+scrollbar.pack(side="right", fill="y")
+container.place(x=20,y=100)
+###########################################
+#################Container Proteinas###########
+containerP = ttk.Frame(win)
+canvasP = tk.Canvas(containerP)
+scrollbarP = ttk.Scrollbar(containerP, orient="vertical", command=canvasP.yview)
+scrollable_frameP = ttk.Frame(canvasP)
+scrollable_frameP.bind(
+    "<Configure>",
+    lambda e: canvasP.configure(
+        scrollregion=canvasP.bbox("all")
+    )
+)
+
+canvasP.create_window((0, 0), window=scrollable_frameP, anchor="n")
+canvasP.configure(yscrollcommand=scrollbarP.set, width=250)
+
+wp=2
+HeadP=['Proteina','Estructura']
+for i in range(len(proteins)+1): #Rows
+    for j in range(wp): #Columns
+
+        if(i<1):
+            b=tk.Label(scrollable_frameP,text=HeadP[j],fg="black",font=("Helvetica", 16))
+            b.grid(row=i, column=j)
+        
+        else:
+            if(j==0):
+                lss=proteins[i-1]
+                print(lss)
+                b = tk.Label(scrollable_frameP, text=lss)
+                #print(compounds[i-1])
+                b.grid(row=i, column=j)
+            elif(j==1):
+                if(proteins[i-1] in P_notfounds):
+                    b = tk.Label(scrollable_frameP, image=imE)
+                else:
+                    b = tk.Label(scrollable_frameP, image=imS)
+                b.grid(row=i, column=j)
+            
+
+    
+containerP.pack()
+canvasP.pack(side="left", fill="both", expand=True)
+scrollbarP.pack(side="right", fill="y")
+containerP.place(x=650,y=100)
 win.mainloop()
-
