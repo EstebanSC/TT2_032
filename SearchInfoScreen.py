@@ -1,5 +1,5 @@
 #Imports generales
-import os 
+import os
 import time
 import urllib
 import CheckConnection
@@ -43,13 +43,13 @@ P_notfounds=[] #Proteinas Perdidas
 compoundsMissed=[] #Compuestos Pub
 class GUISection:
 
-    def __init__(self, master, queue, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
+    def __init__(self, master, queue, project_path, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
         current_path = os.path.dirname(__file__) # Where your .py file is located
         self.queue = queue
         self.pantalla = master
         self.length_compounds = lenCompounds
         self.length_proteins = lenProteins
-        #self.project_path = project_path
+        self.project_path = project_path
         self.refButton1 = refButton1
         self.refButton2 = refButton2
         self.pantalla.resizable(False, False)
@@ -100,6 +100,7 @@ class GUISection:
         self.continueProject.destroy()  #Se destruye el botón de continuar
         #Instanciamos otra clase, la del analisis
         print("AQUI SE COMIENZA EL ANALISIS")
+        os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
         self.ap = AnalyzeProject()
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
@@ -174,7 +175,7 @@ class ThreadedClient:
         self.flag = 0
 
         #Iniciar GUI
-        self.gui = GUISection(self.master, self.queue, self.length_compounds, self.length_proteins,self.refButton1,self.refButton2)
+        self.gui = GUISection(self.master, self.queue, self.project_path, self.length_compounds, self.length_proteins,self.refButton1,self.refButton2)
         self.gui.showScreen()
 
         #Llamando a la funcion de los hilos
@@ -263,7 +264,7 @@ class ThreadedClient:
             #generararchivo(pathdeaquiabajo, 2)
             #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
         #print(compounds)
-        ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+        ruta=project_path+"/Compounds/c0"+compounds+".pdb"##Creacion del archivo, String de la ruta
             #print(ruta)
         try:
 
@@ -327,7 +328,7 @@ class ThreadedClient:
         opt.add_argument('headless')
         driveC= webdriver.Chrome(chrome_options=opt)
         
-        ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+        ruta=project_path+"/Compounds/c0"+compounds+".pdb"##Creacion del archivo, String de la ruta
         try:    
             driveC.get('https://www.drugbank.ca/')
             inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
@@ -464,7 +465,7 @@ class ThreadedClient:
         #for each compound founded, try to retrieve its properties
         #Computed properties
         if compoundFounded:             #Si compoundFounded no es una cadena vacia, buscamos las propiedades(descriptores)
-            ruta = project_path + "/Compounds/c0" + compoundFounded +".txt"     #Definimos la ruta del archivo donde vamos a escribir
+            ruta = project_path + "/Compounds/c0" + compoundFounded +".pdb"     #Definimos la ruta del archivo donde vamos a escribir
             #Llamamos a la funcion que conseguira las propiedades del compuesto, y le pasamos el compuesto en cuestión
             p = self.getValues_PubChem('props', compoundFounded)
             #p = pcp.get_properties(self.computedProperties, compoundFounded, 'name')
