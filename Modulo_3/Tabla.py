@@ -5,8 +5,9 @@ try:
     from PIL import ImageTk, Image
     import operator
     import numpy as np
-    import matplotlib.pyplot as plt
+    from tkinter import messagebox
     from Tkinter import * 
+    
 except:
     import tkinter as tk
     import tkinter.font as tkFont
@@ -14,7 +15,7 @@ except:
     from PIL import ImageTk, Image
     import operator
     import numpy as np
-    import matplotlib.pyplot as plt
+    from tkinter import messagebox
 
 ## ----- Declaración de variables ----- #
 y=[]
@@ -85,7 +86,7 @@ app.title("Mostrar imagen")
 tkimage = ImageTk.PhotoImage(img)
  
 # Ponemos la imagen en un Lable dentro de la ventana
-label=tk.Label(app, image=tkimage, width=imagenAnchuraMaxima, height=imagenAlturaMaxima,bg='white').place(x=610 , y=150)
+label=tk.Label(app, image=tkimage, width=imagenAnchuraMaxima, height=imagenAlturaMaxima,bg='white').place(x=610 , y=130)
 
 #Boton de ayuda
 current_help="Imagenes/ayuda.png"
@@ -102,6 +103,39 @@ def Salir():
 #def Inicio():
 #   app
 
+def Guardar():
+    i=0
+    Com_tam = 36
+    Efe_tam = 13
+    relleno = 32
+
+    archivo = open("Resultados/Resultados_Proyecto.txt","w")
+    archivo.write("----------------------------- Resultados ----------------------------|\n\n")
+    archivo.write("------------ Compounds ------------ | --------- Efectividad ---------|\n")
+
+    for var in x:
+        archivo.write(y[i])
+        tam = (Com_tam - len(y[i]))
+
+        for espacio in range(tam):
+            archivo.write(" ")
+        archivo.write("|")
+
+        for espacio in range(Efe_tam):
+            archivo.write(" ")
+        archivo.write(str(var))
+        tam_1 = (relleno-len(str(var))-Efe_tam)
+
+        for espacio in range(tam_1):
+            archivo.write(" ")
+        archivo.write("|")
+        archivo.write("\n")
+        i=i+1
+    for target_list in range(70):
+        archivo.write("-")
+    
+    messagebox.showinfo("Resultados Guardados","Guardado correctamente")
+    
 
 ## ------ Botones ------- ##
     # Boton Salir
@@ -110,6 +144,9 @@ B_Salir.place(x=620, y=360)
 
 B_Nuevo = tk.Button(app, text="Inicio")
 B_Nuevo.place(x=690, y=360)
+
+B_Nuevo = tk.Button(app, text="Guardar", command=Guardar)
+B_Nuevo.place(x=645, y=320)
 
 
 ## ---------------- Tabla ----------------- ##
@@ -133,41 +170,6 @@ app.treeview.configure(yscrollcommand=vsb.set)
 for var in x:
     app.treeview.insert("",tk.END, text=y[j],values=x[j])
     j = j+1
-
-
-
-## ---- Resultados en txt -------- ##
-i=0
-Com_tam = 36
-Efe_tam = 13
-relleno = 32
-archivo = open("Resultados/Resultados.txt","w")
-archivo.write("----------------------------- Resultados ----------------------------|\n\n")
-archivo.write("------------ Compounds ------------ | --------- Efectividad ---------|\n")
-
-for var in x:
-    archivo.write(y[i])
-    tam = (Com_tam - len(y[i]))
-
-    for espacio in range(tam):
-        archivo.write(" ")
-    archivo.write("|")
-    for espacio in range(Efe_tam):
-        archivo.write(" ")
-    archivo.write(str(var))
-    tam_1 = (relleno-len(str(var))-Efe_tam)
-    for espacio in range(tam_1):
-        archivo.write(" ")
-    archivo.write("|")
-    archivo.write("\n")
-    i=i+1
-for target_list in range(70):
-    archivo.write("-")
-archivo.close()
-    
-    
-
-
 
 app.mainloop()
 

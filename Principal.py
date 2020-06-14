@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter.ttk import*
+from tkinter.ttk import *
 from tkinter import  filedialog, Text , messagebox
 from PIL import Image, ImageTk  
 from LectCI import *
@@ -10,6 +10,7 @@ import os
 import errno
 import threading
 import CheckConnection
+from CustomSpanishDialog import *
 import queue as queue
 import time
 
@@ -31,9 +32,9 @@ class Principal():
         current_path = os.path.dirname(__file__) # Where your .py file is located
         self.FrameP=Canvas(self.pantalla,height=400,width=550,bg="white")
         self.FrameP.pack(expand=FALSE)
-        self.Titulo1=Label(self.pantalla,text="Sistema para la Prediccion",bg="White")
+        self.Titulo1=Label(self.pantalla,text="Sistema para la Predicción",bg="white")
         self.Titulo1.config(font=("Arial",16))
-        self.Titulo2=Label(self.pantalla,text="de Actividad Farmacologica",bg="White")
+        self.Titulo2=Label(self.pantalla,text="de Actividad Farmacológica",bg="white")
         self.Titulo2.config(font=("Arial",16))
         rel_path2="Logotipo/"
         abs_file_path2=os.path.join(current_path,rel_path2)
@@ -46,7 +47,7 @@ class Principal():
         self.ver()
 
     def ver(self):
-        self.pantalla.title("SISPAF")
+        self.pantalla.title("SisPAF")
         self.pantalla.geometry("550x400")
         self.center_screen()
         self.Titulo1.place(x=250, y=70)
@@ -66,7 +67,7 @@ class Principal():
        self.pantalla.geometry('{}x{}+{}+{}'.format(width, height, x, y))
     
     def ask_quit(self):
-        if messagebox.askokcancel("Cerrar", "Desea cerrar SISPAF ?"):
+        if messagebox.askokcancel("CERRAR", "¿Desea cerrar SisPAF?"):
             self.pantalla.destroy()
     
     def newProject(self):
@@ -77,7 +78,10 @@ class Principal():
 
         if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
             #print('Si estan los directorios')
-            msgbox = messagebox.askyesno('Alerta','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
+            #msgbox = CustomSpanishDialog()
+            #resultmsg = msgbox.getValue()
+            #print(resultmsg)
+            msgbox = messagebox.askyesno('ALERTA','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
             if msgbox:      #Sobreescribimos proyecto
                 try:
                     self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
@@ -109,7 +113,7 @@ class Principal():
         if(os.path.isfile(self.exPath + '/CI_copy.txt')):
             [self.initCompounds,self.initProteins] = lectura(self.exPath + '/CI_copy.txt')
             if(self.initCompounds==[] or self.initProteins==[]):
-                messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
+                messagebox.showerror(title="ERROR", message="!El archivo no contiene los datos necesarios!")
             else:
                 self.lenCompounds = len(self.initCompounds)
                 self.lenProteins = len(self.initProteins)
@@ -118,7 +122,7 @@ class Principal():
     def create_path(self):
         self.project_path = ''
         home = str(Path.home())
-        self.project_path=filedialog.askdirectory(initialdir=home, title="Seleccione el directorio del Proyecto")
+        self.project_path=filedialog.askdirectory(initialdir=home, title="Seleccione el directorio del proyecto")
         #print(project_path)
         return self.project_path
     
@@ -165,7 +169,7 @@ class Principal():
                 
             #self.checkProject() #Aqui se comienza a analizar el projecto (ESTO DEBE DE SER CON HILOS)
         else:
-            messagebox.showerror('Proyecto inexistente', 'No se encontro ningún proyecto')
+            messagebox.showerror('ERROR', 'No se encontro ningún proyecto')
     
     def checkProject(self,data,case):
         global exCompounds
@@ -263,7 +267,7 @@ class LoadingProjectScreen():
         #time.sleep(3)
        
     def ask_quit(self):         #Funcion para el cuadro de dialogo que permita cerrar la ventana
-        if messagebox.askokcancel("Cerrar", "Desea cerrar la carga del proyecto ?",parent=self.pantalla):
+        if messagebox.askokcancel("CERRAR", "¿Desea cerrar la carga del proyecto?",parent=self.pantalla):
             self.pantalla.destroy()
             self.buttonRef1["state"] = ["normal"]
             self.buttonRef2["state"] = ["normal"]
@@ -299,7 +303,7 @@ class LoadingProjectScreen():
             self.ask_check()
     
     def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
-        if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
+        if messagebox.showerror("ERROR", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
             isConnected = CheckConnection.check_internet_conn()
 
 Principal = Principal()

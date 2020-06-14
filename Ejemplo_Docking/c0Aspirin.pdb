@@ -1,0 +1,85 @@
+Aspirin
+STRUCTURE:
+HEADER    PROTEIN                                 23-FEB-12   NONE
+TITLE     NULL                                                        
+COMPND    MOLECULE: 945                                               
+SOURCE    NULL                                                        
+KEYWDS    NULL                                                        
+EXPDTA    NULL                                                        
+AUTHOR    Marvin                                                      
+REVDAT   1   23-FEB-12         0                                  
+HETATM    1  O   UNK     0       5.748  -0.092   0.000  0.00  0.00           O+0
+HETATM    2  O   UNK     0       9.748   2.218   0.000  0.00  0.00           O+0
+HETATM    3  O   UNK     0       7.081   2.218   0.000  0.00  0.00           O+0
+HETATM    4  O   UNK     0       4.414  -2.402   0.000  0.00  0.00           O+0
+HETATM    5  C   UNK     0       7.081  -0.862   0.000  0.00  0.00           C+0
+HETATM    6  C   UNK     0       8.415  -0.092   0.000  0.00  0.00           C+0
+HETATM    7  C   UNK     0       7.081  -2.402   0.000  0.00  0.00           C+0
+HETATM    8  C   UNK     0       9.748  -0.862   0.000  0.00  0.00           C+0
+HETATM    9  C   UNK     0       8.415  -3.172   0.000  0.00  0.00           C+0
+HETATM   10  C   UNK     0       9.748  -2.402   0.000  0.00  0.00           C+0
+HETATM   11  C   UNK     0       8.415   1.448   0.000  0.00  0.00           C+0
+HETATM   12  C   UNK     0       4.414  -0.862   0.000  0.00  0.00           C+0
+HETATM   13  C   UNK     0       3.080  -0.092   0.000  0.00  0.00           C+0
+CONECT    1    5   12                                                       
+CONECT    2   11                                                            
+CONECT    3   11                                                            
+CONECT    4   12                                                            
+CONECT    5    1    6    7                                                  
+CONECT    6    5    8   11                                                  
+CONECT    7    5    9                                                       
+CONECT    8    6   10                                                       
+CONECT    9    7   10                                                       
+CONECT   10    8    9                                                       
+CONECT   11    2    3    6                                                  
+CONECT   12    1    4   13                                                  
+CONECT   13   12                                                            
+MASTER        0    0    0    0    0    0    0    0   13    0   26    0
+END
+##########
+BIOACTIVITY:
+AProstaglandin G/H synthase 1_inhibitor_Humans_
+AProstaglandin G/H synthase 2_inhibitor_Humans_
+UAldo-keto reductase family 1 member C1_inhibitor_Humans_
+U5'-AMP-activated protein kinase_activator_Humans_
+UEndothelin-1 receptor_inhibitor_Humans_
+UCellular tumor antigen p53_inducer
+acetylation_Humans_
+U78 kDa glucose-regulated protein_binding_Humans_
+URibosomal protein S6 kinase alpha-3_inhibitor_Humans_
+UNF-kappa-B inhibitor alpha_inhibitor_Humans_
+UTumor necrosis factor-inducible gene 6 protein_inhibitor
+downregulator_Humans_
+UCaspase-1_inhibitor
+downregulator_Humans_
+UCaspase-3_inhibitor
+downregulator_Humans_
+UInhibitor of nuclear factor kappa-B kinase subunit beta_Not Available_Humans_
+UExtracellular signal-regulated kinase (ERK)_Not Available_Humans_
+UG1/S-specific cyclin-D1_downregulator_Humans_
+UMyc proto-oncogene protein_downregulator_Humans_
+UProliferating cell nuclear antigen_downregulator_Humans_
+UCyclin A_downregulator__
+##########
+DESCRIPTORS:
+{
+  "Charge": 0,
+  "Complexity": 212,
+  "CovalentUnitCount": 1,
+  "DefinedAtomStereoCount": 0,
+  "DefinedBondStereoCount": 0,
+  "ExactMass": 180.042259,
+  "HBondAcceptorCount": 4,
+  "HBondDonorCount": 1,
+  "HeavyAtomCount": 13,
+  "IsotopeAtomCount": 0,
+  "MolecularWeight": 180.16,
+  "MonoisotopicMass": 180.042259,
+  "RotatableBondCount": 3,
+  "TPSA": 63.6,
+  "UndefinedAtomStereoCount": 0,
+  "UndefinedBondStereoCount": 0,
+  "XLogP": 1.2
+}
+##########
+FINAL

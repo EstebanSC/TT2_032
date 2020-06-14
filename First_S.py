@@ -44,7 +44,7 @@ class First_S():
                 raise
         self.FrameP=Canvas(self.pantalla,height=600,width=1100,bg="white")
         self.FrameP.pack(expand=FALSE)
-        self.TituloP=Label(self.pantalla,text="Sistema para la Prediccion de Actividad Farmacologica",bg="White")
+        self.TituloP=Label(self.pantalla,text="Sistema para la Predicción de Actividad Farmacológica",bg="White")
         self.TituloP.config(font=("Arial",26))
         rel_path2="Logotipo/"
         abs_file_path2=os.path.join(current_path,rel_path2)
@@ -72,7 +72,7 @@ class First_S():
     #######Las funciones se declaran aqui ##################
     #####Funcion de Ruta proyecto##########
     def ver(self):
-        self.pantalla.title("SISPAF")
+        self.pantalla.title("SisPAF")
         self.pantalla.geometry("900x500")
         CenterScreen.center_screen(self.pantalla)
         self.TituloP.place(x=30, y=30)
@@ -85,7 +85,7 @@ class First_S():
         self.pantalla.mainloop()
 
     def ask_quit(self):
-        if messagebox.askokcancel("Cerrar", "Desea cerrar SISPAF ?", parent=self.pantalla):
+        if messagebox.askokcancel("CERRAR", "¿Desea cerrar SisPAF?", parent=self.pantalla):
             self.refButton1["state"] = ["normal"]
             self.refButton2["state"] = ["normal"]
             self.pantalla.destroy()
@@ -95,7 +95,7 @@ class First_S():
         global compounds
         global proteins
         home = str(Path.home())
-        filename=filedialog.askopenfilename(initialdir=home,title="Seleccione Archivo",
+        filename=filedialog.askopenfilename(initialdir=home,title="Seleccione archivo",
         filetypes=(("text","*.txt"),("all files","*.txt")))
         #txtf=Path_F.get()
         txtf=str(filename)##Para convertir a String y se separa por /
@@ -109,7 +109,7 @@ class First_S():
         self.v.set(r)
         [compounds,proteins]=lectura(filename)
         if(compounds==[] or proteins==[]):
-            messagebox.showerror(title="ERROR", message="El Archivo no contiene los datos necesarios!")
+            messagebox.showerror(title="ERROR", message="!El archivo no contiene los datos necesarios!")
         else:
             C_noclean=compounds
             P_noclean=proteins
@@ -142,7 +142,7 @@ class First_S():
                 tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)
                 self.buttonSet = True
             else:
-                msgbox = messagebox.askyesno('Alerta','En este directorio ya existe un proyecto. Comenzar uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
+                msgbox = messagebox.askyesno('ALERTA','En este directorio ya existe un proyecto. Comenzar uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
                 if msgbox:      #Sobreescribimos proyecto
                     try:
                         self.overwriteProject(self.project_path + 'Compounds')    #Eliminamos todo lo que hay en el directorio de compuestos
@@ -162,6 +162,6 @@ class First_S():
             os.remove(os.path.join(path,f))
 
     def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
-        if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
+        if messagebox.showerror("ERROR", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
             isConnected = CheckConnection.check_internet_conn()
 

@@ -1,5 +1,5 @@
 #Imports generales
-import os 
+import os
 import time
 import urllib
 import CheckConnection
@@ -45,13 +45,13 @@ P_notfounds=[] #Proteinas Perdidas
 compoundsMissed=[] #Compuestos Pub
 class GUISection:
 
-    def __init__(self, master, queue, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
+    def __init__(self, master, queue, project_path, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
         current_path = os.path.dirname(__file__) # Where your .py file is located
         self.queue = queue
         self.pantalla = master
         self.length_compounds = lenCompounds
         self.length_proteins = lenProteins
-        #self.project_path = project_path
+        self.project_path = project_path
         self.refButton1 = refButton1
         self.refButton2 = refButton2
         self.pantalla.resizable(False, False)
@@ -66,11 +66,13 @@ class GUISection:
         #self.header.config(anchor=CENTER)
         self.header.pack()
         self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
-        #self.charge.pack()    
+        self.charge.pack()    
 
     def showScreen(self):       #Funcion para mostrar la pantalla
         self.pantalla.title("Busqueda")
         self.pantalla.geometry("950x450")
+        #self.pantalla.title("Búsqueda")
+        #self.pantalla.geometry("850x450")
         CenterScreen.center_screen(self.pantalla)
         self.header.place(x=325,y=25)
         self.charge.place(x=275,y=225, width=450)
@@ -80,6 +82,7 @@ class GUISection:
 
     def ask_quit(self):         #Funcion para el cuadro de dialogo que permita cerrar la ventana
         if messagebox.askokcancel("Cerrar", "¿ Desea cerrar la tarea en proceso ?",parent=self.pantalla):
+        #if messagebox.askokcancel("Cerrar", "¿Desea cerrar la búsqueda de datos?",parent=self.pantalla):
             self.refButton1["state"] = ["normal"]
             self.refButton2["state"] = ["normal"]
             self.pantalla.destroy()
@@ -105,6 +108,29 @@ class GUISection:
         self.charge.place(x=275,y=225, width=450)
         self.charge.start()
 
+       
+       # self.change_title("RESULTADOS DE LA BÚSQUEDA")
+        #self.charge.pack_forget()   #Esconde la barra de progreso pero no la elimina (ESTO NO FUNCIONA)
+
+        #Crear boton de continuar, si se hace clic en el nos lleva a una nueva clase (ANALISIS)
+        #NOTA PARA STEVE: EL BOTON SI FUNCIONA, PERO LA BARRA DE PROGRESO NO PUEDO OCULTARLA
+        #elf.continueProject=Button(self.pantalla,text="Continuar",relief=FLAT,width=14,height=2,command=self.analizeProject)
+        #elf.continueProject.place(relx=0.5,rely=0.8,anchor=CENTER)
+
+    def analizeProject(self):
+        self.container.destroy()
+        self.containerP.destroy()
+        self.B_Analisis.destroy()
+        self.B_Salir.destroy()
+        self.header.place(x=300,y=25)
+        self.change_title("Analizando los datos...")
+        self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
+        self.charge.place(x=275,y=225, width=450)
+        self.charge.start()
+        #Instanciamos otra clase, la del analisis
+        print("AQUI SE COMIENZA EL ANALISIS")
+        os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
+        self.ap = AnalyzeProject()
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
@@ -243,7 +269,7 @@ class GUISection:
         ##Buttons
         self.B_Salir = tk.Button(self.pantalla, text="Salir", width=25, anchor="center")
         self.B_Salir.place(x=550, y=400)
-        self.B_Analisis = tk.Button(self.pantalla, text="Continuar",command=self.ini_analisis, width=25,anchor="center")
+        self.B_Analisis = tk.Button(self.pantalla, text="Continuar",command=self.analizeProject, width=25,anchor="center")
         self.B_Analisis.place(x=250, y=400)
 
 
@@ -254,7 +280,7 @@ class GUISection:
     def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
         global isConnected
         global event
-        if messagebox.showerror("Revisar conexion", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
+        if messagebox.showerror("Error", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
             isConnected = CheckConnection.check_internet_conn()
             if not isConnected:
                 self.ask_check()
@@ -316,7 +342,7 @@ class ThreadedClient:
         self.flag = 0
 
         #Iniciar GUI
-        self.gui = GUISection(self.master, self.queue, self.length_compounds, self.length_proteins,self.refButton1,self.refButton2)
+        self.gui = GUISection(self.master, self.queue, self.project_path, self.length_compounds, self.length_proteins,self.refButton1,self.refButton2)
         self.gui.showScreen()
 
         #Llamando a la funcion de los hilos
@@ -391,7 +417,6 @@ class ThreadedClient:
     
     def connect_DrugBank(self, compounds, project_path):
         #Driver using mozzila to acces a drugbank
-        #compoundsMDB1=[]
         global compoundsMDB1
         global event
         global isConnected
@@ -403,13 +428,13 @@ class ThreadedClient:
             #driveC=webdriver.PhantomJS()
             #print(compounds)
             #print(project_path)
-            current_path = os.path.dirname(__file__)
+            #current_path = os.path.dirname(__file__)
             
                 #llamar funcion
                 #generararchivo(pathdeaquiabajo, 2)
                 #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
             #print(compounds)
-            ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+            ruta=project_path+"/Compounds/c0"+compounds+".pdb"##Creacion del archivo, String de la rutaruta=project_path+"/Compounds/c0"+compounds+".pdb"   
                 #print(ruta)
             try:
 
@@ -419,21 +444,27 @@ class ThreadedClient:
                 inputNCom.send_keys(compounds)
                 inputNCom.send_keys(Keys.ENTER)
                 if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
+                    
+
                     compoundsMDB1.append(compounds)
                     driveC.close()
-                    continue
-                else:
+                    break
+                 
 
+                else:
+                    #print("Si entro")
                     struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
                 
                     r=requests.get(str(struct_Down))
                     if r.status_code == 200:
+                        #print("Qu onda")
                         filet=open(ruta,"tw")
                         filet.write(compounds)
                         filet.write("\nSTRUCTURE:\n")
                         filet.write(r.text)
                         filet.write("##########\n")
-                        driveC.close()
+                        if compounds in compoundsMDB1:
+                            compoundsMDB1.remove(compounds)
                         break
                     else:
                         #compoundsMissed.append(compounds)
@@ -446,7 +477,6 @@ class ThreadedClient:
                             self.internalQueue.put(internalmsg)
                         self.lock2.release()
                         event.wait()
-                        driveC.close()
                         continue
 
             except:##ERROR DE CONEXION PARA ESTRUCTURA
@@ -478,7 +508,8 @@ class ThreadedClient:
             opt.add_argument('headless')
             driveC= webdriver.Chrome(chrome_options=opt)
             
-            ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+            #ruta=project_path+"/Compounds/c0"+compounds+".txt"##Creacion del archivo, String de la ruta
+            ruta=project_path+"/Compounds/c0"+compounds+".pdb"   
             try:    
                 driveC.get('https://www.drugbank.ca/')
                 inputNCom=driveC.find_element_by_id('query')#Explication to manager websites 
@@ -487,9 +518,12 @@ class ThreadedClient:
                 inputNCom.send_keys(Keys.ENTER)
             
                 if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-                    compoundsMDB2.append(compounds)
-                    driveC.close()
-                    continue
+                    
+                    if isConnected:
+                        compoundsMDB2.append(compounds)
+                        driveC.close()
+                        break
+
                 else:
                     driveC.implicitly_wait(5)
                     #tableBA=driveC.find_element_by_tag_name("table")
@@ -505,19 +539,19 @@ class ThreadedClient:
                         for z in range(len(arr)):
                             #print(arr[z].text)
                             array_p=array_p+arr[z].text+'_'
-
                             if(((z+1)%3)==0):
                                 #print(array_p)
                                 filet.write(array_p+"\n")
-                                array_p=""
-                                
-
+                                array_p="" 
+                        
                     #q=(len(arr))/3
                     #print(q)
                     #print(pinter)
                     #print("finish " + compounds)
                     #print("Table founded:"+str(compounds))
                         filet.write("##########\n")
+                        if compounds in compoundsMDB2:
+                            compoundsMDB2.remove(compounds)
                         break
                     except:
                         if isConnected:
@@ -553,7 +587,7 @@ class ThreadedClient:
         global P_notfounds
         global event
         global isConnected
-        for attempt  in range(3):
+        for attempt in range(3):
             try:
                 RName=""
                 RName=getbest(item)
@@ -573,17 +607,17 @@ class ThreadedClient:
                     contenido = filet.read()
                     filet.seek(0, 0)
                     filet.write(item+ '\n' + contenido)
+                    if item in P_notfounds:
+                        P_notfounds.remove(item)
                     break
                 #elif(RName.find(403)==0):
                 #    print("Compuesto no encontrado por error de conexion")#Aqui va el error de conexion para el primer request
                 #    P_notfounds.append(item) 
                 else:
-                    if isConnected:
-                        print("Compuesto no encontrado por inexistencia")
-                        P_notfounds.append(item) 
-                        break
-                    else: 
-                        continue
+                    print("Compuesto no encontrado por inexistencia")
+                    P_notfounds.append(item)
+                    
+                    
 
             except:
                     #if(pdbl=="Desired structure doesn't exists"):
@@ -598,13 +632,14 @@ class ThreadedClient:
                     self.lock2.release()
                     event.wait()
                     continue
-                #P_notfounds.append(item)
+                    #P_notfounds.append(item)
 
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
         self.g += 1              #Se aumenta el valor
         self.lock.release()      #Se libera el recurso
         msg = self.g             #El valor de g se asigna al mensaje que se pondrá en la cola de mensajes
         self.queue.put(msg)      #Se envia el mensaje a la cola de mensajes
+        #break
 
         print("Finish ENFERMEDAD")
         return
@@ -628,7 +663,7 @@ class ThreadedClient:
         #for each compound founded, try to retrieve its properties
         #Computed properties
         if compoundFounded:             #Si compoundFounded no es una cadena vacia, buscamos las propiedades(descriptores)
-            ruta = project_path + "/Compounds/c0" + compoundFounded +".txt"     #Definimos la ruta del archivo donde vamos a escribir
+            ruta = project_path + "/Compounds/c0" + compoundFounded +".pdb"     #Definimos la ruta del archivo donde vamos a escribir
             #Llamamos a la funcion que conseguira las propiedades del compuesto, y le pasamos el compuesto en cuestión
             p = self.getValues_PubChem('props', compoundFounded)
             #p = pcp.get_properties(self.computedProperties, compoundFounded, 'name')
@@ -702,3 +737,10 @@ class ThreadedClient:
                     continue"""
 
         return value
+
+class AnalyzeProject:
+    def __init__(self):
+        #AQUI YA ESTA PUESTA LA PANTALLA DE ANALISIS DE DATOS, COMENZAR DOCKING
+        #Para programarlo se debe determinar si el docking es un proceso exhaustivo de CPU o de entrada/salida
+        #asi, se utiliza multihilo o multiproceso
+        print('Hola docking')
