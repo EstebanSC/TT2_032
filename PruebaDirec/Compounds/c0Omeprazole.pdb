@@ -59,3 +59,7 @@ CONECT   24    4
 MASTER        0    0    0    0    0    0    0    0   24    0   52    0
 END
 ##########
+BIOACTIVITY:
+APotassium-transporting ATPase alpha chain 1_inhibitor_Humans_
+UAryl hydrocarbon receptor_agonist_Humans_
+##########

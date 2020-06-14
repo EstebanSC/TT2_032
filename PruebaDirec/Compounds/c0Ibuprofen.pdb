@@ -41,3 +41,15 @@ CONECT   15    1    2    7
 MASTER        0    0    0    0    0    0    0    0   15    0   30    0
 END
 ##########
+BIOACTIVITY:
+AProstaglandin G/H synthase 2_inhibitor_Humans_
+AProstaglandin G/H synthase 1_inhibitor_Humans_
+UApoptosis regulator Bcl-2_modulator_Humans_
+UThrombomodulin_inducer_Humans_
+UFatty acid-binding protein, intestinal_binder_Humans_
+UPeroxisome proliferator-activated receptor gamma_activator_Humans_
+UCystic fibrosis transmembrane conductance regulator_inhibitor_Humans_
+UPeroxisome proliferator-activated receptor alpha_activator_Humans_
+UPlatelet glycoprotein Ib alpha chain_inducer_Humans_
+UProtein S100-A7_inducer_Humans_
+##########

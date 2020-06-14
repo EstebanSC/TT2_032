@@ -59,3 +59,9 @@ CONECT   24    8
 MASTER        0    0    0    0    0    0    0    0   24    0   56    0
 END
 ##########
+BIOACTIVITY:
+AMu-type opioid receptor_agonist_Humans_
+AKappa-type opioid receptor_agonist_Humans_
+ADelta-type opioid receptor_agonist_Humans_
+ULymphocyte antigen 96_activator_Humans_
+##########

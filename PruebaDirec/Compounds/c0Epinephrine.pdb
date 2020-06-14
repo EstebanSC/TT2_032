@@ -37,3 +37,14 @@ CONECT   13    4
 MASTER        0    0    0    0    0    0    0    0   13    0   26    0
 END
 ##########
+BIOACTIVITY:
+AAlpha-1A adrenergic receptor_agonist_Humans_
+AAlpha-1B adrenergic receptor_agonist_Humans_
+ABeta-1 adrenergic receptor_agonist_Humans_
+ABeta-2 adrenergic receptor_agonist_Humans_
+AAlpha-2A adrenergic receptor_agonist_Humans_
+AAlpha-2B adrenergic receptor_agonist_Humans_
+UAlpha-1D adrenergic receptor_antagonist_Humans_
+UTumor necrosis factor_antagonist
+agonist_Humans_
+##########
