@@ -21,8 +21,10 @@ valueproteins = 0
 lockCompounds = Lock()
 lockProteins = Lock()
 
+drugClass = ''
 #Implementacion de lecturas del archivo que contiene nombre de compuestos y proteinas
 def lectura(filenom):
+    global drugClass
     conjuntoinicial=open(filenom,"tr")#Se abre el archivo, t se especifica que es un txt, r =read
     lines=list(conjuntoinicial.readlines())
     #print(lines[0])
@@ -41,6 +43,9 @@ def lectura(filenom):
             elif(strline=="Proteins") :#La linea que indique el inicio de proteinas
                 flagtype=2
                 continue
+            elif(strline=='Class'):
+                flagtype=3
+                continue
             else:
                 if(flagtype==0):
                     #messagebox.showerror(title="ERROR", message="Formato Equivocado")
@@ -51,11 +56,17 @@ def lectura(filenom):
                 elif(flagtype==2):
                     proteins.append(strline)
                     continue
+                elif(flagtype==3):
+                    drugClass=strline
     
         return [compounds, proteins]
     except:
-        messagebox.showerror(title="ERROR", message="Formato Equivocado")
+        #messagebox.showerror(title="ERROR", message="Formato Equivocado")
         return[compounds,proteins]
+
+def getDrugClass():
+    global drugClass
+    return drugClass
 ######################################################################
 ################Funcion Conseguir Datos de Compuestos############
 def alldata_compunds(compounds,project_path):

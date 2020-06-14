@@ -17,6 +17,7 @@ import time
 exCompounds= []
 exProteins = []
 isConnected = True
+drugclass = ''
 
 ##Se Inicia la pantalla es el archivo que carga la pantalla
 class Principal():
@@ -74,6 +75,7 @@ class Principal():
         self.newPath = self.create_path()
         cPath = self.newPath + '/Compounds'
         pPath = self.newPath + '/Proteins'
+        dPath = self.newPath + '/DockingLib'
         fPath = self.newPath + '/CI_copy.txt'
 
         if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
@@ -86,6 +88,7 @@ class Principal():
                 try:
                     self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
                     self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
+                    self.overwriteProject(dPath)    #Eliminamos todo lo que hay en el directorio de docking
                     os.remove(fPath)                #Eliminamos copia de conjunto inicial
                 except:
                     pass
@@ -106,12 +109,14 @@ class Principal():
         
 
     def exProject(self):
+        global drugclass
         self.exPath = self.create_path()
         self.initCompounds = []
         self.initProteins = []
 
         if(os.path.isfile(self.exPath + '/CI_copy.txt')):
             [self.initCompounds,self.initProteins] = lectura(self.exPath + '/CI_copy.txt')
+            drugclass = getDrugClass()
             if(self.initCompounds==[] or self.initProteins==[]):
                 messagebox.showerror(title="ERROR", message="!El archivo no contiene los datos necesarios!")
             else:
@@ -178,8 +183,8 @@ class Principal():
         #Para ajustar a los directorios de compuestos o proteinas
         if case == 'compounds':
             verifiedPath = self.exPath + '/Compounds'
-            line = 'c0' + data + '.txt'
-            #print('ya configure el archivo: ' + line)
+            line = 'c0' + data + '.pdb'
+            print('ya configure el archivo: ' + line)
         elif case == 'proteins':
             verifiedPath = self.exPath + '/Proteins'
             line = 'cP' + data + '.pdb'
@@ -293,11 +298,12 @@ class LoadingProjectScreen():
         global exCompounds
         global exProteins
         global isConnected
+        global drugclass
 
         isConnected = CheckConnection.check_internet_conn()
         if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
             #Instanciando la clase de los hilos (ThreadClient)
-            tc = SearchInfoScreen.ThreadedClient(exCompounds,exProteins,self.project_path,self.buttonRef1, self.buttonRef2)
+            tc = SearchInfoScreen.ThreadedClient(drugclass,exCompounds,exProteins,self.project_path,self.buttonRef1, self.buttonRef2)
             self.pantalla.destroy()
         else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet
             self.ask_check()

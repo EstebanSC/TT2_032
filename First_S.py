@@ -134,12 +134,14 @@ class First_S():
         #Revisar que el usuario este conectado a internet
         isConnected = CheckConnection.check_internet_conn()
         if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
+            #Obtenemos clase de los medicamentos
+            drugclass = getDrugClass()
             #Deshabilitamos botones
             self.Search_F["state"] = ["disabled"]
             self.openFile["state"] = ["disabled"]
             #Instanciando la clase de los hilos (ThreadClient)
             if not self.buttonSet:
-                tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)
+                tc = SearchInfoScreen.ThreadedClient(drugclass,compounds,proteins,self.project_path,self.openFile,self.Search_F)
                 self.buttonSet = True
             else:
                 msgbox = messagebox.askyesno('ALERTA','En este directorio ya existe un proyecto. Comenzar uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
@@ -150,7 +152,7 @@ class First_S():
                         os.remove(self.project_path + '/CI_copy.txt')                #Eliminamos copia de conjunto inicial
                     except:
                         pass
-                    tc = SearchInfoScreen.ThreadedClient(compounds,proteins,self.project_path,self.openFile,self.Search_F)    
+                    tc = SearchInfoScreen.ThreadedClient(drugclass,compounds,proteins,self.project_path,self.openFile,self.Search_F)    
         else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet
             self.ask_check()
         #search_r()
