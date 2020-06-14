@@ -589,8 +589,182 @@ class AnalyzeProject:
             self.processDocking()
     
     def processDocking(self):
-        print('Hola docking')
-        self.mlAlgorithm()
+        Compounds = []#Lista de compuestos validados
+        Proteins = [] #Lista de proteinas validadas
+        full_path = self.project_path #Path donde se guarda la carpeta Compounds y Proteins
+
+        # ------------------------- Paths ----------------------- #
+        Compounds_path = '../Compounds'
+        Proteins_path = '../Proteins'
+        Path_Libreria = full_path + '/libreria'
+        Path_PDBQT = Path_Libreria + '/PDBQT'
+
+        # ---------------- Guardamos archivos de las librerias --------------- #
+        path_obtener_libreria = '/usr/local/bin'
+        os.chdir(path_obtener_libreria)
+        copiar = 'cp /usr/local/bin/prepare_ligand4.py prepare_receptor4.py prepare_gpf4.py pythonsh ' + Path_Libreria
+        os.system(copiar)
+
+        # ------------------ Comandos para crear ligandos y receptores ----------------------- #
+        ligand = './pythonsh prepare_ligand4.py -l '
+        receptor = './pythonsh prepare_receptor4.py -r '
+        gpf = './pythonsh prepare_gpf4.py -l '
+        # --------- Diccionario donde se guardaran las deltas --------------- #
+        Deltas = {}
+        # --------- Proceso de docking --------------- #
+        os.chdir(Path_Libreria)
+        if os.path.isdir(Path_PDBQT):
+            print("La carpeta exite")
+        else:
+            os.mkdir('PDBQT')
+        # ---------- Creando los archivos ligando ----------- #
+        for contador_com in Compounds:
+            for contador_pro in Proteins:
+                os.chdir(Path_PDBQT)
+                Protein_Compound = contador_pro + '_' + contador_com
+                Path_Compuesto_Proteina = Path_PDBQT + '/' + Protein_Compound
+                # ----------------- Creamos el directorio----------- #
+                if os.path.isdir(Path_Compuesto_Proteina):
+                    Archivo_check = Path_Compuesto_Proteina + '/' + contador_pro + '.pdbqt'
+                    os.chdir(Path_Compuesto_Proteina)
+                    if os.path.isfile(Archivo_check):
+                        print("Archivo existe")
+                    else:
+                        os.chdir(Path_Libreria)
+                        comando_receptor = receptor + Proteins_path + '/' + contador_pro + '.pdb -o ' + 'PDBQT' + '/' + Protein_Compound +'/' + contador_pro + '.pdbqt'
+                        os.system(comando_receptor)
+                    Archivo_check = Path_Compuesto_Proteina + '/' + contador_com + '.pdbqt'
+                    os.chdir(Path_Compuesto_Proteina)
+                    if os.path.isfile(Archivo_check):
+                        print("Archivo existe")
+                    else:
+                        os.chdir(Path_Libreria)
+                        comando_ligan = ligand + Compounds_path + '/' + contador_com + '.pdb -o' + 'PDBQT' + '/' + Protein_Compound + '/' + contador_com + '.pdbqt'
+                        os.system(comando_ligan)
+                else:    
+                    os.mkdir(Protein_Compound)
+                    os.chdir(Path_Libreria)
+                    comando_receptor = receptor + Proteins_path + '/' + contador_pro + '.pdb -o ' + 'PDBQT' + '/' + Protein_Compound +'/' + contador_pro + '.pdbqt'
+                    os.system(comando_receptor)
+                    comando_ligan = ligand + Compounds_path + '/' + contador_com + '.pdb -o' + 'PDBQT' + '/' + Protein_Compound + '/' + contador_com + '.pdbqt'
+                    os.system(comando_ligan)
+                #-------- Archivo gpf ----------- #
+                os.chdir(Path_Compuesto_Proteina)
+                Archivo_check = Path_Compuesto_Proteina + '/' + Protein_Compound + '.gpf'
+                if os.path.isfile(Archivo_check):
+                    print("Archivo existe")
+                else:
+                    os.chdir(Path_Libreria)
+                    comando_gpf = gpf + 'PDBQT/'+ Protein_Compound + '/'+ contador_com +'.pdbqt -r ' + 'PDBQT/'+ Protein_Compound + '/'+ contador_pro + '.pdbqt -o '+'PDBQT/'+ Protein_Compound +'/'+ Protein_Compound + '.gpf'
+                    os.system(comando_gpf)
+                # ------ Coordenadas del centro -------- #
+                os.chdir(Path_Compuesto_Proteina)
+                Archivo_check = Path_Compuesto_Proteina + '/' + contador_pro + '.A.map'
+                if os.path.isfile(Archivo_check)
+                    # ----------- Obtener coordenadas ------------ #
+                    Palabra = 'CENTER'
+                    archivo = contador_pro + '.A.map'
+                    file = open(archivo, "r")
+                    while(True):
+                        linea = file.readline()
+                        if Palabra in linea:
+                            coordenada = linea
+                            break
+                        if not linea:
+                            break
+                    file.close()
+                    coordenadas = coordenada.split()
+                else:
+                    try:
+                        os.chdir(Path_Compuesto_Proteina)
+                        comando_autogrid = 'autogrid4 -p '+ Protein_Compound + '.gpf'
+                        os.system(comando_autogrid)
+                        # ---------- Obtener coordenadas ---------------#
+                        Palabra = 'CENTER'
+                        archivo = contador_pro + '.A.map'
+                        file = open(archivo, "r")
+                        while(True):
+                            linea = file.readline()
+                            if Palabra in linea:
+                                coordenada = linea
+                                break
+                            if not linea:
+                                break
+                        file.close()
+                        coordenadas = coordenada.split()
+                    except:
+                        print("No hay archivos .gpf")
+                # -------- Creación del archivo de config ----- #
+                Archivo_check = Path_Compuesto_Proteina + '/' + 'config.txt'
+                if os.path.isfile(Archivo_check):
+                    Archivo_check = Path_Compuesto_Proteina + '/' + Protein_Compound + '.pdbqt'
+                    if os.path.isfile(Archivo_check):
+                        print("Docking hecho")
+                    else:
+                        docking = 'vina --config config.txt'
+                        os.system(docking)
+                else:
+                    try:
+                        recep = 'receptor='+ contador_pro + '.pdbqt\n'
+                        ligando = 'ligand=' + contador_com + '.pdbqt\n\n'
+                        out = 'out=' + Protein_Compound + '.pdbqt'
+                        out2 = Protein_Compound + '.pdbqt'
+
+                        center_x = 'center_x=' + coordenadas[1] + '\n'
+                        center_y = 'center_y=' + coordenadas[2] + '\n'
+                        center_z = 'center_z=' + coordenadas[3] + '\n\n'
+
+                        configuracion = open("config.txt","w")
+                        configuracion.write(recep)
+                        configuracion.write(ligando)
+                        configuracion.write(center_x)
+                        configuracion.write(center_y)
+                        configuracion.write(center_z)
+                        configuracion.write('size_x=40\nsize_y=40\nsize_z=40\n\n')
+                        configuracion.write('exhaustiveness=8\n')
+                        configuracion.write('num_modes=9\n')
+                        configuracion.write('energy_range=3\n\n')
+                        configuracion.write(out)
+                        configuracion.close()
+                        # ------------- docking ----------- #
+                        docking = 'vina --config config.txt'
+                        os.system(docking)
+                    except:
+                        print("No se puede hacer docking")
+                # --------- Guardando deltas -----------#
+                Palabra = 'REMARK VINA RESULT:'
+                Archivo_check = Path_Compuesto_Proteina + '/' + Protein_Compound + '.pdbqt'
+                out2 = Protein_Compound + '.pdbqt'
+                if os.path.isfile(Archivo_check):
+                    file = open(out2,'r')
+                    while(True):
+                        linea = file.readline()
+                        if Palabra in linea:
+                            Delta_p = linea.split()
+                            Deltas[Protein_Compound] = [Delta_p[3]]
+                            break
+                        if not linea:
+                            break
+                    file.close()
+        archivo_delta = 'Delta_1.txt'
+        Path_Deltas = full_path + '/Deltas'
+        os.chdir(full_path)
+        if os.path.isdir(Path_Deltas):
+            print("Existe")
+        else:
+            os.mkdir('Deltas')
+
+        os.chdir(Path_Deltas)
+        Archivo_check = Path_Deltas + '/' + archivo_delta
+        try:
+            Deltas_ordenadas = sorted(Deltas.items(), key=operator.itemgetter(1),reverse=True)
+            file_delta = open(archivo_delta,'w')
+            file_delta.write(pprint.pformat(Deltas_ordenadas))
+            file_delta.close()
+        except:
+            print("F")
+
+        self.mlAlgorithm(Deltas_ordenadas)
     
     def simpleSolution(self):
         print('Solo debes resolver ecuación lineal')
