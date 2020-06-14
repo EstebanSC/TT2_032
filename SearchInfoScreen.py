@@ -41,6 +41,7 @@ compoundsMDB1=[]#Compuestos Perdidos DB1
 compoundsMDB2=[]#Compuesto Perdidos DB2
 P_notfounds=[] #Proteinas Perdidas
 compoundsMissed=[] #Compuestos Pub
+dc = '' #clase de los medicamentos
 class GUISection:
 
     def __init__(self, master, queue, project_path, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
@@ -100,8 +101,9 @@ class GUISection:
         self.continueProject.destroy()  #Se destruye el botón de continuar
         #Instanciamos otra clase, la del analisis
         print("AQUI SE COMIENZA EL ANALISIS")
-        os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
-        self.ap = AnalyzeProject()
+        if not os.path.isdir(self.project_path + "/DockingLib"):
+            os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
+        self.ap = AnalyzeProject(self.project_path)
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
@@ -146,11 +148,13 @@ class GUISection:
 #CLASE PARA CREAR HILOS Y REALIZAR LAS FUNCIONES DE DESCARGA DE INFORMACION
 class ThreadedClient:
 
-    def __init__(self,compounds,proteins,project_path,refButton1,refButton2):     #Constructor de la clase
+    def __init__(self,drugclass,compounds,proteins,project_path,refButton1,refButton2):     #Constructor de la clase
+        global dc
         self.queue = queue.Queue()      #Se define la cola de mensajes
         self.compounds = compounds
         self.proteins = proteins
         self.project_path = project_path
+        dc = drugclass
         self.length_compounds = len(compounds)
         self.length_proteins = len(proteins)
         self.refButton1 = refButton1
@@ -541,8 +545,60 @@ class ThreadedClient:
         return value
 
 class AnalyzeProject:
-    def __init__(self):
+    def __init__(self, project_path):
+        global dc
         #AQUI YA ESTA PUESTA LA PANTALLA DE ANALISIS DE DATOS, COMENZAR DOCKING
-        #Para programarlo se debe determinar si el docking es un proceso exhaustivo de CPU o de entrada/salida
-        #asi, se utiliza multihilo o multiproceso
+        #Para programarlo se debe utilizar multiproceso
+        #PRIMERO, verificar si ya existe el archivo de coeficientes
+        self.flag = False
+        self.project_path = project_path
+        self.drugclass = dc
+        self.deltaG = []    #Arreglo para guardar los valores de las delta G que arroja el docking
+        self.coefs = []     #Arreglo donde se guardan los coeficientes en caso de que ya existan
+        self.lookForValues()
+    
+    def lookForValues(self):
+        #leer en el directorio a ver si existe el archivo que corresponde a la linea del archivo inicial
+        #que identifica la clase de medicamentos que se estan analizando
+        print(self.drugclass)
+        try:
+            with open(os.path.join(self.project_path,'values.txt')) as f:
+                #Buscar la etiqueta que corresponde a la clase del archivo
+                for line in f:
+                    if line.strip() == self.drugclass:
+                        #print('en el archivo ya encontre el valor')
+                        self.flag = True
+                    if self.flag:
+                        #Setear valores de los coeficientes en un arreglo
+                        if line.strip() == '##########':
+                            break
+                        else:
+                            self.coefs.append(line.rpartition(':')[2])
+            
+            if not self.flag:   #El archivo existe pero no se ha registrado los valores para
+                            #La clasificacion de medicamentos indicada, hay que hacer docking
+                print('El archivo existe pero no hay info adecuada')
+                self.processDocking()
+            else:               #Ya existen los coeficientes, solo resolver ecuación lineal
+                print('Ya existen los coeficientes')
+                self.simpleSolution()
+
+        except FileNotFoundError:
+            #No existe un archivo con los valores, se debe hacer docking
+            print('No se encontro el archivo')
+            self.processDocking()
+    
+    def processDocking(self):
         print('Hola docking')
+        self.mlAlgorithm()
+    
+    def simpleSolution(self):
+        print('Solo debes resolver ecuación lineal')
+    
+    def mlAlgorithm(self):
+        print('Aqui debemos implementar la regresion lineal')
+        #Tambien se debe guardar los datos de la regresion en un diccionario y CREAR y escribirlos
+        #al archivo values en el formato:
+        #drugclass
+        #x1:a
+        #x2:b
