@@ -131,6 +131,14 @@ class Principal():
         #print(project_path)
         return self.project_path
     
+      #####################################################################}
+    def NoRepeat(self,Noclean,Clean):
+        for x in Noclean:
+            if x not in Clean:
+                Clean.append(x)
+        return Clean
+
+
     def lookingForProject(self):
         global exCompounds
         global exProteins
@@ -154,6 +162,13 @@ class Principal():
                 First=First_S(self.newPath)
             else:       #Analizamos proyecto
                 #AQUI VA LA INTERFAZ
+                C_noclean=self.initCompounds
+                P_noclean=self.initProteins
+                self.initProteins=[]
+                self.lenCompounds=[]
+                self.initCompounds=self.NoRepeat(C_noclean,self.initCompounds)
+                self.initProteins=self.NoRepeat(P_noclean,self.initProteins)
+
                 self.loadingScreen = LoadingProjectScreen(self.master,self.queue, self.lenCompounds, self.lenProteins,self.exPath,self.createProject,self.existingProject)
                 self.loadingScreen.showScreen()
                 self.createProject["state"] = "disabled"
@@ -277,7 +292,7 @@ class LoadingProjectScreen():
             self.buttonRef1["state"] = ["normal"]
             self.buttonRef2["state"] = ["normal"]
     
-    def incomingProcess(self):      #Funcion que permite a la ventana "atender" lo que hacen los hilos
+    def incolmingProcess(self):      #Funcion que permite a la ventana "atender" lo que hacen los hilos
                                     #Asi evitamos que la interfaz se "congele" mientras los hilos trabajan
         while self.queue.qsize():
             try:

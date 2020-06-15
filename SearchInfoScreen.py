@@ -43,6 +43,8 @@ compoundsMDB1=[]#Compuestos Perdidos DB1
 compoundsMDB2=[]#Compuesto Perdidos DB2
 P_notfounds=[] #Proteinas Perdidas
 compoundsMissed=[] #Compuestos Pub
+RealCompounds=[]
+RealProteins=[]
 dc = '' #clase de los medicamentos
 class GUISection:
 
@@ -93,7 +95,7 @@ class GUISection:
         #self.change_title("Finalizando busqueda...",2)
         #self.change_title("Recopilando resultados...",3)
         self.header.place(x=200,y=25)
-        self.change_title("RESULTADOS DE LA BUSQUEDA")
+        self.change_title("RESULTADOS DE LA BÚSQUEDA")
         self.charge.destroy()
         #self.telacontrol.destroy()
         self.charge_results()
@@ -469,7 +471,12 @@ class ThreadedClient:
                         filet.write("##########\n")
                         if compounds in compoundsMDB1:
                             compoundsMDB1.remove(compounds)
+                            
+                         if compounds not in RealCompounds:
+                            RealCompounds.append(compounds)
+
                         break
+                       
                     else:
                         #compoundsMissed.append(compounds)
                         #Error de CONEXION EN LA ESTRUCTURA 
@@ -591,6 +598,7 @@ class ThreadedClient:
         global P_notfounds
         global event
         global isConnected
+        global RealProteins
         for attempt in range(3):
             try:
                 RName=""
@@ -613,6 +621,8 @@ class ThreadedClient:
                     filet.write(item+ '\n' + contenido)
                     if item in P_notfounds:
                         P_notfounds.remove(item)
+                    if item not in RealProteins:
+                        RealProteins.append(item)    
                     break
                 #elif(RName.find(403)==0):
                 #    print("Compuesto no encontrado por error de conexion")#Aqui va el error de conexion para el primer request
@@ -794,7 +804,7 @@ class AnalyzeProject:
         # ------------------------- Paths ----------------------- #
         Compounds_path = '../Compounds'
         Proteins_path = '../Proteins'
-        Path_Libreria = full_path + '/libreria'
+        Path_Libreria = full_path + '/DockingLib'
         Path_PDBQT = Path_Libreria + '/PDBQT'
 
         # ---------------- Guardamos archivos de las librerias --------------- #
@@ -858,7 +868,7 @@ class AnalyzeProject:
                 # ------ Coordenadas del centro -------- #
                 os.chdir(Path_Compuesto_Proteina)
                 Archivo_check = Path_Compuesto_Proteina + '/' + contador_pro + '.A.map'
-                if os.path.isfile(Archivo_check)
+                if os.path.isfile(Archivo_check):
                     # ----------- Obtener coordenadas ------------ #
                     Palabra = 'CENTER'
                     archivo = contador_pro + '.A.map'
@@ -962,8 +972,9 @@ class AnalyzeProject:
         except:
             print("F")
 
-        self.mlAlgorithm(Deltas_ordenadas)
-    
+        #self.mlAlgorithm(Deltas_ordenadas)#Au no puede recibir
+        self.mlAlgorithm()
+
     def simpleSolution(self):
         print('Solo debes resolver ecuación lineal')
     
