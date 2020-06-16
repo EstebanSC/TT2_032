@@ -30,6 +30,7 @@ import os
 from pypdb import find_results_gen
 import time
 from ratelimit import limits, sleep_and_retry
+import multiprocessing as mp
 
 #Definicion de la pantalla descargas
 isConnected = True                  #Esta es una condicion que se estara checando cuando se hagan
@@ -797,8 +798,8 @@ class AnalyzeProject:
             self.processDocking()
     
     def processDocking(self):
-        Compounds = []#Lista de compuestos validados
-        Proteins = [] #Lista de proteinas validadas
+        global Compounds
+        global Proteins
         full_path = self.project_path #Path donde se guarda la carpeta Compounds y Proteins
 
         # ------------------------- Paths ----------------------- #
@@ -972,13 +973,30 @@ class AnalyzeProject:
         except:
             print("F")
 
-        #self.mlAlgorithm(Deltas_ordenadas)#Au no puede recibir
-        self.mlAlgorithm()
+        #Creamos los procesos
+        pool = mp.Pool(mp.cpu_count())
+        #Pasar diccionario a lista
+        itemsDeltas = list(Deltas_ordenadas.items())
+
+        if len(Deltas_ordenadas) <= mp.cpu_count():
+            fixedchunkSize = 1
+        else:
+            chunkSize = len(Deltas_ordenadas) / mp.cpu_count()
+            fixedchunkSize = int(chunkSize)
+            residual = int(chunkSize % 2)
+            if residual == 0:
+                print('Queda exacto')
+            else:
+                print('No queda exacto')
+                fixedchunkSize += residual
+
+        chunk = [itemsDeltas[i:i + fixedchunkSize ] for i in range(0, len(itemsDeltas), fixedchunkSize)]
+        coefs = pool.map(mlAlgorithm, chunk)
 
     def simpleSolution(self):
         print('Solo debes resolver ecuación lineal')
     
-    def mlAlgorithm(self):
+    def mlAlgorithm(self,deltas):
         print('Aqui debemos implementar la regresion lineal')
         #Tambien se debe guardar los datos de la regresion en un diccionario y CREAR y escribirlos
         #al archivo values en el formato:
