@@ -31,6 +31,8 @@ from pypdb import find_results_gen
 import time
 from ratelimit import limits, sleep_and_retry
 import multiprocessing as mp
+import pandas as pd
+
 
 #Definicion de la pantalla descargas
 isConnected = True                  #Esta es una condicion que se estara checando cuando se hagan
@@ -797,10 +799,10 @@ class AnalyzeProject:
             self.processDocking()
     
     def processDocking(self):
-        global Compounds
-        global Proteins
         Compounds_1 = []
         Proteins_1 = []
+        global RealCompounds
+        global RealProteins
         full_path = self.project_path #Path donde se guarda la carpeta Compounds y Proteins
 
         for contador_prueba in Compounds:
@@ -985,8 +987,13 @@ class AnalyzeProject:
         except:
             print("F")
 
+        #Aqui llamamos para limpiar el diccionario
+        cleanDeltas = fixDeltas(Deltas_tupla)
+
+        #Llamamos a la regresion lineal
+        self.mlAlgorithm(cleanDeltas)
         #Creamos los procesos
-        pool = mp.Pool(mp.cpu_count())
+        """pool = mp.Pool(mp.cpu_count())
         #Pasar diccionario a lista
         itemsDeltas = list(Deltas_ordenadas.items())
 
@@ -1003,13 +1010,56 @@ class AnalyzeProject:
                 fixedchunkSize += residual
 
         chunk = [itemsDeltas[i:i + fixedchunkSize ] for i in range(0, len(itemsDeltas), fixedchunkSize)]
-        coefs = pool.map(mlAlgorithm, chunk)
+        coefs = pool.map(mlAlgorithm, chunk)"""
 
+    def fixDeltas(self, deltas):
+        #Aqui se hace el fix a las tuplas y se genera un diccionario
+        newDict = {}
+        return newDict
+    
     def simpleSolution(self):
         print('Solo debes resolver ecuación lineal')
     
     def mlAlgorithm(self,deltas):
         print('Aqui debemos implementar la regresion lineal')
+        descriptors = []
+        newDescriptors = []
+        compoundPath = self.project_path + '/Compounds'
+        rawNames = list(deltas.keys())
+        for item in rawNames:
+            compoundName = item.rpartition('_')[2]
+            compoundName = 'c0' + compoundName + '.pdb'
+            #Acceder al directorio de compounds y buscar ese compuesto
+            with open(os.path.join(compoundPath, compoundName)) as f:
+                for line in f:
+                    if '{' in line.strip():
+                        for l in f:
+                            if l.strip() == '}':
+                                break
+                            if l.strip().endswith(','):
+                                result = re.search(':(.*),', l.strip())
+                                #print(result.group(1))
+                                descriptors.append(result.group(1))
+                            else:
+                                r = l.strip().rpartition(':')[2]
+                                descriptors.append(r)
+                                #print(r)
+
+            #print(descriptors)
+            #Convertir valores a flotantes todos
+            newDescriptors.append([float(item) for item in descriptors])
+            del descriptors[:]
+
+        #print(newDescriptors)
+
+            #Pasar los valores a formato pandas
+        descriptorsDataFrame = pd.DataFrame(newDescriptors, columns=['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
+                                'RotatableBondCount', 'ExactMass', 'MonoisotopicMass', 
+                                'TPSA', 'HeavyAtomCount', 'Charge', 'Complexity', 'IsotopeAtomCount', 
+                                'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
+                                'UndefinedBondStereoCount', 'CovalentUnitCount'])
+
+        print(descriptorsDataFrame)
         #Tambien se debe guardar los datos de la regresion en un diccionario y CREAR y escribirlos
         #al archivo values en el formato:
         #drugclass
