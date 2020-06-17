@@ -165,7 +165,7 @@ class Principal():
                 C_noclean=self.initCompounds
                 P_noclean=self.initProteins
                 self.initProteins=[]
-                self.lenCompounds=[]
+                self.initCompounds=[]
                 self.initCompounds=self.NoRepeat(C_noclean,self.initCompounds)
                 self.initProteins=self.NoRepeat(P_noclean,self.initProteins)
 

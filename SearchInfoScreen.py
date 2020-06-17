@@ -75,7 +75,7 @@ class GUISection:
         self.charge.pack()    
 
     def showScreen(self):       #Funcion para mostrar la pantalla
-        self.pantalla.title("Busqueda")
+        self.pantalla.title("Búsqueda")
         self.pantalla.geometry("950x450")
         #self.pantalla.title("Búsqueda")
         #self.pantalla.geometry("850x450")
@@ -108,6 +108,7 @@ class GUISection:
         self.containerP.destroy()
         self.B_Analisis.destroy()
         self.B_Salir.destroy()
+        self.pantalla.title('Análisis')
         self.header.place(x=300,y=25)
         self.change_title("Analizando los datos...")
         self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
@@ -987,7 +988,7 @@ class AnalyzeProject:
         except:
             print("F")
 
-        #Aqui llamamos para limpiar el diccionario
+        #Aqui llamamos para limpiar las tuplas
         cleanDeltas = fixDeltas(Deltas_tupla)
 
         #Llamamos a la regresion lineal
@@ -1015,6 +1016,15 @@ class AnalyzeProject:
     def fixDeltas(self, deltas):
         #Aqui se hace el fix a las tuplas y se genera un diccionario
         newDict = {}
+        counter = 0
+        rawCompounds = [item[0] for item in deltas]
+        rawDeltas = [item[1] for item in deltas]
+
+        for item in rawCompounds:
+            fixCompound = item.rpartition('_')[2]
+            newDict[fixCompound] = rawDeltas[counter]
+            counter += 1
+
         return newDict
     
     def simpleSolution(self):
