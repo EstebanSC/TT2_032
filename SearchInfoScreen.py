@@ -473,9 +473,8 @@ class ThreadedClient:
                         if compounds in compoundsMDB1:
                             compoundsMDB1.remove(compounds)
                             
-                         if compounds not in RealCompounds:
+                        if compounds not in RealCompounds:
                             RealCompounds.append(compounds)
-
                         break
                        
                     else:
@@ -800,7 +799,17 @@ class AnalyzeProject:
     def processDocking(self):
         global Compounds
         global Proteins
+        Compounds_1 = []
+        Proteins_1 = []
         full_path = self.project_path #Path donde se guarda la carpeta Compounds y Proteins
+
+        for contador_prueba in Compounds:
+            compuesto_com = 'c0' + contador_prueba
+            Compounds_1.append(compuesto_com)
+        
+        for contador_prueba1 in Proteins:
+            proteina_com = 'cP' + contador_prueba1
+            Proteins_1.append(proteina_com)
 
         # ------------------------- Paths ----------------------- #
         Compounds_path = '../Compounds'
@@ -827,8 +836,8 @@ class AnalyzeProject:
         else:
             os.mkdir('PDBQT')
         # ---------- Creando los archivos ligando ----------- #
-        for contador_com in Compounds:
-            for contador_pro in Proteins:
+        for contador_com in Compounds_1:
+            for contador_pro in Proteins_1:
                 os.chdir(Path_PDBQT)
                 Protein_Compound = contador_pro + '_' + contador_com
                 Path_Compuesto_Proteina = Path_PDBQT + '/' + Protein_Compound
@@ -970,6 +979,9 @@ class AnalyzeProject:
             file_delta = open(archivo_delta,'w')
             file_delta.write(pprint.pformat(Deltas_ordenadas))
             file_delta.close()
+
+            Deltas_tupla = Deltas_ordenadas.item()
+            print(Deltas_tupla)
         except:
             print("F")
 
