@@ -292,7 +292,7 @@ class LoadingProjectScreen():
             self.buttonRef1["state"] = ["normal"]
             self.buttonRef2["state"] = ["normal"]
     
-    def incolmingProcess(self):      #Funcion que permite a la ventana "atender" lo que hacen los hilos
+    def incomingProcess(self):      #Funcion que permite a la ventana "atender" lo que hacen los hilos
                                     #Asi evitamos que la interfaz se "congele" mientras los hilos trabajan
         while self.queue.qsize():
             try:
