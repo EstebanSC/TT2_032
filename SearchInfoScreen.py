@@ -984,6 +984,7 @@ class AnalyzeProject:
             file_delta.close()
         except:
             print("F")
+        Deltas_tuplas = Deltas_ordenadas.items()
 
         #Aqui llamamos para limpiar las tuplas
         cleanDeltas = fixDeltas(Deltas_tupla)
