@@ -805,15 +805,15 @@ class AnalyzeProject:
         global RealCompounds
         global RealProteins
         full_path = self.project_path #Path donde se guarda la carpeta Compounds y Proteins
-
-        for contador_prueba in Compounds:
+        
+        for contador_prueba in RealCompounds:
             compuesto_com = 'c0' + contador_prueba
             Compounds_1.append(compuesto_com)
         
-        for contador_prueba1 in Proteins:
+        for contador_prueba1 in RealProteins:
             proteina_com = 'cP' + contador_prueba1
             Proteins_1.append(proteina_com)
-
+        
         # ------------------------- Paths ----------------------- #
         Compounds_path = '../Compounds'
         Proteins_path = '../Proteins'
@@ -982,9 +982,6 @@ class AnalyzeProject:
             file_delta = open(archivo_delta,'w')
             file_delta.write(pprint.pformat(Deltas_ordenadas))
             file_delta.close()
-
-            Deltas_tupla = Deltas_ordenadas.item()
-            print(Deltas_tupla)
         except:
             print("F")
 
