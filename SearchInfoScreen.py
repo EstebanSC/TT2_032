@@ -967,24 +967,12 @@ class AnalyzeProject:
                         if not linea:
                             break
                     file.close()
-        archivo_delta = 'Delta_1.txt'
-        Path_Deltas = full_path + '/Deltas'
-        os.chdir(full_path)
-        if os.path.isdir(Path_Deltas):
-            print("Existe")
-        else:
-            os.mkdir('Deltas')
 
-        os.chdir(Path_Deltas)
-        Archivo_check = Path_Deltas + '/' + archivo_delta
-        try:
-            Deltas_ordenadas = sorted(Deltas.items(), key=operator.itemgetter(1),reverse=True)
-            file_delta = open(archivo_delta,'w')
-            file_delta.write(pprint.pformat(Deltas_ordenadas))
-            file_delta.close()
-        except:
-            print("F")
+        Deltas_ordenadas = sorted(Deltas.items(), key=operator.itemgetter(1),reverse=True)
         Deltas_tuplas = Deltas_ordenadas.items()
+        
+
+
 
         #Aqui llamamos para limpiar las tuplas
         cleanDeltas = fixDeltas(Deltas_tupla)
