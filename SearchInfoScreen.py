@@ -25,14 +25,15 @@ from selenium import webdriver
 from Bio.PDB import *
 from selenium.webdriver.common.keys import Keys
 import requests
-import requests
-import os
 from pypdb import find_results_gen
 import time
 from ratelimit import limits, sleep_and_retry
 import multiprocessing as mp
 import pandas as pd
 import operator
+from sklearn.linear_model import LinearRegression
+import pickle
+
 
 
 #Definicion de la pantalla descargas
@@ -139,6 +140,7 @@ class GUISection:
         print("AQUI SE COMIENZA EL ANALISIS")
         if not os.path.isdir(self.project_path + "/DockingLib"):
             os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
+            os.makedirs(self.project_path+"/models/")
         self.ap = AnalyzeProject(self.project_path)
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
@@ -773,6 +775,8 @@ class AnalyzeProject:
         #leer en el directorio a ver si existe el archivo que corresponde a la linea del archivo inicial
         #que identifica la clase de medicamentos que se estan analizando
         print(self.drugclass)
+        modelDir = self.project_path + '/models'
+        """
         try:
             with open(os.path.join(self.project_path,'values.txt')) as f:
                 #Buscar la etiqueta que corresponde a la clase del archivo
@@ -798,6 +802,16 @@ class AnalyzeProject:
         except FileNotFoundError:
             #No existe un archivo con los valores, se debe hacer docking
             print('No se encontro el archivo')
+            self.processDocking()"""
+        for f in os.walk(modelDir):
+            if f == self.modelFile:
+                #El modelo ya existe
+                print('El modelo ya existe')
+                self.simpleSolution()
+                break
+        else:
+            #El modelo no existe
+            print('EL modelo no existe')
             self.processDocking()
     
     def processDocking(self):
@@ -970,14 +984,16 @@ class AnalyzeProject:
                     file.close()
                     
         Deltas_ordenadas = Deltas.items()
+        print(Deltas_ordenadas)
         Deltas_tuplas = sorted(Deltas_ordenadas, reverse=True)
+        print(Deltas_tuplas)
 
 
         #Aqui llamamos para limpiar las tuplas
-        cleanDeltas = fixDeltas(Deltas_tuplas)
+        #cleanDeltas = self.fixDeltas(Deltas_tuplas)
 
         #Llamamos a la regresion lineal
-        self.mlAlgorithm(cleanDeltas)
+        #self.mlAlgorithm(cleanDeltas)
         #Creamos los procesos
         """pool = mp.Pool(mp.cpu_count())
         #Pasar diccionario a lista
@@ -998,22 +1014,103 @@ class AnalyzeProject:
         chunk = [itemsDeltas[i:i + fixedchunkSize ] for i in range(0, len(itemsDeltas), fixedchunkSize)]
         coefs = pool.map(mlAlgorithm, chunk)"""
 
-    def fixDeltas(self, deltas):
-        #Aqui se hace el fix a las tuplas y se genera un diccionario
+    def fixDeltas(self,deltas):
+    #Aqui se hace el fix a las tuplas y se genera un diccionario
         newDict = {}
         counter = 0
+        dictCounter = 0
+        divisor = {}
         rawCompounds = [item[0] for item in deltas]
         rawDeltas = [item[1] for item in deltas]
 
         for item in rawCompounds:
             fixCompound = item.rpartition('_')[2]
-            newDict[fixCompound] = rawDeltas[counter]
-            counter += 1
+            if fixCompound in newDict:
+                if rawDeltas[counter] < 0:
+                    if newDict.get(fixCompound) > 0:
+                        newDeltaValue = rawDeltas[counter]
+                    else:
+                        newDeltaValue = rawDeltas[counter] +  newDict.get(fixCompound)
+                        if divisor:
+                            for key,value in divisor.items():
+                                if key == fixCompound:
+                                    value += 1
+                                    break
+                            else:
+                                divisor[fixCompound] = 2 
+                        else:
+                            divisor[fixCompound] = 2
+                else:
+                    if rawDeltas[counter] < newDict.get(fixCompound):
+                        newDeltaValue = rawDeltas[counter]
+                    else:
+                        newDeltaValue = newDict.get(fixCompound)
 
+                newDict[fixCompound] = newDeltaValue
+            else:
+                newDict[fixCompound] = rawDeltas[counter]
+            counter += 1
+            #print(divisor)
+        
+        for key in newDict:
+            for keys,values in divisor.items():
+                if keys == key:
+                    fixDivisor = values
+                    break
+            else:
+                fixDivisor = 1
+
+            newDict[key] = round((newDict[key] / fixDivisor), 2)
+
+        #print (newDict)           
         return newDict
     
     def simpleSolution(self):
+        global RealCompounds
         print('Solo debes resolver ecuación lineal')
+
+        #AQUI YA ESTAMOS SEGUROS QUE EXISTE UN MODELO CREADO
+        loaded_model = pickle.load(open(os.path.join(self.modelPath,self.modelFile), 'rb'))
+        toPredict = self.getDescriptors(RealCompounds)
+        result = loaded_model.predict(toPredict)
+        print(result)
+    
+    def getDescriptors(self, listofdescriptors):
+        descriptors = []
+        newDescriptors = []
+        for item in listofdescriptors:
+            compoundName = 'c0' + item + '.pdb'
+            #Acceder al directorio de compounds y buscar ese compuesto
+            with open(os.path.join(self.compoundPath, compoundName)) as f:
+                for line in f:
+                    if '{' in line.strip():
+                        for l in f:
+                            if l.strip() == '}':
+                                break
+                            if l.strip().endswith(','):
+                                result = re.search(':(.*),', l.strip())
+                                #print(result.group(1))
+                                descriptors.append(result.group(1))
+                            else:
+                                r = l.strip().rpartition(':')[2]
+                                descriptors.append(r)
+                                #print(r)
+
+            #print(descriptors)
+            #Convertir valores a flotantes todos
+            newDescriptors.append([float(item) for item in descriptors])
+            del descriptors[:]
+
+        #print(newDescriptors)
+
+            #Pasar los valores a formato pandas
+        descriptorsDataFrame = pd.DataFrame(newDescriptors, columns=['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
+                                'RotatableBondCount', 'ExactMass', 'MonoisotopicMass', 
+                                'TPSA', 'HeavyAtomCount', 'Charge', 'Complexity', 'IsotopeAtomCount', 
+                                'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
+                                'UndefinedBondStereoCount', 'CovalentUnitCount'])
+        
+        return descriptorsDataFrame
     
     def mlAlgorithm(self,deltas):
         print('Aqui debemos implementar la regresion lineal')
@@ -1055,6 +1152,20 @@ class AnalyzeProject:
                                 'UndefinedBondStereoCount', 'CovalentUnitCount'])
 
         print(descriptorsDataFrame)
+
+        #print(descriptorsDataFrame)
+        listDeltas = list(deltas.values())
+        deltasDataFrame = pd.DataFrame(listDeltas, columns=['delta'])
+        #print(deltasDataFrame)
+            #Aplicar regresion
+        regressor = LinearRegression() 
+        regressor.fit(descriptorsDataFrame, deltasDataFrame)
+
+        #Obtener coeficientes
+        print(regressor.coef_)
+        #coeffs = pd.DataFrame(regressor.coef_, descriptorsDataFrame.columns, columns=['Coefficient'])
+        #Guardamos el modelo pra futuras predicciones
+        pickle.dump(regressor, open(os.path.join(self.modelPath,self.modelFile), 'wb'))
         #Tambien se debe guardar los datos de la regresion en un diccionario y CREAR y escribirlos
         #al archivo values en el formato:
         #drugclass

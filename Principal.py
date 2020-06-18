@@ -110,6 +110,8 @@ class Principal():
 
     def exProject(self):
         global drugclass
+        global exCompounds
+        global exProteins
         self.exPath = self.create_path()
         self.initCompounds = []
         self.initProteins = []
@@ -120,8 +122,16 @@ class Principal():
             if(self.initCompounds==[] or self.initProteins==[]):
                 messagebox.showerror(title="ERROR", message="!El archivo no contiene los datos necesarios!")
             else:
-                self.lenCompounds = len(self.initCompounds)
-                self.lenProteins = len(self.initProteins)
+                C_noclean=self.initCompounds.copy()
+                P_noclean=self.initProteins.copy()
+                self.initCompounds = []
+                self.initProteins = []
+                self.cleanCompounds=self.NoRepeat(C_noclean,self.initCompounds)
+                self.cleanProteins=self.NoRepeat(P_noclean,self.initProteins)
+                self.lenCompounds = len(self.cleanCompounds)
+                self.lenProteins = len(self.cleanProteins)
+                exCompounds = self.cleanCompounds.copy()
+                exProteins = self.cleanProteins.copy()
         self.lookingForProject()
 
     def create_path(self):
@@ -151,8 +161,6 @@ class Principal():
         #archivo inicial
         if not (self.initCompounds==[] and self.initProteins==[]):
             self.master = tk.Toplevel()
-            exCompounds = self.initCompounds.copy()
-            exProteins = self.initProteins.copy()
         #Revisar que exista un folder de compuestos y proteinas, si no es así, regresar a la pantalla
         #principal y notificar al usuario
         if(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
@@ -162,25 +170,20 @@ class Principal():
                 First=First_S(self.newPath)
             else:       #Analizamos proyecto
                 #AQUI VA LA INTERFAZ
-                C_noclean=self.initCompounds
-                P_noclean=self.initProteins
-                self.initProteins=[]
-                self.initCompounds=[]
-                self.initCompounds=self.NoRepeat(C_noclean,self.initCompounds)
-                self.initProteins=self.NoRepeat(P_noclean,self.initProteins)
-
+                print(exCompounds)
+                print(exProteins)
                 self.loadingScreen = LoadingProjectScreen(self.master,self.queue, self.lenCompounds, self.lenProteins,self.exPath,self.createProject,self.existingProject)
                 self.loadingScreen.showScreen()
                 self.createProject["state"] = "disabled"
                 self.existingProject["state"] = "disabled"
                 #self.pantalla.destroy()
 
-                for item in self.initCompounds:   #Analizamos cada elemento del arreglo de compuestos
+                for item in self.cleanCompounds:   #Analizamos cada elemento del arreglo de compuestos
                     getCompound = threading.Thread(target=self.checkProject,args=(item,'compounds'))
                     compoundThreads.append(getCompound)
                     getCompound.start()
                 
-                for item in self.initProteins:
+                for item in self.cleanProteins:
                     getProtein = threading.Thread(target=self.checkProject,args=(item,'proteins'))
                     proteinThreads.append(getProtein)
                     getProtein.start()
@@ -261,6 +264,7 @@ class LoadingProjectScreen():
         self.pantalla = master
         self.lengthCompounds = lenCompouds
         self.lengthProteins = lenProteins
+        print(str(self.lengthCompounds + self.lengthProteins))
         self.buttonRef1 = buttonReferenced1
         self.buttonRef2 = buttonReferenced2
         self.project_path = path
