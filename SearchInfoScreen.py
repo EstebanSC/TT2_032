@@ -32,6 +32,7 @@ import time
 from ratelimit import limits, sleep_and_retry
 import multiprocessing as mp
 import pandas as pd
+import operator
 
 
 #Definicion de la pantalla descargas
@@ -967,15 +968,13 @@ class AnalyzeProject:
                         if not linea:
                             break
                     file.close()
-
-        Deltas_ordenadas = sorted(Deltas.items(), key=operator.itemgetter(1),reverse=True)
-        Deltas_tuplas = Deltas_ordenadas.items()
-        
-
+                    
+        Deltas_ordenadas = Deltas.items()
+        Deltas_tuplas = sorted(Deltas_ordenadas, reverse=True)
 
 
         #Aqui llamamos para limpiar las tuplas
-        cleanDeltas = fixDeltas(Deltas_tupla)
+        cleanDeltas = fixDeltas(Deltas_tuplas)
 
         #Llamamos a la regresion lineal
         self.mlAlgorithm(cleanDeltas)
