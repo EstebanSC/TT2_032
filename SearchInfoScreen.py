@@ -977,7 +977,7 @@ class AnalyzeProject:
                         linea = file.readline()
                         if Palabra in linea:
                             Delta_p = linea.split()
-                            Deltas[Protein_Compound] = [Delta_p[3]]
+                            Deltas[Protein_Compound] = [float(Delta_p[3])]
                             break
                         if not linea:
                             break
