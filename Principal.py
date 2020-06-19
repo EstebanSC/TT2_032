@@ -13,6 +13,7 @@ import CheckConnection
 from CustomSpanishDialog import *
 import queue as queue
 import time
+import shutil
 
 exCompounds= []
 exProteins = []
@@ -75,8 +76,15 @@ class Principal():
         self.newPath = self.create_path()
         cPath = self.newPath + '/Compounds'
         pPath = self.newPath + '/Proteins'
+        mPath = self.newPath + '/models'
         dPath = self.newPath + '/DockingLib'
         fPath = self.newPath + '/CI_copy.txt'
+
+        #AQUI ERIK DEBE VERIFICAR SI YA EXISTE EL ARCHIVO DE RESULTADOS
+        #SI YA EXISTE, SE DEBE ENVIAR UNA ALERTA DE QUE YA EXISTE EL MENSAJE
+        #ESA ALERTA DEBE AGREGARSE A LA PARTE DE ABRIR PROYECTO EN EL MANUAL
+        #BASATE EN EL CONDICIONAL QUE ESTA EN LA LINEA 174 Y SU ELSE EN LA 202
+        #SI SUCEDE, NO DEBE CONTINUAR, DEBE SOLO MOSTRAR EL ERROR Y CERRARSE CUANDO SE LE DE OK
 
         if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
             #print('Si estan los directorios')
@@ -88,7 +96,9 @@ class Principal():
                 try:
                     self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
                     self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
-                    self.overwriteProject(dPath)    #Eliminamos todo lo que hay en el directorio de docking
+                    shutil.rmtree(dPath)
+                    #self.overwriteProject(dPath)    #Eliminamos todo lo que hay en el directorio de docking
+                    self.overwriteProject(mPath)    #Eliminamos todo lo del folder de los modelos
                     os.remove(fPath)                #Eliminamos copia de conjunto inicial
                 except:
                     pass
@@ -159,8 +169,7 @@ class Principal():
         proteinThreads = list()
         #Inicializamos los arreglos que vamos a modificar, realizando una copia del resultado de leer el
         #archivo inicial
-        if not (self.initCompounds==[] and self.initProteins==[]):
-            self.master = tk.Toplevel()
+        self.master = tk.Toplevel()
         #Revisar que exista un folder de compuestos y proteinas, si no es así, regresar a la pantalla
         #principal y notificar al usuario
         if(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
@@ -170,8 +179,8 @@ class Principal():
                 First=First_S(self.newPath)
             else:       #Analizamos proyecto
                 #AQUI VA LA INTERFAZ
-                print(exCompounds)
-                print(exProteins)
+                #print(exCompounds)
+                #print(exProteins)
                 self.loadingScreen = LoadingProjectScreen(self.master,self.queue, self.lenCompounds, self.lenProteins,self.exPath,self.createProject,self.existingProject)
                 self.loadingScreen.showScreen()
                 self.createProject["state"] = "disabled"

@@ -140,6 +140,7 @@ class GUISection:
         print("AQUI SE COMIENZA EL ANALISIS")
         if not os.path.isdir(self.project_path + "/DockingLib"):
             os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
+        if not os.path.isdir(self.project_path + "/models"):
             os.makedirs(self.project_path+"/models/")
         self.ap = AnalyzeProject(self.project_path)
     
@@ -248,7 +249,7 @@ class GUISection:
         self.canvasP.configure(yscrollcommand=self.scrollbarP.set, width=250,bg="white")
 
         wp=2
-        HeadP=['Proteina','Estructura']
+        HeadP=['Proteína','Estructura']
         for i in range(len(proteins)+1): #Rows
             for j in range(wp): #Columns
 
@@ -767,6 +768,8 @@ class AnalyzeProject:
         self.flag = False
         self.project_path = project_path
         self.drugclass = dc
+        self.modelPath = project_path + "/models"
+        self.modelFile = dc + '.sav'
         self.deltaG = []    #Arreglo para guardar los valores de las delta G que arroja el docking
         self.coefs = []     #Arreglo donde se guardan los coeficientes en caso de que ya existan
         self.lookForValues()
@@ -977,23 +980,26 @@ class AnalyzeProject:
                         linea = file.readline()
                         if Palabra in linea:
                             Delta_p = linea.split()
-                            Deltas[Protein_Compound] = [float(Delta_p[3])]
+                            Deltas[Protein_Compound] = float(Delta_p[3])
                             break
                         if not linea:
                             break
                     file.close()
-                    
+
+        """for key,value in Deltas:
+            fixValue = value[0]
+            value = fixValue """  
         Deltas_ordenadas = Deltas.items()
-        print(Deltas_ordenadas)
+        #print(Deltas_ordenadas)
         Deltas_tuplas = sorted(Deltas_ordenadas, reverse=True)
-        print(Deltas_tuplas)
+        #print(Deltas_tuplas)
 
 
         #Aqui llamamos para limpiar las tuplas
-        #cleanDeltas = self.fixDeltas(Deltas_tuplas)
+        cleanDeltas = self.fixDeltas(Deltas_tuplas)
 
         #Llamamos a la regresion lineal
-        #self.mlAlgorithm(cleanDeltas)
+        self.mlAlgorithm(cleanDeltas)
         #Creamos los procesos
         """pool = mp.Pool(mp.cpu_count())
         #Pasar diccionario a lista
@@ -1016,6 +1022,7 @@ class AnalyzeProject:
 
     def fixDeltas(self,deltas):
     #Aqui se hace el fix a las tuplas y se genera un diccionario
+        print('ENTRE A LIMPIAR')
         newDict = {}
         counter = 0
         dictCounter = 0
@@ -1062,17 +1069,18 @@ class AnalyzeProject:
 
             newDict[key] = round((newDict[key] / fixDivisor), 2)
 
-        #print (newDict)           
+        print ("YA LIMPIE LAS DELTAS")           
         return newDict
     
     def simpleSolution(self):
         global RealCompounds
-        print('Solo debes resolver ecuación lineal')
+        print('Solo voy a resolver la ecuacion')
 
         #AQUI YA ESTAMOS SEGUROS QUE EXISTE UN MODELO CREADO
         loaded_model = pickle.load(open(os.path.join(self.modelPath,self.modelFile), 'rb'))
         toPredict = self.getDescriptors(RealCompounds)
         result = loaded_model.predict(toPredict)
+        print('Ya resolvi el modelo predictivo')
         print(result)
     
     def getDescriptors(self, listofdescriptors):
@@ -1113,14 +1121,13 @@ class AnalyzeProject:
         return descriptorsDataFrame
     
     def mlAlgorithm(self,deltas):
-        print('Aqui debemos implementar la regresion lineal')
+        print('voy a implementar la regresion')
         descriptors = []
         newDescriptors = []
         compoundPath = self.project_path + '/Compounds'
         rawNames = list(deltas.keys())
         for item in rawNames:
-            compoundName = item.rpartition('_')[2]
-            compoundName = 'c0' + compoundName + '.pdb'
+            compoundName = item + '.pdb'
             #Acceder al directorio de compounds y buscar ese compuesto
             with open(os.path.join(compoundPath, compoundName)) as f:
                 for line in f:
@@ -1151,7 +1158,7 @@ class AnalyzeProject:
                                 'DefinedAtomStereoCount', 'UndefinedAtomStereoCount', 'DefinedBondStereoCount', 
                                 'UndefinedBondStereoCount', 'CovalentUnitCount'])
 
-        print(descriptorsDataFrame)
+        #print(descriptorsDataFrame)
 
         #print(descriptorsDataFrame)
         listDeltas = list(deltas.values())
@@ -1162,6 +1169,7 @@ class AnalyzeProject:
         regressor.fit(descriptorsDataFrame, deltasDataFrame)
 
         #Obtener coeficientes
+        print('YA REALICE LA REGRESION')
         print(regressor.coef_)
         #coeffs = pd.DataFrame(regressor.coef_, descriptorsDataFrame.columns, columns=['Coefficient'])
         #Guardamos el modelo pra futuras predicciones
