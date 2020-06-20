@@ -80,12 +80,6 @@ class Principal():
         dPath = self.newPath + '/DockingLib'
         fPath = self.newPath + '/CI_copy.txt'
 
-        #AQUI ERIK DEBE VERIFICAR SI YA EXISTE EL ARCHIVO DE RESULTADOS
-        #SI YA EXISTE, SE DEBE ENVIAR UNA ALERTA DE QUE YA EXISTE EL MENSAJE
-        #ESA ALERTA DEBE AGREGARSE A LA PARTE DE ABRIR PROYECTO EN EL MANUAL
-        #BASATE EN EL CONDICIONAL QUE ESTA EN LA LINEA 174 Y SU ELSE EN LA 202
-        #SI SUCEDE, NO DEBE CONTINUAR, DEBE SOLO MOSTRAR EL ERROR Y CERRARSE CUANDO SE LE DE OK
-
         if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
             #print('Si estan los directorios')
             #msgbox = CustomSpanishDialog()
@@ -172,7 +166,14 @@ class Principal():
         self.master = tk.Toplevel()
         #Revisar que exista un folder de compuestos y proteinas, si no es así, regresar a la pantalla
         #principal y notificar al usuario
-        if(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
+        
+        file_check = self.exPath + '/Resultados/Resultados_Proyecto.txt'
+        dir_check = self.exPath + '/Resultados'
+        if os.path.isdir(dir_check) and os.path.isfile(file_check):
+            messagebox.showerror("ERROR","El proyecto ya esta finalizado y cuenta con resultados",parent=self.pantalla)
+            
+
+        elif(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
             #Si los dos directorios estan vacios, sera como un nuevo proyecto
             if (len(os.listdir(compoundsPath)) == 0 and len(os.listdir(proteinsPath))):
                 self.pantalla.destroy()

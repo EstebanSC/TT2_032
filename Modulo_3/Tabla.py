@@ -29,6 +29,7 @@ class Resultados():
         self.a=0
         self.Efectividad = Efectividad
         self.Full_Path = Full_Path
+        self.check_guardado = 0
         
         ## ------ Ordenamos el diccionario ------- ##
         Efectividad_Ord = sorted(Efectividad.items(), key=operator.itemgetter(1), reverse=True)
@@ -80,7 +81,7 @@ class Resultados():
         ## ------ Botones ------- ##
           # Boton Salir
         self.Boton_S = tk.Button(self.app, text="Salir", command = self.Salir)
-        self.Boton_I = tk.Button(self.app, text="Inicio")
+        self.Boton_I = tk.Button(self.app, text="Inicio", command = self.Inicio)
         self.Boton_G = tk.Button(self.app, text="Guardar", command = self.Guardar)
 
         ## ---------------- Tabla ----------------- ##
@@ -108,10 +109,26 @@ class Resultados():
     
         ## ------ Funciones ------ ##
     def Salir(self):
-        self.app.destroy()
+        if self.check_guardado == 0:
+            mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?')
+            if mensaje == True:
+                self.app.destroy()
+            else:
+                print("Nada")
+        else:
+            self.app.destroy()
 
-    #def Inicio():
-    #   app
+    def Inicio(self):
+        if self.check_guardado == 0:
+            mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?')
+            if mensaje == True:
+                print("Mandar al inicio")
+                self.app.destroy()
+            else:
+                print("Nada")
+        else:
+            print("Mandar al inicio")
+            self.app.destroy()
 
     def Guardar(self):
         i=0
@@ -155,12 +172,15 @@ class Resultados():
             archivo.write("-")
         
         messagebox.showinfo("Resultados Guardados","Guardado correctamente")
+        self.check_guardado = 1
 
     def ver (self):
         self.Boton_I.place(x=690, y=360)
         self.Boton_G.place(x=645, y=320)
         self.Boton_S.place(x=620, y=360)
+        self.app.protocol("WM_DELETE_WINDOW", self.Salir)
         self.app.mainloop()
+
 
 ## ------ Declaramos un diccionario como prueba ---- ##
 Efectividad = {

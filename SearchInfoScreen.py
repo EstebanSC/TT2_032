@@ -33,6 +33,7 @@ import pandas as pd
 import operator
 from sklearn.linear_model import LinearRegression
 import pickle
+import subprocess
 
 
 
@@ -952,6 +953,9 @@ class AnalyzeProject:
                         center_x = 'center_x=' + coordenadas[1] + '\n'
                         center_y = 'center_y=' + coordenadas[2] + '\n'
                         center_z = 'center_z=' + coordenadas[3] + '\n\n'
+                        CPU_check = subprocess.check_output(['nproc', '--all'])
+                        CPU_1 = int(CPU_check) - 1
+                        CPU = 'cpu=' + str(CPU_1) + '\n'
 
                         configuracion = open("config.txt","w")
                         configuracion.write(recep)
@@ -960,6 +964,7 @@ class AnalyzeProject:
                         configuracion.write(center_y)
                         configuracion.write(center_z)
                         configuracion.write('size_x=40\nsize_y=40\nsize_z=40\n\n')
+                        configuracion.write(CPU)
                         configuracion.write('exhaustiveness=8\n')
                         configuracion.write('num_modes=9\n')
                         configuracion.write('energy_range=3\n\n')
