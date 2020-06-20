@@ -27,6 +27,8 @@ class Principal():
         self.threadCounter = 0
         self.lock = threading.Lock()
         self.queue = queue.Queue()
+        if not os.path.isdir(str(Path.home()) + "/models"):
+            os.makedirs(str(Path.home()) + "/models")
         #GUI
         self.pantalla=tk.Tk()
         self.pantalla.resizable(False, False)
@@ -76,15 +78,9 @@ class Principal():
         self.newPath = self.create_path()
         cPath = self.newPath + '/Compounds'
         pPath = self.newPath + '/Proteins'
-        mPath = self.newPath + '/models'
+        #mPath = self.newPath + '/models'
         dPath = self.newPath + '/DockingLib'
         fPath = self.newPath + '/CI_copy.txt'
-
-        #AQUI ERIK DEBE VERIFICAR SI YA EXISTE EL ARCHIVO DE RESULTADOS
-        #SI YA EXISTE, SE DEBE ENVIAR UNA ALERTA DE QUE YA EXISTE EL MENSAJE
-        #ESA ALERTA DEBE AGREGARSE A LA PARTE DE ABRIR PROYECTO EN EL MANUAL
-        #BASATE EN EL CONDICIONAL QUE ESTA EN LA LINEA 174 Y SU ELSE EN LA 202
-        #SI SUCEDE, NO DEBE CONTINUAR, DEBE SOLO MOSTRAR EL ERROR Y CERRARSE CUANDO SE LE DE OK
 
         if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
             #print('Si estan los directorios')
@@ -98,7 +94,7 @@ class Principal():
                     self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
                     shutil.rmtree(dPath)
                     #self.overwriteProject(dPath)    #Eliminamos todo lo que hay en el directorio de docking
-                    self.overwriteProject(mPath)    #Eliminamos todo lo del folder de los modelos
+                    #self.overwriteProject(mPath)    #Eliminamos todo lo del folder de los modelos
                     os.remove(fPath)                #Eliminamos copia de conjunto inicial
                 except:
                     pass
@@ -169,10 +165,17 @@ class Principal():
         proteinThreads = list()
         #Inicializamos los arreglos que vamos a modificar, realizando una copia del resultado de leer el
         #archivo inicial
-        self.master = tk.Toplevel()
         #Revisar que exista un folder de compuestos y proteinas, si no es así, regresar a la pantalla
         #principal y notificar al usuario
-        if(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
+        
+        dir_check = self.exPath + '/Resultados'
+        file_check = dir_check + '/Resultados_proyecto.txt'
+
+        if os.path.isdir(dir_check) and os.path.isfile(file_check):
+            messagebox.showerror("ERROR","El proyecto ya esta finalizado y cuenta con resultados")
+            
+
+        elif(os.path.isdir(compoundsPath) and os.path.isdir(proteinsPath) and os.path.isfile(copyInitFilePath)):
             #Si los dos directorios estan vacios, sera como un nuevo proyecto
             if (len(os.listdir(compoundsPath)) == 0 and len(os.listdir(proteinsPath))):
                 self.pantalla.destroy()
@@ -181,7 +184,8 @@ class Principal():
                 #AQUI VA LA INTERFAZ
                 #print(exCompounds)
                 #print(exProteins)
-                self.loadingScreen = LoadingProjectScreen(self.master,self.queue, self.lenCompounds, self.lenProteins,self.exPath,self.createProject,self.existingProject)
+                self.master = tk.Toplevel()
+                self.loadingScreen = LoadingProjectScreen(self.master,self.queue, self.lenCompounds, self.lenProteins,self.exPath,self.createProject,self.existingProject, self.cleanCompounds, self.cleanProteins)
                 self.loadingScreen.showScreen()
                 self.createProject["state"] = "disabled"
                 self.existingProject["state"] = "disabled"
@@ -211,7 +215,7 @@ class Principal():
         if case == 'compounds':
             verifiedPath = self.exPath + '/Compounds'
             line = 'c0' + data + '.pdb'
-            print('ya configure el archivo: ' + line)
+            #print('ya configure el archivo: ' + line)
         elif case == 'proteins':
             verifiedPath = self.exPath + '/Proteins'
             line = 'cP' + data + '.pdb'
@@ -268,9 +272,11 @@ class Principal():
 
 class LoadingProjectScreen():
 
-    def __init__(self,master,queue,lenCompouds,lenProteins,path,buttonReferenced1,buttonReferenced2):
+    def __init__(self,master,queue,lenCompouds,lenProteins,path,buttonReferenced1,buttonReferenced2, cCompounds, cProteins):
         self.queue = queue
         self.pantalla = master
+        self.cCompounds = cCompounds
+        self.cProteins = cProteins
         self.lengthCompounds = lenCompouds
         self.lengthProteins = lenProteins
         print(str(self.lengthCompounds + self.lengthProteins))
@@ -331,7 +337,7 @@ class LoadingProjectScreen():
         isConnected = CheckConnection.check_internet_conn()
         if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
             #Instanciando la clase de los hilos (ThreadClient)
-            tc = SearchInfoScreen.ThreadedClient(drugclass,exCompounds,exProteins,self.project_path,self.buttonRef1, self.buttonRef2)
+            tc = SearchInfoScreen.ThreadedClient(drugclass,exCompounds,exProteins,self.project_path,self.buttonRef1, self.buttonRef2,1,self.cCompounds, self.cProteins)
             self.pantalla.destroy()
         else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet
             self.ask_check()

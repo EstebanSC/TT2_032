@@ -63,7 +63,9 @@ tar -xvf autodocksuite-4.2.6-x86_64Linux3.tar
 cd x86_64Linux3
 cp autodock4 /usr/local/bin
 cp autogrid4 /usr/local/bin
-
-
-echo Finish
+echo -------------- Instalando Pandas -----------------
+pip pip3 install pandas
+echo -------------- Instalando Scikit-learn -----------
+pip3 install scikit-learn
+echo Finish 
 exit

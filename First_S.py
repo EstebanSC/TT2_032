@@ -42,6 +42,7 @@ class First_S():
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
+        
         self.FrameP=Canvas(self.pantalla,height=600,width=1100,bg="white")
         self.FrameP.pack(expand=FALSE)
         self.TituloP=Label(self.pantalla,text="Sistema para la Predicción de Actividad Farmacológica",bg="White")
@@ -131,6 +132,7 @@ class First_S():
     def begin_all(self):
         global compounds
         global proteins
+        dPath = self.newPath + '/DockingLib'
         #Revisar que el usuario este conectado a internet
         isConnected = CheckConnection.check_internet_conn()
         if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
@@ -149,10 +151,11 @@ class First_S():
                     try:
                         self.overwriteProject(self.project_path + 'Compounds')    #Eliminamos todo lo que hay en el directorio de compuestos
                         self.overwriteProject(self.project_path + '/Proteins')    #Eliminamos todo lo que hay en el directorio de proteinas
+                        shutil.rmtree(dPath)
                         os.remove(self.project_path + '/CI_copy.txt')                #Eliminamos copia de conjunto inicial
                     except:
                         pass
-                    tc = SearchInfoScreen.ThreadedClient(drugclass,compounds,proteins,self.project_path,self.openFile,self.Search_F)    
+                    tc = SearchInfoScreen.ThreadedClient(drugclass,compounds,proteins,self.project_path,self.openFile,self.Search_F,0,[],[])    
         else:   #Si no lo esta, mostrar message box donde indique al usuario que debe estar conectado a internet
             self.ask_check()
         #search_r()

@@ -33,6 +33,8 @@ import pandas as pd
 import operator
 from sklearn.linear_model import LinearRegression
 import pickle
+import subprocess
+from pathlib import Path
 
 
 
@@ -51,6 +53,9 @@ compoundsMissed=[] #Compuestos Pub
 RealCompounds=[]
 RealProteins=[]
 dc = '' #clase de los medicamentos
+dockingOption = False
+dockCompounds = []
+dockProteins = []
 class GUISection:
 
     def __init__(self, master, queue, project_path, lenCompounds, lenProteins,refButton1,refButton2):      #Constructor de la clase
@@ -323,9 +328,16 @@ class GUISection:
 #CLASE PARA CREAR HILOS Y REALIZAR LAS FUNCIONES DE DESCARGA DE INFORMACION
 class ThreadedClient:
 
-    def __init__(self,drugclass,compounds,proteins,project_path,refButton1,refButton2):     #Constructor de la clase
+    def __init__(self,drugclass,compounds,proteins,project_path,refButton1,refButton2,option,Comps,Prots):     #Constructor de la clase
         global dc
+        global dockCompounds
+        global dockProteins
+        global dockingOption
         self.queue = queue.Queue()      #Se define la cola de mensajes
+        if option == 1:
+            dockingOption = True
+            dockCompounds = Comps
+            dockProteins = Prots
         self.compounds = compounds
         self.proteins = proteins
         self.project_path = project_path
@@ -772,7 +784,7 @@ class AnalyzeProject:
         self.flag = False
         self.project_path = project_path
         self.drugclass = dc
-        self.modelPath = project_path + "/models"
+        self.modelPath = str(Path.home()) + "/models"   #Esto se debe cambiar
         self.modelFile = dc + '.sav'
         self.deltaG = []    #Arreglo para guardar los valores de las delta G que arroja el docking
         self.coefs = []     #Arreglo donde se guardan los coeficientes en caso de que ya existan
@@ -826,6 +838,14 @@ class AnalyzeProject:
         Proteins_1 = []
         global RealCompounds
         global RealProteins
+        global dockingOption
+        
+        if dockingOption:
+            global dockCompounds
+            global dockProteins
+            RealCompounds = dockCompounds.copy()
+            RealProteins = dockProteins.copy()
+         
         full_path = self.project_path #Path donde se guarda la carpeta Compounds y Proteins
         
         for contador_prueba in RealCompounds:
@@ -956,6 +976,9 @@ class AnalyzeProject:
                         center_x = 'center_x=' + coordenadas[1] + '\n'
                         center_y = 'center_y=' + coordenadas[2] + '\n'
                         center_z = 'center_z=' + coordenadas[3] + '\n\n'
+                        CPU_check = subprocess.check_output(['nproc', '--all'])
+                        CPU_1 = int(CPU_check) - 1
+                        CPU = 'cpu=' + str(CPU_1) + '\n'
 
                         configuracion = open("config.txt","w")
                         configuracion.write(recep)
@@ -964,6 +987,7 @@ class AnalyzeProject:
                         configuracion.write(center_y)
                         configuracion.write(center_z)
                         configuracion.write('size_x=40\nsize_y=40\nsize_z=40\n\n')
+                        configuracion.write(CPU)
                         configuracion.write('exhaustiveness=8\n')
                         configuracion.write('num_modes=9\n')
                         configuracion.write('energy_range=3\n\n')
