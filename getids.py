@@ -9,7 +9,7 @@ def getIDPDB(item):
     query_text ='<?xml version="1.0" encoding="UTF-8"?> <orgPdbQuery> <queryType>org.pdb.query.simple.AdvancedKeywordQuery</queryType> <description>Text Search for: '+ item +'</description><keywords>' + item +'</keywords></orgPdbQuery>'
 
     #print("Query: %s" % query_text)
-    print("Querying RCSB PDB REST API...")
+    #print("Querying RCSB PDB REST API...")
 
     header = {'Content-Type': 'application/x-www-form-urlencoded'}
 
@@ -30,37 +30,36 @@ def getbest(item):
         #coincidence=[]
         #coin=False
 
-        print(name)
+        #print(name)
         #time.sleep(3)
         
         try:
                 #print("Entra al try")
                 result_gen =find_results_gen(name)
-                if(result_gen=="None"):
-                        print("None")
                 for item in result_gen:
                         #print(item)
                         check= str(item)
                         #name=name.upper
                         if check.find(name)== 0:
                                 #coincidence.append(check)
-                                coin=True
-                                #print(check)
-                                break
+                                #coin=True
+                                print(check)
+                                #break
+                                return(check)
                         #else:
                         #    print("Se encontraron proteinas sin coincidencias")
                 #pprint.pprint([item for item in result_gen][:2])
                 
-                if(coin):
+                #if(coin):
                         #print("Mejor proteina:" + coincidence[0])
-                        print(check)
-                        return(check)
+                        #print(check)
+                        #return(check)
                         #return coincidence[0]
-                else:
+                #else:
                         #error="Se encontraron proteinas sin coincidencias"
-                        error="402"
-                        print(error)
-                        return error
+                error="402"
+                print(error)
+                return error
         except:
         #error="Compuesto inexistennte"
                

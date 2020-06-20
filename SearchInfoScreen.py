@@ -109,7 +109,7 @@ class GUISection:
         self.container.destroy()
         self.containerP.destroy()
         self.B_Analisis.destroy()
-        self.B_Salir.destroy()
+        #self.B_Salir.destroy()
         self.pantalla.title('Análisis')
         self.header.place(x=300,y=25)
         self.change_title("Analizando los datos...")
@@ -130,19 +130,19 @@ class GUISection:
         self.container.destroy()
         self.containerP.destroy()
         self.B_Analisis.destroy()
-        self.B_Salir.destroy()
+        #self.B_Salir.destroy()
         self.header.place(x=300,y=25)
         self.change_title("Analizando los datos...")
-        self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
-        self.charge.place(x=275,y=225, width=450)
-        self.charge.start()
+        #self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
+        #self.charge.place(x=275,y=225, width=450)
+        #self.charge.start()
         #Instanciamos otra clase, la del analisis
-        print("AQUI SE COMIENZA EL ANALISIS")
+        """print("AQUI SE COMIENZA EL ANALISIS")
         if not os.path.isdir(self.project_path + "/DockingLib"):
             os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
         if not os.path.isdir(self.project_path + "/models"):
             os.makedirs(self.project_path+"/models/")
-        self.ap = AnalyzeProject(self.project_path)
+        self.ap = AnalyzeProject(self.project_path)"""
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
@@ -279,10 +279,10 @@ class GUISection:
         self.containerP.place(x=650,y=100)
 
         ##Buttons
-        self.B_Salir = tk.Button(self.pantalla, text="Salir", width=25, anchor="center")
-        self.B_Salir.place(x=550, y=400)
+        #self.B_Salir = tk.Button(self.pantalla, text="Salir", width=25, anchor="center")
+        #self.B_Salir.place(x=550, y=400)
         self.B_Analisis = tk.Button(self.pantalla, text="Continuar",command=self.analizeProject, width=25,anchor="center")
-        self.B_Analisis.place(x=250, y=400)
+        self.B_Analisis.place(x=375, y=400)
 
 
     
@@ -434,7 +434,8 @@ class ThreadedClient:
         global compoundsMDB1
         global event
         global isConnected
-
+        
+        ruta=project_path+"/Compounds/c0"+compounds+".pdb"##
         for attempt in range(3):
             opt=webdriver.ChromeOptions()
             opt.add_argument('headless')
@@ -448,7 +449,7 @@ class ThreadedClient:
                 #generararchivo(pathdeaquiabajo, 2)
                 #ruta=current_path+"/Compounds/"+compounds[x]+".txt"##Creacion del archivo, String de la ruta
             #print(compounds)
-            ruta=project_path+"/Compounds/c0"+compounds+".pdb"##Creacion del archivo, String de la rutaruta=project_path+"/Compounds/c0"+compounds+".pdb"   
+            #ruta=project_path+"/Compounds/c0"+compounds+".pdb"##Creacion del archivo, String de la rutaruta=project_path+"/Compounds/c0"+compounds+".pdb"   
                 #print(ruta)
             try:
 
@@ -458,8 +459,6 @@ class ThreadedClient:
                 inputNCom.send_keys(compounds)
                 inputNCom.send_keys(Keys.ENTER)
                 if ("https://www.drugbank.ca/unearth"  in driveC.current_url):
-                    
-
                     compoundsMDB1.append(compounds)
                     driveC.close()
                     break
@@ -468,10 +467,9 @@ class ThreadedClient:
                 else:
                     #print("Si entro")
                     struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
-                
                     r=requests.get(str(struct_Down))
                     if r.status_code == 200:
-                        #print("Qu onda")
+                        #print("Que onda")
                         filet=open(ruta,"tw")
                         filet.write(compounds)
                         filet.write("\nSTRUCTURE:\n")
@@ -614,7 +612,7 @@ class ThreadedClient:
                     print(RName)
                     IDP=getIDPDB(RName)
                     #IDP=item
-                    coin=True
+                    #coin=True
                     pdbl = PDBList()
                     pdbl.retrieve_pdb_file(IDP, pdir=project_path+"/Proteins", file_format='pdb')
                     sl=IDP.lower()
@@ -635,9 +633,15 @@ class ThreadedClient:
                 #    print("Compuesto no encontrado por error de conexion")#Aqui va el error de conexion para el primer request
                 #    P_notfounds.append(item) 
                 else:
-                    print("Compuesto no encontrado por inexistencia")
-                    P_notfounds.append(item)
-                    
+                    if isConnected:
+                        print("Compuesto no encontrado por inexistencia")
+                        P_notfounds.append(item)
+                        break
+                    else:
+                        self.lock2.acquire()
+                        self.lock2.release()
+                        event.wait()
+                        continue
                     
 
             except:
