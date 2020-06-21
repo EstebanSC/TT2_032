@@ -1198,16 +1198,16 @@ class AnalyzeProject:
         #print(deltasDataFrame)
             #Aplicar regresion
         regressor = LinearRegression() 
-        regressor.fit(descriptorsDataFrame, deltasDataFrame)
+        regressor.fit(X_train, y_train)
 
         #Obtener coeficientes
         print('YA REALICE LA REGRESION')
         print(regressor.coef_)
         #prediccion
-        deltasPred = regressor.predict(descriptorsDataFrame)
-        df = pd.DataFrame({'Actual': y_test, 'Predicted': deltasPred})
-        df1 = df.head(10)
-
+        deltasPred = regressor.predict(X_test)
+        #print(deltasPred)
+        #print(y_test)
+        
         print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, deltasPred))  
         print('Mean Squared Error:', metrics.mean_squared_error(y_test, deltasPred))  
         print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, deltasPred)))
