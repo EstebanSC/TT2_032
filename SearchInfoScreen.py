@@ -786,6 +786,7 @@ class AnalyzeProject:
         #PRIMERO, verificar si ya existe el archivo de coeficientes
         self.flag = False
         self.project_path = project_path
+        self.compoundPath = project_path + '/Compounds'
         self.drugclass = dc
         self.modelPath = str(Path.home()) + "/models"   #Esto se debe cambiar
         self.modelFile = dc + '.sav'
@@ -796,8 +797,7 @@ class AnalyzeProject:
     def lookForValues(self):
         #leer en el directorio a ver si existe el archivo que corresponde a la linea del archivo inicial
         #que identifica la clase de medicamentos que se estan analizando
-        print(self.drugclass)
-        modelDir = self.project_path + '/models'
+        #print(self.drugclass)
         """
         try:
             with open(os.path.join(self.project_path,'values.txt')) as f:
@@ -825,8 +825,8 @@ class AnalyzeProject:
             #No existe un archivo con los valores, se debe hacer docking
             print('No se encontro el archivo')
             self.processDocking()"""
-        for f in os.walk(modelDir):
-            if f == self.modelFile:
+        for root, dirs, files in os.walk(self.modelPath):
+            if self.modelFile in files:  
                 #El modelo ya existe
                 print('El modelo ya existe')
                 self.simpleSolution()
@@ -1105,40 +1105,49 @@ class AnalyzeProject:
     
     def simpleSolution(self):
         global RealCompounds
+        if dockingOption:
+            global dockCompounds
+            RealCompounds = dockCompounds.copy()
         print('Solo voy a resolver la ecuacion')
 
         #AQUI YA ESTAMOS SEGUROS QUE EXISTE UN MODELO CREADO
+        comps = self.getDescriptors(RealCompounds)
+        #print(comps)
         loaded_model = pickle.load(open(os.path.join(self.modelPath,self.modelFile), 'rb'))
-        toPredict = self.getDescriptors(RealCompounds)
-        result = loaded_model.predict(toPredict)
-        print('Ya resolvi el modelo predictivo')
+        result = loaded_model.predict(comps)
         print(result)
+        print('Ya resolvi el modelo predictivo')
+        #print(result)
     
     def getDescriptors(self, listofdescriptors):
+        #print(listofdescriptors)
         descriptors = []
         newDescriptors = []
         for item in listofdescriptors:
             compoundName = 'c0' + item + '.pdb'
             #Acceder al directorio de compounds y buscar ese compuesto
-            with open(os.path.join(self.compoundPath, compoundName)) as f:
-                for line in f:
-                    if '{' in line.strip():
-                        for l in f:
-                            if l.strip() == '}':
-                                break
-                            if l.strip().endswith(','):
-                                result = re.search(':(.*),', l.strip())
-                                #print(result.group(1))
-                                descriptors.append(result.group(1))
-                            else:
-                                r = l.strip().rpartition(':')[2]
-                                descriptors.append(r)
-                                #print(r)
+            try:
+                with open(os.path.join(self.compoundPath, compoundName)) as f:
+                    for line in f:
+                        if '{' in line.strip():
+                            for l in f:
+                                if l.strip() == '}':
+                                    break
+                                if l.strip().endswith(','):
+                                    result = re.search(':(.*),', l.strip())
+                                    #print(result.group(1))
+                                    descriptors.append(result.group(1))
+                                else:
+                                    r = l.strip().rpartition(':')[2]
+                                    descriptors.append(r)
+                                    #print(r)
+                newDescriptors.append([float(item) for item in descriptors])
+                del descriptors[:]
 
+            except FileNotFoundError:
+                pass
             #print(descriptors)
             #Convertir valores a flotantes todos
-            newDescriptors.append([float(item) for item in descriptors])
-            del descriptors[:]
 
         #print(newDescriptors)
 
