@@ -1,18 +1,16 @@
 #! /bin/bash
-echo ----------- Instalando Python3.7 --------------
-sudo apt install python3.7
-echo -------------- Instalando pip --------------
-sudo apt install python-pip
+echo ----------- Instalando Python3.6 --------------
+sudo apt install python3.6.9
 echo -------------- Verificando la versión de pip --------------
-pip --version
+pip3 --version
 echo -------------- Instalando Tkinter --------------
 sudo apt-get install python3-tk
 echo -------------- Instalación de Requests --------------
-pip install requests
+pip3 install requests
 echo -------------- Instalación de Selenium --------------
-pip install selenium
+pip3 install selenium
 echo -------------- Instalando Pillow-PILImage
-pip install Pillow
+pip3 install Pillow
 echo -------------- ChromeDriver --------------
 sudo apt-get update 
 sudo apt-get install -y unzip xvfb libxi6 libgconf-2-4
@@ -29,9 +27,9 @@ sudo mv chromedriver /usr/bin/chromedriver
 sudo chown root:root /usr/bin/chromedriver
 sudo chmod +x /usr/bin/chromedriver
 echo ------------- Instalando BioPython ----------------
-pip install biopython
+pip3 install biopython
 echo ------------- Instalando PubChem -----------------
-pip install PubChemPy
+pip3 install PubChemPy
 echo ------------- Instalando Pypdb -------------------
 pip3 install pypdb
 echo ------------ Instalando Matplotlib ----------------
@@ -67,5 +65,7 @@ echo -------------- Instalando Pandas -----------------
 pip pip3 install pandas
 echo -------------- Instalando Scikit-learn -----------
 pip3 install scikit-learn
+echo -------------- Instalando NumPy -----------
+pip3 install numpy
 echo Finish 
 exit

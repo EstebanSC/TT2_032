@@ -32,6 +32,9 @@ import multiprocessing as mp
 import pandas as pd
 import operator
 from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+import numpy as np 
 import pickle
 import subprocess
 from pathlib import Path
@@ -142,12 +145,12 @@ class GUISection:
         #self.charge.place(x=275,y=225, width=450)
         #self.charge.start()
         #Instanciamos otra clase, la del analisis
-        """print("AQUI SE COMIENZA EL ANALISIS")
+        print("AQUI SE COMIENZA EL ANALISIS")
         if not os.path.isdir(self.project_path + "/DockingLib"):
             os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
         if not os.path.isdir(self.project_path + "/models"):
             os.makedirs(self.project_path+"/models/")
-        self.ap = AnalyzeProject(self.project_path)"""
+        self.ap = AnalyzeProject(self.project_path)
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
@@ -1191,6 +1194,7 @@ class AnalyzeProject:
         #print(descriptorsDataFrame)
         listDeltas = list(deltas.values())
         deltasDataFrame = pd.DataFrame(listDeltas, columns=['delta'])
+        X_train, X_test, y_train, y_test = train_test_split(descriptorsDataFrame, deltasDataFrame, test_size=0.2, random_state=0)
         #print(deltasDataFrame)
             #Aplicar regresion
         regressor = LinearRegression() 
@@ -1199,6 +1203,14 @@ class AnalyzeProject:
         #Obtener coeficientes
         print('YA REALICE LA REGRESION')
         print(regressor.coef_)
+        #prediccion
+        deltasPred = regressor.predict(descriptorsDataFrame)
+        df = pd.DataFrame({'Actual': y_test, 'Predicted': deltasPred})
+        df1 = df.head(10)
+
+        print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, deltasPred))  
+        print('Mean Squared Error:', metrics.mean_squared_error(y_test, deltasPred))  
+        print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, deltasPred)))
         #coeffs = pd.DataFrame(regressor.coef_, descriptorsDataFrame.columns, columns=['Coefficient'])
         #Guardamos el modelo pra futuras predicciones
         pickle.dump(regressor, open(os.path.join(self.modelPath,self.modelFile), 'wb'))

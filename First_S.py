@@ -132,7 +132,7 @@ class First_S():
     def begin_all(self):
         global compounds
         global proteins
-        dPath = self.newPath + '/DockingLib'
+        dPath = self.project_path + '/DockingLib'
         #Revisar que el usuario este conectado a internet
         isConnected = CheckConnection.check_internet_conn()
         if isConnected:     #Si el usuario esta conectado, comenzar busqueda de datos
@@ -143,7 +143,7 @@ class First_S():
             self.openFile["state"] = ["disabled"]
             #Instanciando la clase de los hilos (ThreadClient)
             if not self.buttonSet:
-                tc = SearchInfoScreen.ThreadedClient(drugclass,compounds,proteins,self.project_path,self.openFile,self.Search_F)
+                tc = SearchInfoScreen.ThreadedClient(drugclass,compounds,proteins,self.project_path,self.openFile,self.Search_F,0,[],[])
                 self.buttonSet = True
             else:
                 msgbox = messagebox.askyesno('ALERTA','En este directorio ya existe un proyecto. Comenzar uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
