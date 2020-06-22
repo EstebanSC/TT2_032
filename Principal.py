@@ -14,6 +14,7 @@ from CustomSpanishDialog import *
 import queue as queue
 import time
 import shutil
+import Analisisscreen
 
 exCompounds= []
 exProteins = []
@@ -76,37 +77,38 @@ class Principal():
     
     def newProject(self):
         self.newPath = self.create_path()
-        cPath = self.newPath + '/Compounds'
-        pPath = self.newPath + '/Proteins'
-        #mPath = self.newPath + '/models'
-        dPath = self.newPath + '/DockingLib'
-        fPath = self.newPath + '/CI_copy.txt'
+        if self.newPath:
+            cPath = self.newPath + '/Compounds'
+            pPath = self.newPath + '/Proteins'
+            #mPath = self.newPath + '/models'
+            dPath = self.newPath + '/DockingLib'
+            fPath = self.newPath + '/CI_copy.txt'
 
-        if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
-            #print('Si estan los directorios')
-            #msgbox = CustomSpanishDialog()
-            #resultmsg = msgbox.getValue()
-            #print(resultmsg)
-            msgbox = messagebox.askyesno('ALERTA','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
-            if msgbox:      #Sobreescribimos proyecto
-                try:
-                    self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
-                    self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
-                    shutil.rmtree(dPath)
-                    #self.overwriteProject(dPath)    #Eliminamos todo lo que hay en el directorio de docking
-                    #self.overwriteProject(mPath)    #Eliminamos todo lo del folder de los modelos
-                    os.remove(fPath)                #Eliminamos copia de conjunto inicial
-                except:
-                    pass
-                #self.pantalla.destroy()
+            if(os.path.isdir(cPath) and os.path.isdir(pPath) and os.path.isfile(fPath)):
+                #print('Si estan los directorios')
+                #msgbox = CustomSpanishDialog()
+                #resultmsg = msgbox.getValue()
+                #print(resultmsg)
+                msgbox = messagebox.askyesno('ALERTA','En este directorio ya existe un proyecto. Crear uno nuevo sobreescribirá el proyecto existente. ¿Desea continuar?',parent=self.pantalla)
+                if msgbox:      #Sobreescribimos proyecto
+                    try:
+                        self.overwriteProject(cPath)    #Eliminamos todo lo que hay en el directorio de compuestos
+                        self.overwriteProject(pPath)    #Eliminamos todo lo que hay en el directorio de proteinas
+                        shutil.rmtree(dPath)
+                        #self.overwriteProject(dPath)    #Eliminamos todo lo que hay en el directorio de docking
+                        #self.overwriteProject(mPath)    #Eliminamos todo lo del folder de los modelos
+                        os.remove(fPath)                #Eliminamos copia de conjunto inicial
+                    except:
+                        pass
+                    #self.pantalla.destroy()
+                    self.createProject["state"] = "disabled"
+                    self.existingProject["state"] = "disabled"
+                    First=First_S(self.newPath,self.createProject,self.existingProject)
+            else:
+                #self.pantalla.destroy()     #ESTO DEBE CAMBIARSE POR UN BOTON DE BACK
                 self.createProject["state"] = "disabled"
                 self.existingProject["state"] = "disabled"
-                First=First_S(self.newPath,self.createProject,self.existingProject)
-        else:
-            #self.pantalla.destroy()     #ESTO DEBE CAMBIARSE POR UN BOTON DE BACK
-            self.createProject["state"] = "disabled"
-            self.existingProject["state"] = "disabled"
-            First=First_S(self.newPath, self.createProject, self.existingProject)
+                First=First_S(self.newPath, self.createProject, self.existingProject)
     
     def overwriteProject(self,overwritepath):
         fileList = [ f for f in os.listdir(overwritepath)]
@@ -121,24 +123,24 @@ class Principal():
         self.exPath = self.create_path()
         self.initCompounds = []
         self.initProteins = []
-
-        if(os.path.isfile(self.exPath + '/CI_copy.txt')):
-            [self.initCompounds,self.initProteins] = lectura(self.exPath + '/CI_copy.txt')
-            drugclass = getDrugClass()
-            if(self.initCompounds==[] or self.initProteins==[]):
-                messagebox.showerror(title="ERROR", message="!El archivo no contiene los datos necesarios!")
-            else:
-                C_noclean=self.initCompounds.copy()
-                P_noclean=self.initProteins.copy()
-                self.initCompounds = []
-                self.initProteins = []
-                self.cleanCompounds=self.NoRepeat(C_noclean,self.initCompounds)
-                self.cleanProteins=self.NoRepeat(P_noclean,self.initProteins)
-                self.lenCompounds = len(self.cleanCompounds)
-                self.lenProteins = len(self.cleanProteins)
-                exCompounds = self.cleanCompounds.copy()
-                exProteins = self.cleanProteins.copy()
-        self.lookingForProject()
+        if self.exPath:
+            if(os.path.isfile(self.exPath + '/CI_copy.txt')):
+                [self.initCompounds,self.initProteins] = lectura(self.exPath + '/CI_copy.txt')
+                drugclass = getDrugClass()
+                if(self.initCompounds==[] or self.initProteins==[]):
+                    messagebox.showerror(title="ERROR", message="!El archivo no contiene los datos necesarios!")
+                else:
+                    C_noclean=self.initCompounds.copy()
+                    P_noclean=self.initProteins.copy()
+                    self.initCompounds = []
+                    self.initProteins = []
+                    self.cleanCompounds=self.NoRepeat(C_noclean,self.initCompounds)
+                    self.cleanProteins=self.NoRepeat(P_noclean,self.initProteins)
+                    self.lenCompounds = len(self.cleanCompounds)
+                    self.lenProteins = len(self.cleanProteins)
+                    exCompounds = self.cleanCompounds.copy()
+                    exProteins = self.cleanProteins.copy()
+            self.lookingForProject()
 
     def create_path(self):
         self.project_path = ''
@@ -253,9 +255,6 @@ class Principal():
             pass
         
         #Ya terminamos, revisamos si el proyecto ya esta completo y notificamos a la pantalla
-        if len(exCompounds) == 0 and len(exProteins) == 0:
-            #El proyecto ya termino la busqueda de informacion. De aqui pasamos directamente al analisis
-            print('Proyecto directo al analisis')
 
         #print('Ya acabe con: ' + str(data))
         self.lock.acquire()      #Cada hilo bloquea el recurso g porque es un valor critico
@@ -323,7 +322,12 @@ class LoadingProjectScreen():
                     #print('Ya acabe de analizar el proyecto')
                     print(exCompounds)
                     print(exProteins)
-                    self.beginSearch()
+                    if len(exCompounds) == 0 and len(exProteins) == 0:
+                    #El proyecto ya termino la busqueda de informacion. De aqui pasamos directamente al analisis
+                        print('Proyecto directo al analisis')
+                        self.beginAnalysis()
+                    else:
+                        self.beginSearch()
                     #self.show_results()
             except queue.Empty:
                 pass
@@ -345,6 +349,11 @@ class LoadingProjectScreen():
     def ask_check(self):    #Cuando el usuario da click en OK, se vuelve a revisar que se tenga internet
         if messagebox.showerror("ERROR", "Asegurese que se encuentra conectado a internet",parent=self.pantalla):
             isConnected = CheckConnection.check_internet_conn()
+    
+    def beginAnalysis(self):
+        global drugclass
+        PA=Analisisscreen.ThreadAnlisis(self.project_path,drugclass,[],[],1,self.cCompounds,self.cProteins)
+        self.pantalla.destroy()
 
 Principal = Principal()
 #First.ver()

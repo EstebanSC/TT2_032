@@ -19,7 +19,6 @@ Prednisone
 Epinephrine
 Amoxicillin
 Albendazole
-jiji
 Loratadine
 Ramipril
 Piroxicam
@@ -27,13 +26,11 @@ Diazepam
 Epinephrine
 Amoxicillin
 Albendazole
-jiji
 Loratadine
 Ramipril
 Proteins
 Actin
 Collagen
 Glutaminyl
-Arginine
 Collagen
 Glutaminyl

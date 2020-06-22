@@ -92,13 +92,31 @@ class ThreadAnlisis:
     def lookForValues(self):
         #leer en el directorio a ver si existe el archivo que corresponde a la linea del archivo inicial
         #que identifica la clase de medicamentos que se estan analizando
+        if self.dockingOption == 1:
+            self.RealCompounds = self.dockCompounds.copy()
+            self.RealProteins = self.dockProteins.copy()
         print(self.drugclass)
-        modelDir = self.project_path + '/models'
-        for f in os.walk(modelDir):
-            if f == self.modelFile:
-                #El modelo ya existe
+        for root,dirs,files in os.walk(self.modelPath):
+            if self.drugclass in dirs:
                 print('El modelo ya existe')
-                self.simpleSolution()
+                for root,dirs,files in os.walk(self.modelPath + '/' + self.drugclass):
+                    if ('desc' + self.drugclass + '.txt') in files:
+                        with open(os.path.join((self.modelPath + '/' + self.drugclass),('desc' + self.drugclass + '.txt')), 'r') as f:
+                            for line in f:
+                                r = line.strip().rpartition(':')[0]
+                                print(r)
+                                v = line.strip().rpartition(':')[2]
+                                print(v)
+                                if r == 'Size':
+                                    if (int(v) - len(self.RealCompounds)) > 0:
+                                        print('Voy a SOLUTION')
+                                        self.simpleSolution()
+                                        break
+                                    else:
+                                        print('VOY A DOCKING')
+                                        self.processDocking()
+                                        break
+                        break
                 break
         else:
             #El modelo no existe
@@ -112,7 +130,7 @@ class ThreadAnlisis:
         #global RealProteins
         #global dockingOption
         
-        if self.dockingOption:
+        if self.dockingOption == 1:
             #global dockCompounds
             #global dockProteins
             self.RealCompounds = self.dockCompounds.copy()
@@ -309,9 +327,10 @@ class ThreadAnlisis:
 
     def simpleSolution(self):
         #global RealCompounds
-        if self.dockingOption:
+        if self.dockingOption == 1:
             #self.dockCompounds
             self.RealCompounds = self.dockCompounds.copy()
+        
         print('Solo voy a resolver la ecuacion')
 
         #AQUI YA ESTAMOS SEGUROS QUE EXISTE UN MODELO CREADO
@@ -480,9 +499,18 @@ class ThreadAnlisis:
         print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, deltasPred))  
         print('Mean Squared Error:', metrics.mean_squared_error(y_test, deltasPred))  
         print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, deltasPred)))
-        #coeffs = pd.DataFrame(regressor.coef_, descriptorsDataFrame.columns, columns=['Coefficient'])
+        fixModelPath = self.modelPath + '/' + self.drugclass
+        if not os.path.isdir(fixModelPath):
+            os.makedirs(fixModelPath)
+        descFile = 'desc' + self.drugclass + '.txt'
         #Guardamos el modelo pra futuras predicciones
-        pickle.dump(regressor, open(os.path.join(self.modelPath,self.modelFile), 'wb'))
+        pickle.dump(regressor, open(os.path.join(fixModelPath,self.modelFile), 'wb'))
+        with open(os.path.join(fixModelPath,descFile), 'w+') as f:
+            f.write('MAE: ' + str(metrics.mean_absolute_error(y_test, deltasPred)) + '\n')
+            f.write('MSE: ' + str(metrics.mean_squared_error(y_test, deltasPred)) + '\n')
+            f.write('RMSE: ' + str(np.sqrt(metrics.mean_squared_error(y_test, deltasPred))) + '\n')
+            f.write('Size: ' + str(len(self.RealCompounds)))
+        #coeffs = pd.DataFrame(regressor.coef_, descriptorsDataFrame.columns, columns=['Coefficient'])
         #Tambien se debe guardar los datos de la regresion en un diccionario y CREAR y escribirlos
         #al archivo values en el formato:
         #drugclass
