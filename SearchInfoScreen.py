@@ -38,7 +38,7 @@ import numpy as np
 import pickle
 import subprocess
 from pathlib import Path
-
+import Analisisscreen
 
 
 #Definicion de la pantalla descargas
@@ -135,22 +135,35 @@ class GUISection:
         #elf.continueProject.place(relx=0.5,rely=0.8,anchor=CENTER)
 
     def analizeProject(self):
+        global dc
+        global RealCompounds
+        global RealProteins
+        global dockingOption
+        global dockCompounds
+        global dockProteins
         self.container.destroy()
         self.containerP.destroy()
         self.B_Analisis.destroy()
         #self.B_Salir.destroy()
-        self.header.place(x=300,y=25)
-        self.change_title("Analizando los datos...")
+        #self.header.place(x=300,y=25)
+        #self.change_title("Analizando los datos...")
         #self.charge=Progressbar(self.pantalla,mode="indeterminate",maximum=25)
         #self.charge.place(x=275,y=225, width=450)
         #self.charge.start()
         #Instanciamos otra clase, la del analisis
-        print("AQUI SE COMIENZA EL ANALISIS")
+        self.pantalla.destroy()
         if not os.path.isdir(self.project_path + "/DockingLib"):
             os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
         if not os.path.isdir(self.project_path + "/models"):
             os.makedirs(self.project_path+"/models/")
-        self.ap = AnalyzeProject(self.project_path)
+        PA=Analisisscreen.ThreadAnlisis(self.project_path,dc,RealCompounds,RealProteins,dockingOption,dockCompounds,dockProteins)
+        
+        """print("AQUI SE COMIENZA EL ANALISIS")
+        if not os.path.isdir(self.project_path + "/DockingLib"):
+            os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
+        if not os.path.isdir(self.project_path + "/models"):
+            os.makedirs(self.project_path+"/models/")
+        self.ap = AnalyzeProject(self.project_path)"""
     
     def change_title(self,text):       #Funcion para cambiar el label de la ventana
         self.r=text     #Define texto
