@@ -35,7 +35,7 @@ class GUISection:
         self.telacontrol=Canvas(self.PantallaA,height=450,width=950,bg="white" )
         self.telacontrol.pack(expand=FALSE)
         self.title=tk.StringVar()
-        self.r="Análisis de datos..."
+        self.r="Analizando datos..."
         self.title.set(self.r)
         self.header=Label(self.PantallaA,textvariable=self.title,bg="white", anchor="n")
         self.header.configure(font=("Arial Black",26))
@@ -55,7 +55,7 @@ class GUISection:
         self.charge.start()
     
     def ask_quit(self):         #Funcion para el cuadro de dialogo que permita cerrar la ventana
-        if messagebox.askokcancel("Cerrar", "¿ Desea cerrar la tarea en proceso ?",parent=self.PantallaA):
+        if messagebox.askokcancel("Cerrar", "¿Desea cerrar el análisis de datos?",parent=self.PantallaA):
         #if messagebox.askokcancel("Cerrar", "¿Desea cerrar la búsqueda de datos?",parent=self.pantalla):
             self.PantallaA.destroy()
 
