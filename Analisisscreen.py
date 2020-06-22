@@ -23,8 +23,9 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 import numpy as np 
 import pickle
-import subprocess
+#import subprocess
 from pathlib import Path
+import Resultados
 
 class GUISection:
     def __init__(self,master):
@@ -57,6 +58,9 @@ class GUISection:
         if messagebox.askokcancel("Cerrar", "¿ Desea cerrar la tarea en proceso ?",parent=self.PantallaA):
         #if messagebox.askokcancel("Cerrar", "¿Desea cerrar la búsqueda de datos?",parent=self.pantalla):
             self.PantallaA.destroy()
+
+    def callDestroy(self):
+       self.PantallaA.destroy()
     
 class ThreadAnlisis:
 
@@ -229,6 +233,7 @@ class ThreadAnlisis:
                 Archivo_check = Path_Compuesto_Proteina + '/' + 'config.txt'
                 if os.path.isfile(Archivo_check):
                     Archivo_check = Path_Compuesto_Proteina + '/' + Protein_Compound + '.pdbqt'
+                    print(Archivo_check)
                     if os.path.isfile(Archivo_check):
                         print("Docking hecho")
                     else:
@@ -244,9 +249,9 @@ class ThreadAnlisis:
                         center_x = 'center_x=' + coordenadas[1] + '\n'
                         center_y = 'center_y=' + coordenadas[2] + '\n'
                         center_z = 'center_z=' + coordenadas[3] + '\n\n'
-                        CPU_check = subprocess.check_output(['nproc', '--all'])
-                        CPU_1 = int(CPU_check)
-                        CPU = 'cpu=' + str(CPU_1) + '\n'
+                        #CPU_check = subprocess.check_output(['nproc', '--all'])
+                        #CPU_1 = int(CPU_check)
+                        #CPU = 'cpu=' + str(CPU_1) + '\n'
 
                         configuracion = open("config.txt","w")
                         configuracion.write(recep)
@@ -255,7 +260,7 @@ class ThreadAnlisis:
                         configuracion.write(center_y)
                         configuracion.write(center_z)
                         configuracion.write('size_x=40\nsize_y=40\nsize_z=40\n\n')
-                        configuracion.write(CPU)
+                        #configuracion.write(CPU)
                         configuracion.write('exhaustiveness=8\n')
                         configuracion.write('num_modes=9\n')
                         configuracion.write('energy_range=3\n\n')
@@ -296,10 +301,10 @@ class ThreadAnlisis:
 
 
         #Aqui llamamos para limpiar las tuplas
-        cleanDeltas = self.fixDeltas(Deltas_tuplas)
+        self.cleanDeltas = self.fixDeltas(Deltas_tuplas)
 
         #Llamamos a la regresion lineal
-        self.mlAlgorithm(cleanDeltas)
+        self.mlAlgorithm(self.cleanDeltas)
      
 
     def simpleSolution(self):
@@ -483,4 +488,5 @@ class ThreadAnlisis:
         #drugclass
         #x1:a
         #x2:b
- 
+        self.gui.callDestroy()
+        FinalScreen = Resultados.Resultados(self.cleanDeltas,self.project_path)

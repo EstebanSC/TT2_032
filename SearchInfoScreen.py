@@ -154,8 +154,8 @@ class GUISection:
         self.pantalla.destroy()
         if not os.path.isdir(self.project_path + "/DockingLib"):
             os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
-        if not os.path.isdir(self.project_path + "/models"):
-            os.makedirs(self.project_path+"/models/")
+        #if not os.path.isdir(self.project_path + "/models"):
+        #    os.makedirs(self.project_path+"/models/")
         PA=Analisisscreen.ThreadAnlisis(self.project_path,dc,RealCompounds,RealProteins,dockingOption,dockCompounds,dockProteins)
         
         """print("AQUI SE COMIENZA EL ANALISIS")

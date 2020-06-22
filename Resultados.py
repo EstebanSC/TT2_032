@@ -8,7 +8,6 @@ try:
     from tkinter import messagebox
     from Tkinter import * 
     import os
-    from pathlib import Path
     
 except:
     import tkinter as tk
@@ -19,12 +18,12 @@ except:
     import numpy as np
     from tkinter import messagebox
     import os
-    from pathlib import Path
 
 class Resultados():
     def __init__(self,Efectividad,Full_Path):
         ## ----- Declaración de variables ----- #
         self.y=[]
+        self.y_1=[]
         self.x=[]
         self.i=0
         self.j=0
@@ -38,7 +37,7 @@ class Resultados():
         abs_file_path=os.path.join(current_path,rel_path)
         
         ## ------ Ordenamos el diccionario ------- ##
-        Efectividad_Ord = sorted(Efectividad.items(), key=operator.itemgetter(1), reverse=True)
+        Efectividad_Ord = sorted(Efectividad.items(), key=operator.itemgetter(1))
         for name in enumerate(Efectividad_Ord):
             print(name[1][0], Efectividad[name[1][0]])
             self.y.append(name[1][0])
@@ -46,10 +45,15 @@ class Resultados():
             self.i= self.i+1
         print("\n\nNumero de compuestos",self.i)
 
+        ## --------- Quitamos c0 de los compuestos
+        for name in self.y:
+            self.y_1.append(name.replace('c0',''))
+        print(self.y_1)
+
         ## --------------------- Configuracion de la ventana ------------------------- ##    
         self.app = tk.Toplevel()
-        self.app.title("SysPAF - Resultados")
-        self.app.geometry("800x500-250-150")	#Largo- Ancho| Izquierda Arriba
+        self.app.title("SisPAF - Resultados")
+        self.app.geometry('800x500-250-150')	#Largo- Ancho| Izquierda Arriba
         self.app.configure(bg='white')
 
         ## ----- Labels ------- ##
@@ -77,14 +81,16 @@ class Resultados():
         
         # Ponemos la imagen en un Lable dentro de la ventana
         label=tk.Label(self.app, image=tkimage, width=imagenAnchuraMaxima, height=imagenAlturaMaxima,bg='white').place(x=610 , y=130)
-
+        
+        '''
         #Boton de ayuda
-        current_help="/Logotipo/ayuda.png"
+        current_help="Imagenes/ayuda.png"
         help_=tk.PhotoImage(current_path+current_help)
         help_ima=help_.subsample(30,30)
         h_button=tk.Button(self.app,image=help_ima,text="Ayuda",font=("Arial Black",20), bg="white", relief='flat', compound="left" )
-        h_button.place(x=50,y=410, in_= self.app)        
-
+        h_button.place(x=50,y=410, in_= self.app)
+        ''' 
+        
         ## ------ Botones ------- ##
           # Boton Salir
         self.Boton_S = tk.Button(self.app, text="Salir", command = self.Salir)
@@ -110,7 +116,7 @@ class Resultados():
 
                 #Llenado de tabla
         for var in self.x:
-            self.app.treeview.insert("",tk.END, text=self.y[self.j],values=self.x[self.j])
+            self.app.treeview.insert("",tk.END, text=self.y_1[self.j],values=self.x[self.j])
             self.j = self.j+1
         self.ver()    
     
@@ -120,22 +126,24 @@ class Resultados():
             mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?')
             if mensaje == True:
                 self.app.destroy()
+                self.app.destroy()
             else:
                 print("Nada")
         else:
+            self.app.destroy()
             self.app.destroy()
 
     def Inicio(self):
         if self.check_guardado == 0:
             mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?')
             if mensaje == True:
-                print("Mandar al inicio")
                 self.app.destroy()
+                #First = Principal.Principal()
             else:
                 print("Nada")
         else:
-            print("Mandar al inicio")
             self.app.destroy()
+            #First = Principal.Principal()
 
     def Guardar(self):
         i=0
@@ -151,33 +159,35 @@ class Resultados():
             print('Creando carpeta')
             os.chdir(self.Full_Path)
             os.mkdir('Resultados')
-        
 
-        archivo = open(full_path,"w")
-        archivo.write("----------------------------- Resultados ----------------------------|\n\n")
-        archivo.write("------------ Compounds ------------ | --------- Efectividad ---------|\n")
+        if os.path.isfile(full_path):
+            print("Archivo existe")
+        else:
+            archivo = open(full_path,"w")
+            archivo.write("----------------------------- Resultados ----------------------------|\n\n")
+            archivo.write("------------ Compounds ------------ | --------- Efectividad ---------|\n")
 
-        for var in self.x:
-            archivo.write(self.y[i])
-            tam = (Com_tam - len(self.y[i]))
+            for var in self.x:
+                archivo.write(self.y_1[i])
+                tam = (Com_tam - len(self.y_1[i]))
 
-            for espacio in range(tam):
-                archivo.write(" ")
-            archivo.write("|")
+                for espacio in range(tam):
+                    archivo.write(" ")
+                archivo.write("|")
 
-            for espacio in range(Efe_tam):
-                archivo.write(" ")
-            archivo.write(str(var))
-            tam_1 = (relleno-len(str(var))-Efe_tam)
+                for espacio in range(Efe_tam):
+                    archivo.write(" ")
+                archivo.write(str(var))
+                tam_1 = (relleno-len(str(var))-Efe_tam)
 
-            for espacio in range(tam_1):
-                archivo.write(" ")
-            archivo.write("|")
-            archivo.write("\n")
-            i=i+1
-        for target_list in range(70):
-            archivo.write("-")
-        
+                for espacio in range(tam_1):
+                    archivo.write(" ")
+                archivo.write("|")
+                archivo.write("\n")
+                i=i+1
+            for target_list in range(70):
+                archivo.write("-")
+            
         messagebox.showinfo("Resultados Guardados","Guardado correctamente")
         self.check_guardado = 1
 
@@ -186,3 +196,4 @@ class Resultados():
         self.Boton_G.place(x=645, y=320)
         self.Boton_S.place(x=620, y=360)
         self.app.protocol("WM_DELETE_WINDOW", self.Salir)
+
