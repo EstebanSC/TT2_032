@@ -508,6 +508,12 @@ class ThreadedClient:
                 else:
                     #print("Si entro")
                     struct_Down=driveC.find_element_by_xpath('//*[@id="structure-download"]/div/a[4]').get_attribute('href')#Se consigue
+                    struct_Down=str(struct_Down)
+                    if(struct_Down.find(".smiles")):
+                        struct_Down=struct_Down.replace(".smiles",".pdb")
+                    #print("///////")
+                    #print(struct_Down)
+                    #print("//////")
                     r=requests.get(str(struct_Down))
                     if r.status_code == 200:
                         #print("Que onda")
@@ -657,6 +663,9 @@ class ThreadedClient:
                     pdbl = PDBList()
                     pdbl.retrieve_pdb_file(IDP, pdir=project_path+"/Proteins", file_format='pdb')
                     sl=IDP.lower()
+                    #Reworkname=str(item)
+                    #Reworkname=Reworkname.replace(' ','-')
+                    #print(Reworkname)
                     nombre_nuevo=project_path+"/Proteins/cP"+item+".pdb"
                     archivo=project_path+"/Proteins/pdb"+sl+".ent"
                     os.rename(archivo, nombre_nuevo)
