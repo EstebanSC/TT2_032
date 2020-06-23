@@ -107,11 +107,24 @@ class GUISection:
     def search_end(self):
         #self.change_title("Finalizando busqueda...",2)
         #self.change_title("Recopilando resultados...",3)
-        self.header.place(x=200,y=25)
-        self.change_title("RESULTADOS DE LA BÚSQUEDA")
-        self.charge.destroy()
-        #self.telacontrol.destroy()
-        self.charge_results()
+        global RealCompounds
+        global RealProteins
+        if len(RealCompounds) == 0:
+            msg = messagebox.showerror('ERROR', 'No se han encontrado compuestos válidos. Modifique el archivo inicial y repita el proceso de búsqueda', parent=self.pantalla)
+            self.refButton1["state"] = ["normal"]
+            self.refButton2["state"] = ["normal"]
+            self.pantalla.destroy()
+        elif len(RealProteins) == 0:
+            msg = messagebox.showerror('ERROR', 'No se han encontrado proteinas válidas. Modifique el archivo inicial y repita el proceso de búsqueda', parent=self.pantalla)
+            self.refButton1["state"] = ["normal"]
+            self.refButton2["state"] = ["normal"]
+            self.pantalla.destroy()
+        else:
+            self.header.place(x=200,y=25)
+            self.change_title("RESULTADOS DE LA BÚSQUEDA")
+            self.charge.destroy()
+            #self.telacontrol.destroy()
+            self.charge_results()
     
     def ini_analisis(self):
         self.container.destroy()
@@ -715,21 +728,31 @@ class ThreadedClient:
 
         #for each compound founded, try to retrieve its properties
         #Computed properties
+        #print('PARA: ' + compoundFounded)
         if compoundFounded:             #Si compoundFounded no es una cadena vacia, buscamos las propiedades(descriptores)
             ruta = project_path + "/Compounds/c0" + compoundFounded +".pdb"     #Definimos la ruta del archivo donde vamos a escribir
             #Llamamos a la funcion que conseguira las propiedades del compuesto, y le pasamos el compuesto en cuestión
             p = self.getValues_PubChem('props', compoundFounded)
             #p = pcp.get_properties(self.computedProperties, compoundFounded, 'name')
-            
+            #print(p)
             #Nos retorna un arreglo de objetos con un solo objeto (el compuesto en formato JSON)
-            for i in p:     #iteramos en el arreglo (solo es una vez porque solo hay un elemento)
+            fe = p[0]       #primer elemento
+            del fe['CID']
+            print(fe)
+            with open(ruta, 'a+') as file:  #Abrimos el archivo y especificamos que vamos a agregar lineas
+                    file.write("DESCRIPTORS:\n")  #escribimos
+                    json.dump(fe, file, sort_keys=True, indent = 2)  #COn esto escribimos el JSON al conjunto 0 del compuesto
+                    file.write("\n##########\n")    #escribimos
+                    file.write("FINAL")
+
+            """for i in p:     #iteramos en el arreglo (solo es una vez porque solo hay un elemento)
                 del i['CID']    #La primera parte del JSON lleva el ID del compuesto, lo eliminamos porque
                                 #eso no lo ocupamos cuando escribimos el conjunto cero
                 with open(ruta, 'a+') as file:  #Abrimos el archivo y especificamos que vamos a agregar lineas
                     file.write("DESCRIPTORS:\n")  #escribimos
                     json.dump(i, file, sort_keys=True, indent = 2)  #COn esto escribimos el JSON al conjunto 0 del compuesto
                     file.write("\n##########\n")    #escribimos
-                    file.write("FINAL")             #escribimos
+                    file.write("FINAL")             #escribimos"""
 
             #print("Ya busque las propiedades " + compoundFounded)
 

@@ -92,7 +92,7 @@ class ThreadAnlisis:
     def lookForValues(self):
         #leer en el directorio a ver si existe el archivo que corresponde a la linea del archivo inicial
         #que identifica la clase de medicamentos que se estan analizando
-        if self.dockingOption == 1:
+        if self.dockingOption:
             self.RealCompounds = self.dockCompounds.copy()
             self.RealProteins = self.dockProteins.copy()
         print(self.drugclass)
@@ -130,7 +130,7 @@ class ThreadAnlisis:
         #global RealProteins
         #global dockingOption
         
-        if self.dockingOption == 1:
+        if self.dockingOption:
             #global dockCompounds
             #global dockProteins
             self.RealCompounds = self.dockCompounds.copy()
@@ -327,7 +327,7 @@ class ThreadAnlisis:
 
     def simpleSolution(self):
         #global RealCompounds
-        if self.dockingOption == 1:
+        if self.dockingOption:
             #self.dockCompounds
             self.RealCompounds = self.dockCompounds.copy()
         
@@ -336,7 +336,8 @@ class ThreadAnlisis:
         #AQUI YA ESTAMOS SEGUROS QUE EXISTE UN MODELO CREADO
         comps = self.getDescriptors(self.RealCompounds)
         #print(comps)
-        loaded_model = pickle.load(open(os.path.join(self.modelPath,self.modelFile), 'rb'))
+        fixModelPath = self.modelPath + '/' + self.drugclass
+        loaded_model = pickle.load(open(os.path.join(fixModelPath,self.modelFile), 'rb'))
         result = loaded_model.predict(comps)
         print(result)
         print('Ya resolvi el modelo predictivo')
@@ -495,12 +496,10 @@ class ThreadAnlisis:
         deltasPred = regressor.predict(X_test)
         #print(deltasPred)
         #print(y_test)
-        '''
-        y_test = np.array(list(y_test))
-        deltasPred = np.array(deltasPred)
-        df = pd.DataFrame({'Actual': y_test.flatten(), 'Predicted': deltasPred.flatten()})
+        
+        df = pd.DataFrame({'Actual': y_test.values.flatten(), 'Predicted': deltasPred.values.flatten()})
         print(df)
-        '''
+        
         print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, deltasPred))  
         print('Mean Squared Error:', metrics.mean_squared_error(y_test, deltasPred))  
         print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, deltasPred)))
