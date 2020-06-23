@@ -40,13 +40,14 @@ def getbest(item):
                         #print(item)
                         check= str(item)
                         #name=name.upper
-                        if check.find(name)== 0:
+                        #if check.find(name)== 0:
                                 #coincidence.append(check)
                                 #coin=True
-                                print(check)
+                        #        print(check)
                                 #break
-                                return(check)
+                        return(check)
                         #else:
+                            
                         #    print("Se encontraron proteinas sin coincidencias")
                 #pprint.pprint([item for item in result_gen][:2])
                 
