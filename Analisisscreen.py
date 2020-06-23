@@ -495,7 +495,12 @@ class ThreadAnlisis:
         deltasPred = regressor.predict(X_test)
         #print(deltasPred)
         #print(y_test)
-        
+        '''
+        y_test = np.array(list(y_test))
+        deltasPred = np.array(deltasPred)
+        df = pd.DataFrame({'Actual': y_test.flatten(), 'Predicted': deltasPred.flatten()})
+        print(df)
+        '''
         print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, deltasPred))  
         print('Mean Squared Error:', metrics.mean_squared_error(y_test, deltasPred))  
         print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, deltasPred)))

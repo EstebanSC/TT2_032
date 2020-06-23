@@ -25,6 +25,7 @@ class Resultados():
         self.y=[]
         self.y_1=[]
         self.x=[]
+        self.x_1=[]
         self.i=0
         self.j=0
         self.a=0
@@ -49,10 +50,15 @@ class Resultados():
         for name in self.y:
             self.y_1.append(name.replace('c0',''))
         print(self.y_1)
+        ## ------- Ponemos Kcal/mol en efectividad ------- ##
+        for name in self.x:
+            self.x_1.append(str(name) + ' Kcal/mol')
+            
+        print(self.x_1)
 
         ## --------------------- Configuracion de la ventana ------------------------- ##    
         self.app = tk.Toplevel()
-        self.app.title("SisPAF - Resultados")
+        self.app.title("SisPAF")
         self.app.geometry('800x500-250-150')	#Largo- Ancho| Izquierda Arriba
         self.app.configure(bg='white')
 
@@ -94,7 +100,7 @@ class Resultados():
         ## ------ Botones ------- ##
           # Boton Salir
         self.Boton_S = tk.Button(self.app, text="Salir", command = self.Salir)
-        self.Boton_I = tk.Button(self.app, text="Inicio", command = self.Inicio)
+        #self.Boton_I = tk.Button(self.app, text="Inicio", command = self.Inicio)
         self.Boton_G = tk.Button(self.app, text="Guardar", command = self.Guardar)
 
         ## ---------------- Tabla ----------------- ##
@@ -107,33 +113,35 @@ class Resultados():
         self.app.treeview.heading("Efectividad", text="Efectividad")
         self.app.treeview.place(x=105,y=100)
         self.app.treeview.column('#0')
-        self.app.treeview.column("#0", width=300, anchor="n")
-        self.app.treeview.column("Efectividad", width=100, anchor="n")
+        self.app.treeview.column("#0", width=290, anchor="n")
+        self.app.treeview.column("Efectividad", width=135, anchor="n")
 
                 ## Scroll
         vsb = ttk.Scrollbar(self.app, orient="vertical", command=self.app.treeview.yview)
-        vsb.place(x=485+40, y=100, height=292)
+        vsb.place(x=485+22, y=100, height=292)
         self.app.treeview.configure(yscrollcommand=vsb.set)
 
                 #Llenado de tabla
-        for var in self.x:
-            self.app.treeview.insert("",tk.END, text=self.y_1[self.j],values=self.x[self.j])
+        for var in self.x_1:
+            self.app.treeview.insert("",tk.END, text=self.y_1[self.j],values=self.x_1[self.j])
             self.j = self.j+1
         self.ver()    
     
         ## ------ Funciones ------ ##
     def Salir(self):
         if self.check_guardado == 0:
-            mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?')
+            mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?',parent=self.app)
             if mensaje == True:
-                self.app.destroy()
+                os.system("exit")
+                os.system("exit")
                 self.app.destroy()
             else:
                 print("Nada")
         else:
+            os.system("exit")
+            os.system("exit")
             self.app.destroy()
-            self.app.destroy()
-
+    '''
     def Inicio(self):
         if self.check_guardado == 0:
             mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?')
@@ -145,7 +153,7 @@ class Resultados():
         else:
             self.app.destroy()
             #First = Principal.Principal()
-
+    '''
     def Guardar(self):
         i=0
         Com_tam = 36
@@ -168,7 +176,7 @@ class Resultados():
             archivo.write("----------------------------- Resultados ----------------------------|\n\n")
             archivo.write("------------ Compounds ------------ | --------- Efectividad ---------|\n")
 
-            for var in self.x:
+            for var in self.x_1:
                 archivo.write(self.y_1[i])
                 tam = (Com_tam - len(self.y_1[i]))
 
@@ -189,12 +197,12 @@ class Resultados():
             for target_list in range(70):
                 archivo.write("-")
             
-        messagebox.showinfo("Resultados Guardados","Guardado correctamente")
+        messagebox.showinfo("Resultados Guardados","Guardado correctamente",parent=self.app)
         self.check_guardado = 1
 
     def ver (self):
-        self.Boton_I.place(x=690, y=360)
-        self.Boton_G.place(x=645, y=320)
-        self.Boton_S.place(x=620, y=360)
+        #self.Boton_I.place(x=690, y=360)
+        self.Boton_G.place(x=685, y=360)
+        self.Boton_S.place(x=610, y=360)
         self.app.protocol("WM_DELETE_WINDOW", self.Salir)
 
