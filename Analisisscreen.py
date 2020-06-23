@@ -124,6 +124,8 @@ class ThreadAnlisis:
             self.processDocking()
 
     def processDocking(self):
+        if not os.path.isdir(self.project_path + "/DockingLib"):
+            os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
         Compounds_1 = []
         Proteins_1 = []
         #self.RealCompounds
@@ -390,6 +392,7 @@ class ThreadAnlisis:
     def fixDeltas(self,deltas):
     #Aqui se hace el fix a las tuplas y se genera un diccionario
         print('ENTRE A LIMPIAR')
+        print(deltas)
         newDict = {}
         counter = 0
         dictCounter = 0
@@ -436,7 +439,8 @@ class ThreadAnlisis:
 
             newDict[key] = round((newDict[key] / fixDivisor), 2)
 
-        print ("YA LIMPIE LAS DELTAS")           
+        print ("YA LIMPIE LAS DELTAS")
+        print(newDict)           
         return newDict  
 
 
@@ -482,9 +486,11 @@ class ThreadAnlisis:
 
         #print(descriptorsDataFrame)
         listDeltas = list(deltas.values())
+        print(listDeltas)
         deltasDataFrame = pd.DataFrame(listDeltas, columns=['delta'])
         X_train, X_test, y_train, y_test = train_test_split(descriptorsDataFrame, deltasDataFrame, test_size=0.2, random_state=0)
         #print(deltasDataFrame)
+        print(len(X_train))
             #Aplicar regresion
         regressor = LinearRegression() 
         regressor.fit(X_train, y_train)
@@ -494,11 +500,12 @@ class ThreadAnlisis:
         print(regressor.coef_)
         #prediccion
         deltasPred = regressor.predict(X_test)
+        print(len(deltasPred))
         #print(deltasPred)
         #print(y_test)
         
-        df = pd.DataFrame({'Actual': y_test.values.flatten(), 'Predicted': deltasPred.values.flatten()})
-        print(df)
+        #df = pd.DataFrame({'Actual': y_test.values.flatten(), 'Predicted': deltasPred.values.flatten()})
+        #print(df)
         
         print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, deltasPred))  
         print('Mean Squared Error:', metrics.mean_squared_error(y_test, deltasPred))  
