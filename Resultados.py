@@ -61,7 +61,7 @@ class Resultados():
         self.Titulo.place(x=65,y=50)
         self.Titulo.config(font=("Arial",18))
 
-        self.Titulo2 = tk.Label(self.app , text="de Actividad Farmacologica",bg="White")
+        self.Titulo2 = tk.Label(self.app , text="de Actividad Farmacológica",bg="White")
         self.Titulo2.place(x=352,y=50)
         self.Titulo2.config(font=("Arial",18))
 
@@ -99,19 +99,20 @@ class Resultados():
 
         ## ---------------- Tabla ----------------- ##
 
+
         self.style = ttk.Style(self.app)
         self.style.configure('Treeview',rowheight=27)
-        self.app.treeview = ttk.Treeview(self.app,columns=("Score"))
+        self.app.treeview = ttk.Treeview(self.app,columns=("Efectividad"))
         self.app.treeview.heading("#0", text="Compuesto")   
-        self.app.treeview.heading("Score", text="Score")
-        self.app.treeview.place(x=85,y=100)
-        self.app.treeview.column('#0',stretch=True)
-        self.app.treeview.column("#0", width=390, anchor="center")
-        self.app.treeview.column("Score", width=100, anchor="center")
+        self.app.treeview.heading("Efectividad", text="Efectividad")
+        self.app.treeview.place(x=105,y=100)
+        self.app.treeview.column('#0')
+        self.app.treeview.column("#0", width=300, anchor="n")
+        self.app.treeview.column("Efectividad", width=100, anchor="n")
 
                 ## Scroll
         vsb = ttk.Scrollbar(self.app, orient="vertical", command=self.app.treeview.yview)
-        vsb.place(x=575, y=100, height=292)
+        vsb.place(x=485+40, y=100, height=292)
         self.app.treeview.configure(yscrollcommand=vsb.set)
 
                 #Llenado de tabla
