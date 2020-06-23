@@ -109,22 +109,27 @@ class GUISection:
         #self.change_title("Recopilando resultados...",3)
         global RealCompounds
         global RealProteins
-        if len(RealCompounds) == 0:
-            msg = messagebox.showerror('ERROR', 'No se han encontrado compuestos válidos. Modifique el archivo inicial y repita el proceso de búsqueda', parent=self.pantalla)
-            self.refButton1["state"] = ["normal"]
-            self.refButton2["state"] = ["normal"]
-            self.pantalla.destroy()
-        elif len(RealProteins) == 0:
-            msg = messagebox.showerror('ERROR', 'No se han encontrado proteinas válidas. Modifique el archivo inicial y repita el proceso de búsqueda', parent=self.pantalla)
-            self.refButton1["state"] = ["normal"]
-            self.refButton2["state"] = ["normal"]
-            self.pantalla.destroy()
-        else:
-            self.header.place(x=200,y=25)
-            self.change_title("RESULTADOS DE LA BÚSQUEDA")
-            self.charge.destroy()
-            #self.telacontrol.destroy()
-            self.charge_results()
+        global dockingOption
+        print('DOCKING OPTION: ' + str(bool(dockingOption)))
+        if not dockingOption:
+            if len(RealCompounds) == 0:
+                msg = messagebox.showerror('ERROR', 'No se han encontrado compuestos válidos. Modifique el archivo inicial y repita el proceso de búsqueda.', parent=self.pantalla)
+                self.refButton1["state"] = ["normal"]
+                self.refButton2["state"] = ["normal"]
+                RealProteins = []
+                self.pantalla.destroy()
+            elif len(RealProteins) == 0:
+                msg = messagebox.showerror('ERROR', 'No se han encontrado proteínas válidas. Modifique el archivo inicial y repita el proceso de búsqueda.', parent=self.pantalla)
+                self.refButton1["state"] = ["normal"]
+                self.refButton2["state"] = ["normal"]
+                RealCompounds = []
+                self.pantalla.destroy()
+            else:
+                self.header.place(x=200,y=25)
+                self.change_title("RESULTADOS DE LA BÚSQUEDA")
+                self.charge.destroy()
+                #self.telacontrol.destroy()
+                self.charge_results()
     
     def ini_analisis(self):
         self.container.destroy()
@@ -165,8 +170,6 @@ class GUISection:
         #self.charge.start()
         #Instanciamos otra clase, la del analisis
         self.pantalla.destroy()
-        if not os.path.isdir(self.project_path + "/DockingLib"):
-            os.makedirs(self.project_path+"/DockingLib/")#Creacion de Directorio para el docking
         #if not os.path.isdir(self.project_path + "/models"):
         #    os.makedirs(self.project_path+"/models/")
         PA=Analisisscreen.ThreadAnlisis(self.project_path,dc,RealCompounds,RealProteins,dockingOption,dockCompounds,dockProteins)
@@ -747,7 +750,7 @@ class ThreadedClient:
             #Nos retorna un arreglo de objetos con un solo objeto (el compuesto en formato JSON)
             fe = p[0]       #primer elemento
             del fe['CID']
-            print(fe)
+            #print(fe)
             with open(ruta, 'a+') as file:  #Abrimos el archivo y especificamos que vamos a agregar lineas
                     file.write("DESCRIPTORS:\n")  #escribimos
                     json.dump(fe, file, sort_keys=True, indent = 2)  #COn esto escribimos el JSON al conjunto 0 del compuesto
