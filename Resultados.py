@@ -8,6 +8,7 @@ try:
     from tkinter import messagebox
     from Tkinter import * 
     import os
+    import sys
     
 except:
     import tkinter as tk
@@ -18,6 +19,7 @@ except:
     import numpy as np
     from tkinter import messagebox
     import os
+    import sys
 
 class Resultados():
     def __init__(self,Efectividad,Full_Path):
@@ -132,15 +134,11 @@ class Resultados():
         if self.check_guardado == 0:
             mensaje = messagebox.askyesno('Advertencia','No se han guardado sus resultados\n¿Desea continuar?',parent=self.app)
             if mensaje == True:
-                os.system("exit")
-                os.system("exit")
-                self.app.destroy()
+                sys.exit(0)
             else:
                 print("Nada")
         else:
-            os.system("exit")
-            os.system("exit")
-            self.app.destroy()
+            sys.exit(0)
     '''
     def Inicio(self):
         if self.check_guardado == 0:

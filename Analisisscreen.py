@@ -329,6 +329,7 @@ class ThreadAnlisis:
 
     def simpleSolution(self):
         #global RealCompounds
+        simpleDict = {}
         if self.dockingOption:
             #self.dockCompounds
             self.RealCompounds = self.dockCompounds.copy()
@@ -341,7 +342,16 @@ class ThreadAnlisis:
         fixModelPath = self.modelPath + '/' + self.drugclass
         loaded_model = pickle.load(open(os.path.join(fixModelPath,self.modelFile), 'rb'))
         result = loaded_model.predict(comps)
+
         print(result)
+        for index,item in enumerate(self.RealCompounds):
+            item = 'c0' + item
+            result[index][0] = round(result[index][0], 2)
+            simpleDict[item] = result[index][0]
+        print(simpleDict)
+
+        FinalScreen = Resultados.Resultados(simpleDict,self.project_path)
+        self.gui.callDestroy()
         print('Ya resolvi el modelo predictivo')
         #print(result)
     
@@ -527,5 +537,5 @@ class ThreadAnlisis:
         #drugclass
         #x1:a
         #x2:b
-        self.gui.callDestroy()
         FinalScreen = Resultados.Resultados(self.cleanDeltas,self.project_path)
+        self.gui.callDestroy()
