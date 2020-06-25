@@ -1,0 +1,77 @@
+Alprenolol
+STRUCTURE:
+HEADER    PROTEIN                                 23-FEB-12   NONE
+TITLE     NULL                                                        
+COMPND    MOLECULE: 866                                               
+SOURCE    NULL                                                        
+KEYWDS    NULL                                                        
+EXPDTA    NULL                                                        
+AUTHOR    Marvin                                                      
+REVDAT   1   23-FEB-12         0                                  
+HETATM    1  O   UNK     0       8.415  -1.155   0.000  0.00  0.00           O+0
+HETATM    2  O   UNK     0       8.415   1.925   0.000  0.00  0.00           O+0
+HETATM    3  N   UNK     0      11.082   3.465   0.000  0.00  0.00           N+0
+HETATM    4  C   UNK     0       9.748   1.155   0.000  0.00  0.00           C+0
+HETATM    5  C   UNK     0      11.082   1.925   0.000  0.00  0.00           C+0
+HETATM    6  C   UNK     0      12.416   4.235   0.000  0.00  0.00           C+0
+HETATM    7  C   UNK     0       9.748  -0.385   0.000  0.00  0.00           C+0
+HETATM    8  C   UNK     0      13.750   3.465   0.000  0.00  0.00           C+0
+HETATM    9  C   UNK     0      12.416   5.775   0.000  0.00  0.00           C+0
+HETATM   10  C   UNK     0       8.415  -2.695   0.000  0.00  0.00           C+0
+HETATM   11  C   UNK     0       7.081  -3.465   0.000  0.00  0.00           C+0
+HETATM   12  C   UNK     0       5.748  -2.695   0.000  0.00  0.00           C+0
+HETATM   13  C   UNK     0       9.748  -3.465   0.000  0.00  0.00           C+0
+HETATM   14  C   UNK     0       7.081  -5.005   0.000  0.00  0.00           C+0
+HETATM   15  C   UNK     0       9.748  -5.005   0.000  0.00  0.00           C+0
+HETATM   16  C   UNK     0       8.415  -5.775   0.000  0.00  0.00           C+0
+HETATM   17  C   UNK     0       4.414  -3.465   0.000  0.00  0.00           C+0
+HETATM   18  C   UNK     0       3.080  -2.695   0.000  0.00  0.00           C+0
+CONECT    1    7   10                                                       
+CONECT    2    4                                                            
+CONECT    3    5    6                                                       
+CONECT    4    2    5    7                                                  
+CONECT    5    3    4                                                       
+CONECT    6    3    8    9                                                  
+CONECT    7    1    4                                                       
+CONECT    8    6                                                            
+CONECT    9    6                                                            
+CONECT   10    1   11   13                                                  
+CONECT   11   10   12   14                                                  
+CONECT   12   11   17                                                       
+CONECT   13   10   15                                                       
+CONECT   14   11   16                                                       
+CONECT   15   13   16                                                       
+CONECT   16   14   15                                                       
+CONECT   17   12   18                                                       
+CONECT   18   17                                                            
+MASTER        0    0    0    0    0    0    0    0   18    0   36    0
+END
+##########
+BIOACTIVITY:
+ABeta-1 adrenergic receptor_antagonist_Humans_
+ABeta-2 adrenergic receptor_antagonist_Humans_
+A5-hydroxytryptamine receptor 1A_antagonist_Humans_
+UBeta-3 adrenergic receptor_antagonist_Humans_
+##########
+DESCRIPTORS:
+{
+  "Charge": 0,
+  "Complexity": 231,
+  "CovalentUnitCount": 1,
+  "DefinedAtomStereoCount": 0,
+  "DefinedBondStereoCount": 0,
+  "ExactMass": 249.172879,
+  "HBondAcceptorCount": 3,
+  "HBondDonorCount": 2,
+  "HeavyAtomCount": 18,
+  "IsotopeAtomCount": 0,
+  "MolecularWeight": 249.35,
+  "MonoisotopicMass": 249.172879,
+  "RotatableBondCount": 8,
+  "TPSA": 41.5,
+  "UndefinedAtomStereoCount": 1,
+  "UndefinedBondStereoCount": 0,
+  "XLogP": 3.1
+}
+##########
+FINAL

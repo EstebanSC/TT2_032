@@ -1,0 +1,55 @@
+Ibuprofen
+STRUCTURE:
+HEADER    PROTEIN                                 23-FEB-12   NONE
+TITLE     NULL                                                        
+COMPND    MOLECULE: 1050                                              
+SOURCE    NULL                                                        
+KEYWDS    NULL                                                        
+EXPDTA    NULL                                                        
+AUTHOR    Marvin                                                      
+REVDAT   1   23-FEB-12         0                                  
+HETATM    1  O   UNK     0       7.081   5.151   0.000  0.00  0.00           O+0
+HETATM    2  O   UNK     0       8.415   2.841   0.000  0.00  0.00           O+0
+HETATM    3  C   UNK     0       4.414  -4.089   0.000  0.00  0.00           C+0
+HETATM    4  C   UNK     0       5.747  -3.319   0.000  0.00  0.00           C+0
+HETATM    5  C   UNK     0       5.747  -1.779   0.000  0.00  0.00           C+0
+HETATM    6  C   UNK     0       5.747   1.301   0.000  0.00  0.00           C+0
+HETATM    7  C   UNK     0       5.747   2.841   0.000  0.00  0.00           C+0
+HETATM    8  C   UNK     0       4.414  -5.629   0.000  0.00  0.00           C+0
+HETATM    9  C   UNK     0       3.080  -3.319   0.000  0.00  0.00           C+0
+HETATM   10  C   UNK     0       4.414  -1.009   0.000  0.00  0.00           C+0
+HETATM   11  C   UNK     0       7.081  -1.009   0.000  0.00  0.00           C+0
+HETATM   12  C   UNK     0       4.414   0.531   0.000  0.00  0.00           C+0
+HETATM   13  C   UNK     0       7.081   0.531   0.000  0.00  0.00           C+0
+HETATM   14  C   UNK     0       4.414   3.611   0.000  0.00  0.00           C+0
+HETATM   15  C   UNK     0       7.081   3.611   0.000  0.00  0.00           C+0
+CONECT    1   15                                                            
+CONECT    2   15                                                            
+CONECT    3    4    8    9                                                  
+CONECT    4    3    5                                                       
+CONECT    5    4   10   11                                                  
+CONECT    6    7   12   13                                                  
+CONECT    7    6   14   15                                                  
+CONECT    8    3                                                            
+CONECT    9    3                                                            
+CONECT   10    5   12                                                       
+CONECT   11    5   13                                                       
+CONECT   12    6   10                                                       
+CONECT   13    6   11                                                       
+CONECT   14    7                                                            
+CONECT   15    1    2    7                                                  
+MASTER        0    0    0    0    0    0    0    0   15    0   30    0
+END
+##########
+BIOACTIVITY:
+AProstaglandin G/H synthase 2_inhibitor_Humans_
+AProstaglandin G/H synthase 1_inhibitor_Humans_
+UApoptosis regulator Bcl-2_modulator_Humans_
+UThrombomodulin_inducer_Humans_
+UFatty acid-binding protein, intestinal_binder_Humans_
+UPeroxisome proliferator-activated receptor gamma_activator_Humans_
+UCystic fibrosis transmembrane conductance regulator_inhibitor_Humans_
+UPeroxisome proliferator-activated receptor alpha_activator_Humans_
+UPlatelet glycoprotein Ib alpha chain_inducer_Humans_
+UProtein S100-A7_inducer_Humans_
+##########

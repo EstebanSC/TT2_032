@@ -1,0 +1,67 @@
+Morphine
+STRUCTURE:
+HEADER    PROTEIN                                 23-FEB-12   NONE
+TITLE     NULL                                                        
+COMPND    MOLECULE: 295                                               
+SOURCE    NULL                                                        
+KEYWDS    NULL                                                        
+EXPDTA    NULL                                                        
+AUTHOR    Marvin                                                      
+REVDAT   1   23-FEB-12         0                                  
+HETATM    1  O   UNK     0       3.613   0.085   0.000  0.00  0.00           O+0
+HETATM    2  O   UNK     0       3.238  -3.890   0.000  0.00  0.00           O+0
+HETATM    3  O   UNK     0       3.238   3.890   0.000  0.00  0.00           O+0
+HETATM    4  N   UNK     0       9.975  -1.540   0.000  0.00  0.00           N+0
+HETATM    5  C   UNK     0       5.974  -0.770   0.000  0.00  0.00           C+0
+HETATM    6  C   UNK     0       7.308  -1.540   0.000  0.00  0.00           C+0
+HETATM    7  C   UNK     0       8.642  -0.770   0.000  0.00  0.00           C+0
+HETATM    8  C   UNK     0       4.641  -1.540   0.000  0.00  0.00           C+0
+HETATM    9  C   UNK     0       6.864   0.359   0.000  0.00  0.00           C+0
+HETATM   10  C   UNK     0       5.974   0.770   0.000  0.00  0.00           C+0
+HETATM   11  C   UNK     0       8.642   0.770   0.000  0.00  0.00           C+0
+HETATM   12  C   UNK     0       9.054   0.359   0.000  0.00  0.00           C+0
+HETATM   13  C   UNK     0       7.308   1.540   0.000  0.00  0.00           C+0
+HETATM   14  C   UNK     0       4.641  -3.080   0.000  0.00  0.00           C+0
+HETATM   15  C   UNK     0       7.308  -3.080   0.000  0.00  0.00           C+0
+HETATM   16  C   UNK     0       4.641   1.540   0.000  0.00  0.00           C+0
+HETATM   17  C   UNK     0       5.974  -3.850   0.000  0.00  0.00           C+0
+HETATM   18  C   UNK     0      11.079  -2.726   0.000  0.00  0.00           C+0
+HETATM   19  C   UNK     0       7.308   3.080   0.000  0.00  0.00           C+0
+HETATM   20  C   UNK     0       4.641   3.080   0.000  0.00  0.00           C+0
+HETATM   21  C   UNK     0       5.974   3.850   0.000  0.00  0.00           C+0
+HETATM   22  H   UNK     0       8.141  -2.532   0.000  0.00  0.00           H+0
+HETATM   23  H   UNK     0       9.086  -1.987   0.000  0.00  0.00           H+0
+HETATM   24  H   UNK     0       3.397  -1.900   0.000  0.00  0.00           H+0
+CONECT    1    8   16                                                       
+CONECT    2   14                                                            
+CONECT    3   20                                                            
+CONECT    4    7   12   18                                                  
+CONECT    5    6    8    9   10                                             
+CONECT    6    5    7   15   22                                             
+CONECT    7    4    6   11   23                                             
+CONECT    8    1    5   14   24                                             
+CONECT    9    5   12                                                       
+CONECT   10    5   13   16                                                  
+CONECT   11    7   13                                                       
+CONECT   12    4    9                                                       
+CONECT   13   10   11   19                                                  
+CONECT   14    2    8   17                                                  
+CONECT   15    6   17                                                       
+CONECT   16    1   10   20                                                  
+CONECT   17   14   15                                                       
+CONECT   18    4                                                            
+CONECT   19   13   21                                                       
+CONECT   20    3   16   21                                                  
+CONECT   21   19   20                                                       
+CONECT   22    6                                                            
+CONECT   23    7                                                            
+CONECT   24    8                                                            
+MASTER        0    0    0    0    0    0    0    0   24    0   56    0
+END
+##########
+BIOACTIVITY:
+AMu-type opioid receptor_agonist_Humans_
+AKappa-type opioid receptor_agonist_Humans_
+ADelta-type opioid receptor_agonist_Humans_
+ULymphocyte antigen 96_activator_Humans_
+##########

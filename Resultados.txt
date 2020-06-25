@@ -1,0 +1,21 @@
+----------------------------- Resultados ----------------------------|
+
+------------ Compounds ------------ | --------- Efectividad ---------|
+Alprenolol                          |             80.12              |
+Lidocaine                           |             70.15              |
+Omeprazolee                         |             60.45              |
+Beclomethasone_dipropionatele       |             60                 |
+Salbutamol                          |             55.46              |
+Lidocaineeñ                         |             50.35              |
+Lidocainee                          |             45.35              |
+Salbutamole                         |             35.46              |
+Alprenolole                         |             32.2               |
+Alprenololl                         |             30.61              |
+Omeprazoleeñ                        |             25.45              |
+Paracetamollñ                       |             20.1               |
+Beclomethasone_dipropionate         |             18                 |
+Lidocaineie                         |             11.15              |
+Paracetamoll                        |             11.1               |
+Beclomethasone_dipropionatee        |             10.3               |
+Salbutamoll                         |             1.99               |
+----------------------------------------------------------------------
