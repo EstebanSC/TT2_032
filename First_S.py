@@ -65,9 +65,9 @@ class First_S():
         self.openFile=Button(self.pantalla,image=self.photo_bu, bg="white", command=self.getfile, relief=RAISED)
         self.Search_F=Button(self.pantalla,text="Iniciar", relief=FLAT,state=DISABLED,command=self.begin_all)
         current_help="ayuda.png"
-        self.help_=PhotoImage(file=abs_file_path+current_help)
-        self.help_ima=self.help_.subsample(30,28)
-        self.hbutton=Button(self.pantalla,image=self.help_ima,text="Ayuda",font=("Arial Black",20), bg="white", relief=FLAT, compound="left" )
+        #self.help_=PhotoImage(file=abs_file_path+current_help)
+        #self.help_ima=self.help_.subsample(30,28)
+        #self.hbutton=Button(self.pantalla,image=self.help_ima,text="Ayuda",font=("Arial Black",20), bg="white", relief=FLAT, compound="left" )
         self.ver()
     
     #######Las funciones se declaran aqui ##################
@@ -82,7 +82,7 @@ class First_S():
         self.Path_F.place(x=150,y=200)
         self.openFile.place(x=390,y=197)
         self.Search_F.place(x=240,y=260)
-        self.hbutton.place(x=50,y=400)
+        #self.hbutton.place(x=50,y=400)
         self.pantalla.mainloop()
 
     def ask_quit(self):
