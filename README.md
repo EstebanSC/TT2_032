@@ -1,5 +1,5 @@
 # Sistema para la Predicción de la Actividad Farmacológica SisPAF.
-# Desarrollado por: Luis Enrique Garcia Peregrino, Esteban Sánchez Cuevas y Adolfo Erik Morales Castellanos
+# Desarrollado por: Luis Enrique García Peregrino, Esteban Sánchez Cuevas y Adolfo Erik Morales Castellanos
 
 ![SisPAF](https://github.com/EstebanSC/TT2_032/blob/master/Logotipo/Logotipo.png?raw=true)
 
@@ -33,7 +33,7 @@ En el directorio donde se descargó el proyecto se puede encontrar un archivo de
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # System for Predicting Pharmacological Activity.
-# Developed by: Henry, Steve and Erik
+# Developed by: Luis Enrique García Peregrino, Esteban Sánchez Cuevas y Adolfo Erik Morales Castellanos
 
 SisPAF is an information system that makes use of the QSAR methodology and linear regression to predict the effectiveness of a drug on the proteins of a pathology.
 
