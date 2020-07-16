@@ -1,5 +1,5 @@
 # Sistema para la Predicción de la Actividad Farmacológica SisPAF.
-# Desarrollado por: Henry, Steve y Erik
+# Desarrollado por: Luis Enrique Garcia Peregrino, Esteban Sánchez Cuevas y Adolfo Erik Morales Castellanos
 
 ![SisPAF](https://github.com/EstebanSC/TT2_032/blob/master/Logotipo/Logotipo.png?raw=true)
 
